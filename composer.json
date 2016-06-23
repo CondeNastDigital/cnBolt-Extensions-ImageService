@@ -1,0 +1,29 @@
+{
+    "name": "cnd/imageservice",
+    "description": "New image fields to use external image services like cloudinary",
+    "type": "bolt-extension",
+    "keywords": [
+        "cloudinary",
+        "image",
+        "cdn"
+    ],
+    "require": {
+        "bolt/bolt": "^3.0"
+    },
+    "authors": [
+        {
+            "name": "Tobias Bulla - Condé-Nast Verlag GmbH",
+            "email": "tobias.bulla@condenast.de"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "Bolt\\Extension\\CND\\ImageService\\": "src"
+        }
+    },
+    "extra": {
+        "bolt-class": "Bolt\\Extension\\CND\\ImageService\\Extension"
+    }
+}
