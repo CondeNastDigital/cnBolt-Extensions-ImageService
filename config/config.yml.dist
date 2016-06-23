@@ -3,10 +3,15 @@ connectors:
 
     cloudinary:
         class: Bolt\Extension\CND\ImageService\Connector\CloudinaryConnector
-        cloud-name: 123456
-        api-Key: 123456
-        api-secret: 123456
-        api-url: https://api.cloudinary.com/v1_1/mycloud
+        cloud-name:
+        api-Key:
+        api-secret:
+        api-base-url:         http://res.cloudinary.com/xxx
+        base-delivery-url:    https://res.cloudinary.com/xxx
+        secure-delivery-url:  https://api.cloudinary.com/v1_1/xxx
 
-
-
+defaults:
+    mode:     limit
+    format:   jpg
+    quality:  80
+    options:  []

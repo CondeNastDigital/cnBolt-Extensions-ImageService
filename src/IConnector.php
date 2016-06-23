@@ -1,6 +1,9 @@
 <?php
 namespace Bolt\Extension\CND\ImageService\Connector;
 
+use Bolt\Application;
+use Bolt\Menu\MenuEntry;
+
 interface IConnector
 {
     /* ---------------- Constants for service identification ----------------
@@ -20,6 +23,13 @@ interface IConnector
     const MODE_FILL  = "fill";  // Resize exactly to the given width and height and retain aspect ratio, cropping the image if necessary.
     const MODE_FIT   = "fit";   // Resize inside given width and height and retain aspect ratio.
     const MODE_PAD   = "pad";   // Resize exactly to the given width and height and retain aspect ratio, padding the image if necessary.
+
+    /**
+     * IConnector constructor.
+     * @param Application $app
+     * @param array $config
+     */
+    public function __construct(Application $app, $config);
 
     /**
      * Generate the image url for an image
@@ -87,8 +97,8 @@ interface IConnector
     public function adminImage($imageKey);
 
     /**
-     * generate the url to the service's admin interface
-     * @return string|false
+     * generate the backend menu entries
+     * @return MenuEntry[]
      */
     public function adminGlobal();
 

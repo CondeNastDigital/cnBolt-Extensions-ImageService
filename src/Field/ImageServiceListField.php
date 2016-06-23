@@ -5,12 +5,12 @@ use Bolt\Storage\EntityManager;
 use Bolt\Storage\Field\Type\FieldTypeBase;
 use Bolt\Storage\QuerySet;
 
-class ImageServiceField extends FieldTypeBase
+class ImageServiceListField extends FieldTypeBase
 {
-    public static $default = ["imagekey" => false, "service" => false, "attributes" => [], "options" => []];
+    public static $default = ["items" => []];
 
     public function getName(){
-        return 'imageservice';
+        return 'imageservicelist';
     }
 
     public function getStorageType(){
@@ -32,9 +32,14 @@ class ImageServiceField extends FieldTypeBase
         $qb = $queries->getPrimary();
         $value = $entity->get($key);
 
+        // Validate and format the input json
         $value = json_decode($value, true);
-        $value = self::validateValue($value);
-        $value = json_encode($value, true);
+
+        $value = is_array($value) ? $value + self::$default : self::$default;
+        foreach($value["items"] as &$item)
+            $item = is_array($item) ? $item + ImageServiceField::$default : ImageServiceField::$default;
+
+        $value = json_encode($value);
 
         $qb->setValue($key, ':' . $key);
         $qb->set($key, ':' . $key);
@@ -46,14 +51,17 @@ class ImageServiceField extends FieldTypeBase
         $value = isset($data[$key]) ? $data[$key] : null;
 
         $value = json_decode($value, true);
-        $value = self::validateValue($value);
 
         $this->set($entity, $value);
     }
 
-    public static function validateValue(array $value){
+    public function validateValue(array $value){
 
-        return is_array($value) ? $value + self::$default : self::$default;
+        $value = is_array($value) ? $value + self::$default : self::$default;
+        foreach($value["items"] as &$item)
+            $item = ImageServiceField::validateValue($value);
+
+
     }
 
 }
