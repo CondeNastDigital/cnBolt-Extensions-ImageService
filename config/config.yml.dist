@@ -1,0 +1,12 @@
+# A list of all active image services with their class names and config variables
+connectors:
+
+    cloudinary:
+        class: Bolt\Extension\CND\ImageService\Connector\CloudinaryConnector
+        cloud-name: 123456
+        api-Key: 123456
+        api-secret: 123456
+        api-url: https://api.cloudinary.com/v1_1/mycloud
+
+
+
