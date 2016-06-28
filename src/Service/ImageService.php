@@ -3,6 +3,7 @@ namespace Bolt\Extension\CND\ImageService\Service;
 use Bolt;
 use Bolt\Application;
 use Bolt\Extension\CND\ImageService\Connector\IConnector;
+use Bolt\Extension\CND\ImageService\Image;
 
 class ImageService {
 
@@ -46,11 +47,7 @@ class ImageService {
         return $entries;
     }
 
-    public function imageUrl($data, $width, $height, $mode = false, $format = false, $quality = false, $options = array()){
-
-        $service  = isset($data["service"]) ? $data["service"] : false;
-        $mediakey = isset($data["imagekey"]) ? $data["imagekey"] : false;
-
+    public function imageUrl(Image $image, $width, $height, $mode = false, $format = false, $quality = false, $options = array()){
         $defaults = $this->config["defaults"];
 
         $mode    = $mode    ? $mode    : $defaults["mode"];
@@ -58,13 +55,13 @@ class ImageService {
         $quality = $quality ? $quality : $defaults["quality"];
         $options = $options ? $options : $defaults["options"];
 
-        if(!$service || !$mediakey || !isset($this->connectors[$service]))
+        if(!$image->service || !$image->id || !isset($this->connectors[$image->service]))
             return null;
 
         /* @var IConnector $connector */
-        $connector = $this->connectors[$service];
+        $connector = $this->connectors[$image->service];
 
-        return $connector->imageUrl($mediakey, $width, $height, $mode, $format, $quality, $options);
+        return $connector->imageUrl($image, $width, $height, $mode, $format, $quality, $options);
     }
 
 }

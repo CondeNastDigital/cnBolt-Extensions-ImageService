@@ -2,6 +2,7 @@
 namespace Bolt\Extension\CND\ImageService\Connector;
 
 use Bolt\Application;
+use Bolt\Extension\CND\ImageService\Image;
 use Bolt\Menu\MenuEntry;
 
 interface IConnector
@@ -42,35 +43,20 @@ interface IConnector
      * @param array $options    custom options
      * @return string mixed
      */
-    public function imageUrl($mediaKey, $width, $height, $mode, $format, $quality, $options);
+    public function imageUrl(Image $image, $width, $height, $mode, $format, $quality, $options);
 
     /**
-     * Upload a new image and store it's meta data. Return the image key or false
-     * @param string $filepath
-     * @param array $attributes
-     * @return string|bool
-     */
-    public function imageUpload($filepath, $attributes);
-
-    /**
-     * Update the attributes of a stored image
-     * @param string $imageKey
-     * @param array $attributes
+     * Update, delete or create all sent images according to their status
+     * Will look inside $_FILES (or the Silex equivalent) for needed files
+     * @param Image[] $images
      * @return bool
      */
-    public function imageUpdate($imageKey, $attributes);
-
-    /**
-     * Delete an image from the service
-     * @param $imageKey
-     * @return bool
-     */
-    public function imageDelete($imageKey);
+    public function imageProcess(array $images);
 
     /**
      * Search an image inside the service
      * @param $search
-     * @return array     an array with the imageKey and an array of attributes
+     * @return Image[]     an array with the imageKey and an array of attributes
      */
     public function imageSearch($search);
 
@@ -92,9 +78,10 @@ interface IConnector
 
     /**
      * generate the url to open the service's image editor
-     * @return string|false
+     * @param Image $image
+     * @return false|string
      */
-    public function adminImage($imageKey);
+    public function adminImage($image);
 
     /**
      * generate the backend menu entries

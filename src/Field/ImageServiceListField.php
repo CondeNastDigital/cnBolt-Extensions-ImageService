@@ -1,6 +1,7 @@
 <?php
 namespace Bolt\Extension\CND\ImageService\Field;
 
+use Bolt\Extension\CND\ImageService\Image;
 use Bolt\Storage\EntityManager;
 use Bolt\Storage\Field\Type\FieldTypeBase;
 use Bolt\Storage\QuerySet;
@@ -34,11 +35,8 @@ class ImageServiceListField extends FieldTypeBase
 
         // Validate and format the input json
         $value = json_decode($value, true);
-
-        $value = is_array($value) ? $value + self::$default : self::$default;
         foreach($value["items"] as &$item)
-            $item = is_array($item) ? $item + ImageServiceField::$default : ImageServiceField::$default;
-
+            $item = (string)Image::create($item);
         $value = json_encode($value);
 
         $qb->setValue($key, ':' . $key);
@@ -51,17 +49,10 @@ class ImageServiceListField extends FieldTypeBase
         $value = isset($data[$key]) ? $data[$key] : null;
 
         $value = json_decode($value, true);
+        foreach($value["items"] as &$item)
+            $item = Image::create($item);
 
         $this->set($entity, $value);
-    }
-
-    public function validateValue(array $value){
-
-        $value = is_array($value) ? $value + self::$default : self::$default;
-        foreach($value["items"] as &$item)
-            $item = ImageServiceField::validateValue($value);
-
-
     }
 
 }

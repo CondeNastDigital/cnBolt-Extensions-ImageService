@@ -2,7 +2,7 @@
 namespace Bolt\Extension\CND\ImageService\Connector;
 
 use Bolt\Application;
-use Bolt\Menu\Menu;
+use Bolt\Extension\CND\ImageService\Image;
 use Bolt\Menu\MenuEntry;
 
 class CloudinaryConnector implements IConnector
@@ -29,7 +29,7 @@ class CloudinaryConnector implements IConnector
     /**
      * @inheritdoc
      */
-    public function imageUrl($mediaKey, $width, $height, $mode, $format, $quality, $options)
+    public function imageUrl(Image $image, $width, $height, $mode, $format, $quality, $options)
     {
         $mode_map = [
             self::MODE_SCALE => "c_scale",
@@ -53,7 +53,7 @@ class CloudinaryConnector implements IConnector
         $url .= $modifiers ? implode(",",$modifiers)."/" : "";
 
         // Image
-        $url .= $mediaKey.".";
+        $url .= $image->id.".";
 
         // Format
         $url .= $format && in_array($format, $this->supportedFormats()) ? $format : "jpg";
@@ -64,25 +64,9 @@ class CloudinaryConnector implements IConnector
     /**
      * @inheritdoc
      */
-    public function imageUpload($filepath, $attributes)
+    public function imageProcess(array $images)
     {
         // TODO: Implement imageUpload() method.
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function imageUpdate($imageKey, $attributes)
-    {
-        // TODO: Implement imageUpdate() method.
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function imageDelete($imageKey)
-    {
-        // TODO: Implement imageDelete() method.
     }
 
     /**
