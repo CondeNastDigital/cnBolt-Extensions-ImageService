@@ -35,6 +35,14 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
 
 {% block fieldset_controls %}
     <div class="col-xs-12">
-        <textarea{{ macro.attr(attributes.text) }}>{{ (context.content.get(contentkey)|default(field.default)|default([]))|json_encode }}</textarea>
+        {% set value = context.content.get(contentkey)|default(field.default)|default({items:[]}) %}
+        <textarea{{ macro.attr(attributes.text) }}>{{ value|json_encode }}</textarea>
+        <script>
+            var dummy = {
+            {% for item in value.items|default([]) %}
+                "{{ item.id }}": "{{ imageservice(item,150,100) }}"{{ loop.last ?"":","}}
+            {% endfor %}
+            }
+        </script>
     </div>
 {% endblock fieldset_controls %}

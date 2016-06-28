@@ -82,7 +82,9 @@ class Image implements JsonSerializable {
         }
     }
 
-
+    public function __isset($name){
+        return in_array($name, array("id", "service", "options", "attributes", "tags"));
+    }
 
     /**
      * Return the string (json) encoded value
