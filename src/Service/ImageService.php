@@ -81,4 +81,21 @@ class ImageService {
         return $images;
     }
 
+    /**
+     * Search for images in all connected image services
+     * @param string $search
+     * @return Image[]
+     */
+    public function tagSearch($search){
+
+        $images = [];
+
+        /* @var IConnector $connector */
+        foreach($this->connectors as $key => $connector) {
+            $images = array_merge($images, $connector->tagSearch($search));
+        }
+
+        return $images;
+    }
+
 }

@@ -28,7 +28,8 @@ class ImageController implements ControllerProviderInterface
         /** @var ControllerCollection $ctr */
         $ctr = $app['controllers_factory'];
 
-        $ctr->get('/search', [$this, 'search']);
+        $ctr->get('/imagesearch', [$this, 'imageSearch']);
+        $ctr->get('/tagsearch', [$this, 'tagSearch']);
 
         return $ctr;
     }
@@ -38,7 +39,7 @@ class ImageController implements ControllerProviderInterface
      * @param string $type
      * @return Response
      */
-    public function search(Request $request)
+    public function imageSearch(Request $request)
     {
         $text = $request->get('q','');
         $text = strip_tags(urldecode($text));
@@ -47,6 +48,28 @@ class ImageController implements ControllerProviderInterface
         $service = $this->container[Extension::APP_EXTENSION_KEY.".service"];
 
         $images = $service->imageSearch($text);
+
+        return new JsonResponse([
+            "search" => $text,
+            "items" => $images,
+            "success" => true
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param string $type
+     * @return Response
+     */
+    public function tagSearch(Request $request)
+    {
+        $text = $request->get('q','');
+        $text = strip_tags(urldecode($text));
+
+        /* @var ImageService $service */
+        $service = $this->container[Extension::APP_EXTENSION_KEY.".service"];
+
+        $images = $service->tagSearch($text);
 
         return new JsonResponse([
             "search" => $text,

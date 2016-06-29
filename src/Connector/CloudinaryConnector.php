@@ -140,6 +140,19 @@ class CloudinaryConnector implements IConnector
     /**
      * @inheritdoc
      */
+    public function tagSearch($search){
+        $api = new Api();
+
+        $result = $api->tags([
+            "prefix" => $search
+        ]);
+
+        return $result["tags"];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function supportedModes()
     {
         return [

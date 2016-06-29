@@ -60,6 +60,13 @@ interface IConnector
      */
     public function imageSearch($search);
 
+    /**
+     * Search a tag
+     * @param $search
+     * @return array     an array with matching tags
+     */
+    public function tagSearch($search);
+
     // --- Supported Features
 
     /**
