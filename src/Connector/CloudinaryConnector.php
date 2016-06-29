@@ -5,12 +5,20 @@ use Bolt\Application;
 use Bolt\Extension\CND\ImageService\Image;
 use Bolt\Menu\MenuEntry;
 
+require_once __DIR__."/../../vendor/cloudinary/Cloudinary.php";
+require_once __DIR__."/../../vendor/cloudinary/Api.php";
+use Cloudinary;
+use Cloudinary\Api;
+
 class CloudinaryConnector implements IConnector
 {
     const ID = "cloudinary";
     const TITLE = "Cloudinary";
     const ICON = "http://res.cloudinary.com/cloudinary/image/upload/new_cloudinary_logo_square.png";
     const LINK = "http://www.cloudinary.com";
+
+    /* @var Cloudinary $cloudinary */
+    protected $Cloudinary;
 
     /* @var Application $container */
     protected $container = null;
@@ -24,6 +32,12 @@ class CloudinaryConnector implements IConnector
     public function __construct(Application $app, $config){
         $this->config = $config;
         $this->container = $app;
+
+        Cloudinary::config([
+            "cloud_name" => $this->config["cloud-name"],
+            "api_key"    => $this->config["api-key"],
+            "api_secret" => $this->config["api-secret"]
+        ]);
     }
 
     /**
@@ -74,7 +88,53 @@ class CloudinaryConnector implements IConnector
      */
     public function imageSearch($search)
     {
-        // TODO: Implement imageSearch() method.
+        $api = new Api();
+
+        /* @var Cloudinary\Api\Response $result */
+
+        // Search by id
+        $resultId = $api->resources([
+            "type" => "upload",
+            "resource_type" => "image",
+            "prefix" => $search,
+            "max_results" => 10,
+            "tags" => true,
+            "context" => true
+        ]);
+
+        // Search by tag
+        $resultTag = $api->resources_by_tag($search, [
+            "type" => "upload",
+            "resource_type" => "image",
+            "max_results" => 10,
+            "tags" => true,
+            "context" => true
+        ]);
+
+        // Merge both search results into one
+        $results = array_merge($resultId["resources"], $resultTag["resources"]);
+
+        // Convert cloudinary resource items to image items
+        $images = [];
+        foreach($results as $item){
+            $image = new Image($item["public_id"], self::ID);
+
+            $image->attributes = isset($item["context"]["custom"]) ? $item["context"]["custom"] : [];
+            $image->tags = isset($item["tags"]) ? $item["tags"] : [];
+
+            $image->info = [
+                Image::INFO_HEIGHT => $item["height"],
+                Image::INFO_WIDTH => $item["width"],
+                Image::INFO_SIZE => $item["bytes"],
+                Image::INFO_FORMAT => $item["format"],
+                Image::INFO_SOURCE => $item["url"],
+                Image::INFO_CREATED => $item["created_at"]
+            ];
+
+            $images[$item["public_id"]] = $image;
+        }
+
+        return $images;
     }
 
     /**
@@ -117,8 +177,6 @@ class CloudinaryConnector implements IConnector
      */
     public function adminGlobal()
     {
-        $items = [];
-
         $medialibrary = new MenuEntry('cloudinary-admin-ui', '//cloudinary.com/console/media_library');
         $medialibrary->setLabel("Cloudinary Media")
             ->setIcon('fa:cloud')

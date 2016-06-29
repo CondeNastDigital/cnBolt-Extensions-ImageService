@@ -1,9 +1,12 @@
 <?php
 namespace Bolt\Extension\CND\ImageService\Controller;
 
+use Bolt\Extension\CND\ImageService\Extension;
+use Bolt\Extension\CND\ImageService\Service\ImageService;
 use Silex\Application;
 use Silex\ControllerCollection;
 use Silex\ControllerProviderInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -25,7 +28,7 @@ class ImageController implements ControllerProviderInterface
         /** @var ControllerCollection $ctr */
         $ctr = $app['controllers_factory'];
 
-        // $ctr->match('/{type}', [$this, 'test']);
+        $ctr->get('/search', [$this, 'search']);
 
         return $ctr;
     }
@@ -35,8 +38,20 @@ class ImageController implements ControllerProviderInterface
      * @param string $type
      * @return Response
      */
-    public function text(Request $request, $type)
+    public function search(Request $request)
     {
-        return new Response('Koala in a tree!', Response::HTTP_OK);
+        $text = $request->get('q','');
+        $text = strip_tags(urldecode($text));
+
+        /* @var ImageService $service */
+        $service = $this->container[Extension::APP_EXTENSION_KEY.".service"];
+
+        $images = $service->imageSearch($text);
+
+        return new JsonResponse([
+            "search" => $text,
+            "items" => $images,
+            "success" => true
+        ]);
     }
 }

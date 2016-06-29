@@ -13,6 +13,7 @@ use Symfony\Component\Config\Definition\Exception\Exception;
  * @property string[] $attributes
  * @property string[] $tags
  * @property string[] $options
+ * @property string[] $info
  */
 class Image implements JsonSerializable {
 
@@ -21,6 +22,16 @@ class Image implements JsonSerializable {
     protected $attributes = [];
     protected $tags = [];
     protected $options = [];
+
+    protected $info = [];
+
+    const INFO_HEIGHT = "height";
+    const INFO_WIDTH = "width";
+    const INFO_SIZE = "size";
+    const INFO_FORMAT = "format";
+    const INFO_SOURCE = "source";
+    const INFO_CREATED = "created";
+    protected static $info_fields = [self::INFO_HEIGHT,self::INFO_WIDTH,self::INFO_SIZE,self::INFO_FORMAT,self::INFO_SOURCE,self::INFO_CREATED];
 
     const STATUS_CLEAN = "clean";       // image is in sync with the local database and the image service
     const STATUS_NEW = "new";           // image needs to be created in local database and image service (The id can be left empty and will be set by the image service!)
@@ -50,6 +61,7 @@ class Image implements JsonSerializable {
             case "attributes":
             case "tags":
             case "options":
+            case "info":
                 return $this->{$name};
             default:
                 throw new Exception("Unknown property '{$name}' requested");
@@ -63,19 +75,26 @@ class Image implements JsonSerializable {
      */
     public function __set($name, $value){
         switch($name){
+            // single fields
             case "id":
             case "service":
             $this->{$name} = $value;
                 break;
+            // dynamic key/value arrays
             case "options":
             case "attributes":
                 $this->{$name} = is_array($value) ? $value : array();
                 break;
+            // dynamic value arrays
             case "tags":
                 $this->tags = $value ? $value : array();
                 asort($this->tags);
                 $this->tags = array_unique($this->tags);
                 $this->tags = array_values($this->tags);
+                break;
+            // fixed key/value arrays
+            case "info":
+                $this->info = array_intersect_key($value, array_flip(self::$info_fields)) + $this->info;
                 break;
             default:
                 throw new Exception("Unknown property '{$name}' requested");
@@ -96,7 +115,8 @@ class Image implements JsonSerializable {
             "service"    => $this->service,
             "attributes" => $this->attributes,
             "tags"       => $this->tags,
-            "options"    => $this->options
+            "options"    => $this->options,
+            "info"       => $this->info
         ];
 
         return $output;
