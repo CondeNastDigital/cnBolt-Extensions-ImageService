@@ -82,7 +82,7 @@ class CloudinaryConnector implements IConnector
     /**
      * @inheritdoc
      */
-    public function imageProcess(array $images)
+    public function imageProcess(array $images, &$messages = [])
     {
         $create = [];
         $update = [];
@@ -99,16 +99,26 @@ class CloudinaryConnector implements IConnector
                     break;
                 case Image::STATUS_NEW:
                     break;
+                case Image::STATUS_CLEAN:
+                    $clean[] = $image;
+                    break;
                 default:
                     $clean[] = $image;
+                    $messages[] = [
+                        "type" => IConnector::RESULT_TYPE_ERROR,
+                        "code" => IConnector::RESULT_CODE_ERRSTATUS,
+                        "id" => $image->id
+                    ];
             }
         }
 
         // Send grouped commands
         if($delete)
-            $this->processDelete($delete);
+            $this->processDelete($delete, $messages);
         if($update)
-            $this->processUpdate($update);
+            $this->processUpdate($update, $messages);
+        if($create)
+            $this->processCreate($create, $messages);
 
         return array_merge($clean, $delete, $update, $create);
     }
@@ -116,9 +126,10 @@ class CloudinaryConnector implements IConnector
     /**
      * Delete all ids in array
      * @param Image[] $images
-     * @return Image[]
+     * @param array $messages
+     * @return \Bolt\Extension\CND\ImageService\Image[]
      */
-    protected function processDelete(array $images){
+    protected function processDelete(array $images, &$messages = []){
         // Collect ids
         $ids = [];
         foreach($images as $image)
@@ -131,9 +142,16 @@ class CloudinaryConnector implements IConnector
         ]);
 
         // Update status
-        foreach($images as $idx => $image)
-            if(isset($result["deleted"][$image->id]) && $result["deleted"][$image->id] == "deleted")
+        foreach($images as $idx => $image) {
+            if (isset($result["deleted"][$image->id]) && $result["deleted"][$image->id] == "deleted")
                 unset($images[$idx]);
+            else
+                $messages[] = [
+                    "type" => IConnector::RESULT_TYPE_ERROR,
+                    "code" => IConnector::RESULT_CODE_ERRUNKNOWN,
+                    "id" => $image->id
+                ];
+        }
 
         return $images;
     }
@@ -142,9 +160,10 @@ class CloudinaryConnector implements IConnector
      * Delete all ids in array
      * NOTE: Cloudinary
      * @param Image[] $images
-     * @return Image[]
+     * @param array $messages
+     * @return \Bolt\Extension\CND\ImageService\Image[]
      */
-    protected function processUpdate(array $images){
+    protected function processUpdate(array $images, &$messages = []){
 
         $api = new Api();
 
@@ -166,15 +185,22 @@ class CloudinaryConnector implements IConnector
      * Delete all ids in array
      * NOTE: Cloudinary
      * @param Image[] $images
-     * @return Image[]
+     * @param array $messages
+     * @return \Bolt\Extension\CND\ImageService\Image[]
      */
-    protected function processCreate(array $images){
+    protected function processCreate(array $images, &$messages = []){
 
         foreach($images as $idx => $image){
 
             // Check if a file was posted
-            if(!isset($_FILES[$image->id]))
+            if(!isset($_FILES[$image->id])){
+                $messages[] = [
+                    "type" => IConnector::RESULT_TYPE_ERROR,
+                    "code" => IConnector::RESULT_CODE_ERRNOFILE,
+                    "id" => $image->id
+                ];
                 continue;
+            }
 
             $filesource = $_FILES[$image->id]["tmp_name"];
             $filename   = $_FILES[$image->id]["name"];
@@ -183,15 +209,39 @@ class CloudinaryConnector implements IConnector
             $ext        = $fileinfo["extension"];
 
             // Validation Config
-            $allowedExtensions = $this->config['security']['allowed-extensions'];
-            $allowedMaxSize    = $this->config['sections']['max-size'];
+            $allowedExtensions = $this->config['allowed-extensions'];
+            $allowedMaxSize    = $this->config['max-size'];
 
             // Simple Validation of the uploaded images
-            if(!is_readable($filesource) ||                   // file doesnt exist or permissions wrong
-               $size > $allowedMaxSize ||                   // file size is to large
-               !in_array($ext, $allowedExtensions) ||       // extension is not allowed
-               !in_array($ext, self::supportedFormats()))   // extension is not supported
+            if(!is_readable($filesource)) {               // file doesnt exist or permissions wrong
+                $messages[] = [
+                    "type" => IConnector::RESULT_TYPE_ERROR,
+                    "code" => IConnector::RESULT_CODE_ERRFILEINVALID,
+                    "id" => $image->id
+                ];
                 continue;
+            }
+
+
+
+            if($size > $allowedMaxSize){                    // file size is to large
+                $messages[] = [
+                    "type" => IConnector::RESULT_TYPE_ERROR,
+                    "code" => IConnector::RESULT_CODE_ERRFILESIZE,
+                    "id" => $image->id
+                ];
+                continue;
+            }
+
+            if(!in_array($ext, $allowedExtensions) ||        // extension is not allowed
+               !in_array($ext, self::supportedFormats())) {  // extension is not supported
+                $messages[] = [
+                    "type" => IConnector::RESULT_TYPE_ERROR,
+                    "code" => IConnector::RESULT_CODE_ERRFILEEXT,
+                    "id" => $image->id
+                ];
+                continue;
+            }
 
             $defaults = is_array($this->config["upload-defaults"]) ? $this->config["upload-defaults"] : [];
 

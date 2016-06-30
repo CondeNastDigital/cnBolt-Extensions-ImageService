@@ -25,6 +25,17 @@ interface IConnector
     const MODE_FIT   = "fit";   // Resize inside given width and height and retain aspect ratio.
     const MODE_PAD   = "pad";   // Resize exactly to the given width and height and retain aspect ratio, padding the image if necessary.
 
+    const RESULT_TYPE_ERROR = "error";
+    const RESULT_TYPE_WARN = "warn";
+    const RESULT_TYPE_INFO = "info";
+
+    const RESULT_CODE_ERRFILEINVALID = "fileinvalid";
+    const RESULT_CODE_ERRFILESIZE    = "filesize";
+    const RESULT_CODE_ERRNOFILE      = "nofile";
+    const RESULT_CODE_ERRFILEEXT     = "fileext";
+    const RESULT_CODE_ERRSTATUS      = "status";
+    const RESULT_CODE_ERRUNKNOWN     = "unknown";
+
     /**
      * IConnector constructor.
      * @param Application $app
@@ -51,7 +62,7 @@ interface IConnector
      * @param Image[] $images
      * @return bool
      */
-    public function imageProcess(array $images);
+    public function imageProcess(array $images, &$messages = []);
 
     /**
      * Search an image inside the service

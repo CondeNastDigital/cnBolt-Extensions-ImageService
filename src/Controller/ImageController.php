@@ -2,6 +2,7 @@
 namespace Bolt\Extension\CND\ImageService\Controller;
 
 use Bolt\Extension\CND\ImageService\Extension;
+use Bolt\Extension\CND\ImageService\Image;
 use Bolt\Extension\CND\ImageService\Service\ImageService;
 use Silex\Application;
 use Silex\ControllerCollection;
@@ -32,6 +33,38 @@ class ImageController implements ControllerProviderInterface
         $ctr->get('/tagsearch', [$this, 'tagSearch']);
 
         return $ctr;
+    }
+
+    /**
+     * @param Request $request
+     * @param string $type
+     * @return Response
+     */
+    public function imageProcess(Request $request)
+    {
+        $body = $request->getContent(false);
+        $body = json_decode($body, true);
+
+        /* @var ImageService $service */
+        $service = $this->container[Extension::APP_EXTENSION_KEY.".service"];
+
+        if(!is_array($body["items"]))
+            return new JsonResponse([
+                "success" => false
+            ]);
+
+        $images = [];
+        foreach($body["items"] as $item)
+            $images[] = Image::create($item);
+
+        $images = $service->imageProcess($images, $messages);
+
+        return new JsonResponse([
+            "items" => $images,
+            "messages" => $messages,
+            "success" => true
+        ]);
+
     }
 
     /**

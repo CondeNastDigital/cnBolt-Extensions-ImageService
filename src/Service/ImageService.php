@@ -68,9 +68,10 @@ class ImageService {
      * Update, delete or create all sent images according to their status
      * Will look inside $_FILES (or the Silex equivalent) for needed files
      * @param Image[] $images
+     * @param array $messages
      * @return bool
      */
-    public function imageProcess(array $images){
+    public function imageProcess(array $images, &$messages = []){
 
         // Sort images by service
         $services = [];
@@ -88,7 +89,7 @@ class ImageService {
         $results = [];
         foreach($services as $key => $images){
             $service = $this->connectors[$key];
-            $images = $service->imageProcess($images);
+            $images = $service->imageProcess($images, $messages);
             $results = array_merge($results, $images);
         }
 
