@@ -65,6 +65,37 @@ class ImageService {
     }
 
     /**
+     * Update, delete or create all sent images according to their status
+     * Will look inside $_FILES (or the Silex equivalent) for needed files
+     * @param Image[] $images
+     * @return bool
+     */
+    public function imageProcess(array $images){
+
+        // Sort images by service
+        $services = [];
+        foreach($images as $image ){
+            if($image->service && $image->status && isset($this->connectors[$image->service])){
+
+                if(!isset($services[$image->service]))
+                    $services[$image->service] = [];
+
+                $services[$image->service][] = $image;
+            }
+        }
+
+        // Send images to services
+        $results = [];
+        foreach($services as $key => $images){
+            $service = $this->connectors[$key];
+            $images = $service->imageProcess($images);
+            $results = array_merge($results, $images);
+        }
+
+        return $results;
+    }
+
+    /**
      * Search for images in all connected image services
      * @param string $search
      * @return Image[]

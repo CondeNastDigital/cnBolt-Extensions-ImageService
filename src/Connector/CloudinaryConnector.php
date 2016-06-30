@@ -4,11 +4,15 @@ namespace Bolt\Extension\CND\ImageService\Connector;
 use Bolt\Application;
 use Bolt\Extension\CND\ImageService\Image;
 use Bolt\Menu\MenuEntry;
+use Sirius\Upload\Handler as UploadHandler;
+use Sirius\Upload\Result\File;
 
 require_once __DIR__."/../../vendor/cloudinary/Cloudinary.php";
 require_once __DIR__."/../../vendor/cloudinary/Api.php";
+
 use Cloudinary;
 use Cloudinary\Api;
+use Cloudinary\Uploader;
 
 class CloudinaryConnector implements IConnector
 {
@@ -80,7 +84,129 @@ class CloudinaryConnector implements IConnector
      */
     public function imageProcess(array $images)
     {
-        // TODO: Implement imageUpload() method.
+        $create = [];
+        $update = [];
+        $delete = [];
+        $clean = [];
+
+        foreach($images as $image){
+            switch($image->status){
+                case Image::STATUS_DELETED:
+                    $delete[] = $image;
+                    break;
+                case Image::STATUS_DIRTY:
+                    $update[] = $image;
+                    break;
+                case Image::STATUS_NEW:
+                    break;
+                default:
+                    $clean[] = $image;
+            }
+        }
+
+        // Send grouped commands
+        if($delete)
+            $this->processDelete($delete);
+        if($update)
+            $this->processUpdate($update);
+
+        return array_merge($clean, $delete, $update, $create);
+    }
+
+    /**
+     * Delete all ids in array
+     * @param Image[] $images
+     * @return Image[]
+     */
+    protected function processDelete(array $images){
+        // Collect ids
+        $ids = [];
+        foreach($images as $image)
+            $ids[] = $image->id;
+
+        // Process deletion request
+        $api = new Api();
+        $result = $api->delete_resources($ids, [
+            "all" => true
+        ]);
+
+        // Update status
+        foreach($images as $idx => $image)
+            if(isset($result["deleted"][$image->id]) && $result["deleted"][$image->id] == "deleted")
+                unset($images[$idx]);
+
+        return $images;
+    }
+
+    /**
+     * Delete all ids in array
+     * NOTE: Cloudinary
+     * @param Image[] $images
+     * @return Image[]
+     */
+    protected function processUpdate(array $images){
+
+        $api = new Api();
+
+        foreach($images as $idx => $image){
+            $result = $api->update($image->id, [
+                "tags" => $image->tags,
+                "context" => $image->attributes
+            ]);
+
+            dump($result); // TODO: returning result not in docs? Dump and refactor when known
+
+            $image->status = Image::STATUS_CLEAN;
+        }
+
+        return $images;
+    }
+
+    /**
+     * Delete all ids in array
+     * NOTE: Cloudinary
+     * @param Image[] $images
+     * @return Image[]
+     */
+    protected function processCreate(array $images){
+
+        foreach($images as $idx => $image){
+
+            // Check if a file was posted
+            if(!isset($_FILES[$image->id]))
+                continue;
+
+            $filesource = $_FILES[$image->id]["tmp_name"];
+            $filename   = $_FILES[$image->id]["name"];
+            $size       = $_FILES[$image->id]["size"];
+            $fileinfo   = pathinfo($filename);
+            $ext        = $fileinfo["extension"];
+
+            // Validation Config
+            $allowedExtensions = $this->config['security']['allowed-extensions'];
+            $allowedMaxSize    = $this->config['sections']['max-size'];
+
+            // Simple Validation of the uploaded images
+            if(!is_readable($filesource) ||                   // file doesnt exist or permissions wrong
+               $size > $allowedMaxSize ||                   // file size is to large
+               !in_array($ext, $allowedExtensions) ||       // extension is not allowed
+               !in_array($ext, self::supportedFormats()))   // extension is not supported
+                continue;
+
+            $defaults = is_array($this->config["upload-defaults"]) ? $this->config["upload-defaults"] : [];
+
+            $result = Uploader::upload($filesource, [
+                "use_filename" => $filename,
+                "public_id" => $image->id,
+                "tags" => $image->tags,
+                "context" => $image->attributes
+            ] + $defaults);
+
+            dump($result); // TODO: returning result not in docs? Dump and refactor when known
+
+            $image->status = Image::STATUS_CLEAN;
+        }
+        return $images;
     }
 
     /**

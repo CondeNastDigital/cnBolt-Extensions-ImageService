@@ -10,6 +10,7 @@ use Symfony\Component\Config\Definition\Exception\Exception;
  *
  * @property string $id
  * @property string $service
+ * @property string $status
  * @property string[] $attributes
  * @property string[] $tags
  * @property string[] $options
@@ -17,26 +18,28 @@ use Symfony\Component\Config\Definition\Exception\Exception;
  */
 class Image implements JsonSerializable {
 
-    protected $id;
-    protected $service;
-    protected $attributes = [];
-    protected $tags = [];
-    protected $options = [];
-
-    protected $info = [];
-
     const INFO_HEIGHT = "height";
     const INFO_WIDTH = "width";
     const INFO_SIZE = "size";
     const INFO_FORMAT = "format";
     const INFO_SOURCE = "source";
     const INFO_CREATED = "created";
-    protected static $info_fields = [self::INFO_HEIGHT,self::INFO_WIDTH,self::INFO_SIZE,self::INFO_FORMAT,self::INFO_SOURCE,self::INFO_CREATED];
 
     const STATUS_CLEAN = "clean";       // image is in sync with the local database and the image service
     const STATUS_NEW = "new";           // image needs to be created in local database and image service (The id can be left empty and will be set by the image service!)
     const STATUS_DIRTY = "dirty";       // image needs to be updated in local database and image service
     const STATUS_DELETED = "deleted";   // image needs to be deleted (Will be removed from local database but may not be deleted from image service at discretion of the service)
+
+    protected static $info_fields = [self::INFO_HEIGHT,self::INFO_WIDTH,self::INFO_SIZE,self::INFO_FORMAT,self::INFO_SOURCE,self::INFO_CREATED];
+
+    protected $id;
+    protected $service;
+    protected $attributes = [];
+    protected $tags = [];
+    protected $options = [];
+    protected $status = self::STATUS_CLEAN;
+
+    protected $info = [];
 
 
     /**
@@ -58,6 +61,7 @@ class Image implements JsonSerializable {
         switch($name){
             case "id":
             case "service":
+            case "status":
             case "attributes":
             case "tags":
             case "options":
@@ -78,6 +82,7 @@ class Image implements JsonSerializable {
             // single fields
             case "id":
             case "service":
+            case "status":
             $this->{$name} = $value;
                 break;
             // dynamic key/value arrays
@@ -113,6 +118,7 @@ class Image implements JsonSerializable {
         $output = [
             "id"         => $this->id,
             "service"    => $this->service,
+            "status"     => $this->status,
             "attributes" => $this->attributes,
             "tags"       => $this->tags,
             "options"    => $this->options,
