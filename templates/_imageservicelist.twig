@@ -57,8 +57,12 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                         var imageService = new ImageService({
                             cache: defs,
                             serviceUrl: '{{ paths.hosturl }}{{ paths.bolt }}image-service/image',
-                            maxFiles: 6,
-                            maxFileSize: 2000000,
+                            {% if field.maxFiles %}
+                            maxFiles: {{ field.maxFiles }},
+                            {% endif %}
+                            {% if field.maxFileSize %}
+                            maxFileSize: {{ field.maxFileSize }},
+                            {% endif %}
                             dataElement: '[name="{{ name }}"]',
                             hostElement: '#imageservice-{{ name }}-list',
                             attributes: {{ field.attributes|json_encode|raw }}

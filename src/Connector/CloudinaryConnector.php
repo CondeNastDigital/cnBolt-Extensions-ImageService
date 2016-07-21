@@ -206,6 +206,7 @@ class CloudinaryConnector implements IConnector
                     "code" => IConnector::RESULT_CODE_ERRNOFILE,
                     "id" => $image->id
                 ];
+                unset($images[$idx]);
                 continue;
             }
 
@@ -226,6 +227,7 @@ class CloudinaryConnector implements IConnector
                     "code" => IConnector::RESULT_CODE_ERRFILEINVALID,
                     "id" => $image->id
                 ];
+                unset($images[$idx]);
                 continue;
             }
 
@@ -235,6 +237,7 @@ class CloudinaryConnector implements IConnector
                     "code" => IConnector::RESULT_CODE_ERRFILESIZE,
                     "id" => $image->id
                 ];
+                unset($images[$idx]);
                 continue;
             }
 
@@ -245,6 +248,7 @@ class CloudinaryConnector implements IConnector
                     "code" => IConnector::RESULT_CODE_ERRFILEEXT,
                     "id" => $image->id
                 ];
+                unset($images[$idx]);
                 continue;
             }
 
@@ -284,7 +288,6 @@ class CloudinaryConnector implements IConnector
                 ];
                 unset($images[$idx]);
             }
-
         }
         return $images;
     }

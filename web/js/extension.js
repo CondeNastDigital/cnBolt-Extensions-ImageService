@@ -12,12 +12,13 @@ var ImageService = function (data) {
      * Error messages
      */
     var ImageServiceErrors = {
-        fileexists: 'The file already exists. Please add it via the search field',
-        filesize:   'The uploaded file is too big. Please choose a smaller one',
-        nofile:     'One of the new uploaded files, has not been successfully sent to the server',
-        fileext:    'Filetype not allowed. The files extension is unknown',
-        status:     'Invalid image status',
-        unknown:    'Something went wrong. Try again and if the problem persits call an administrator'
+        fileexists:  'The file already exists. Please add it via the search field',
+        filesize:    'The uploaded file is too big. Please choose a smaller one',
+        nofile:      'No file has been fount, for the new image',
+        fileext:     'The files extension is unknown',
+        status:      'Invalid image status',
+        unknown:     'Something went wrong. Try again and if the problem persits call an administrator',
+        fileinvalid: 'File is invalid. Either too big or the of an unsuported type'
     };
 
     /**
@@ -338,7 +339,7 @@ var ImageService = function (data) {
          * The max filesize
          * @type {string|*|string|number}
          */
-        var maxFileSize = data.maxFileSize || 2000000;
+        var maxFileSize = data.maxFileSize || null;
 
         /**
          * Allowed extensions
@@ -364,15 +365,14 @@ var ImageService = function (data) {
             if (!file)
                 return true;
 
-            switch (true) {
-                case file.size > maxFileSize:
-                    container.trigger(ImageServiceEVENTS.MESSAGEERROR, 'File size too big ' + file.size + ' File: ' + file.name);
-                    return false;
-                case allowedExtensions.indexOf(file.type.replace('image/', '')) < 0:
-                    container.trigger(ImageServiceEVENTS.MESSAGEERROR, 'File type not known ' + file.type + ' File: ' + file.name);
-                    return false;
-                default:
-                    return true;
+            if(maxFileSize && file.size > maxFileSize) {
+                container.trigger(ImageServiceEVENTS.MESSAGEERROR, 'File size too big ' + file.size + ' File: ' + file.name);
+                return false;
+            } else if(allowedExtensions.indexOf(file.type.replace('image/', '')) < 0) {
+                container.trigger(ImageServiceEVENTS.MESSAGEERROR, 'File type not known ' + file.type + ' File: ' + file.name);
+                return false;
+            } else {
+                return true;
             }
         };
 
@@ -754,7 +754,7 @@ var ImageService = function (data) {
             }
 
             // Limits the number of files in the list
-            if (that.maxItems > 0 && that.getListLength() >= that.maxItems) {
+            if (that.maxItems && that.getListLength() >= that.maxItems) {
                 that.container.trigger(ImageServiceEVENTS.MESSAGEWARNING, 'Maximal number of list items reached.');
                 return;
             }
@@ -1478,7 +1478,7 @@ var ImageService = function (data) {
         hostElement: host,
         items: JSON.parse(store.val()),
         attributes: data.attributes,
-        maxItems: data.maxFiles
+        maxItems: data.maxFiles || null
     });
 
     /**

@@ -57,7 +57,9 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                             cache: defs,
                             serviceUrl: '{{ paths.hosturl }}{{ paths.bolt }}image-service/image',
                             maxFiles: 1,
-                            maxFileSize: 2000000,
+                            {% if field.maxFileSize %}
+                                maxFileSize: {{ field.maxFileSize }},
+                            {% endif %}
                             dataElement: '[name="{{ name }}"]',
                             hostElement: '#imageservice-{{ name }}',
                             attributes: {{ field.attributes|json_encode|raw }}
