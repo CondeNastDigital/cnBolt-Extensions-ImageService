@@ -1,0 +1,169 @@
+/**
+ImageService
+- Finder
+- Uploader
+- Messaging
+- List
+- ListItem (Preview, Attributes, Actions)
+*/
+
+/* ImageService Main Container*/
+.imageservice-container {
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+    background-color: white;
+}
+
+/* Finder Styling */
+.imageservice-finder {
+    width: auto;
+    min-width: 300px;
+    display: inline-block;
+    margin: 5px;
+    box-sizing: border-box;
+}
+
+.imageservice-finder-result ul{
+    width: 60%;
+    display: inline-block;
+    vertical-align: top;
+    list-style: none;
+}
+
+.imageservice-finder-result ul li {
+    width: 100%;
+}
+
+.imageservice-finder-result img {
+    width: 30%;
+}
+
+/* Uploader Styling */
+
+.imageservice-uploader {
+    margin: 5px;
+    width: auto;
+    display: inline-block;
+}
+
+/* List-Messaging Style */
+
+.imageservice-message {
+    position: relative;
+    left: 0;
+    top: 30px;
+    width: 100%;
+    height: 0;
+    z-index: 1000;
+}
+
+.imageservice-message div {
+    height: auto;
+    padding: 20px;
+    text-align: center;
+    font-size: 1.4em;
+    margin: 10px 0 2px 0;
+    cursor: pointer;
+    box-shadow: 2px 6px 18px #f0f0f0;
+}
+
+.imageservice-message div.info {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.imageservice-message div.error {
+    background: rgba(158, 1, 0, 0.9) !important;
+    color: white !important;
+}
+
+.imageservice-message div.warning {
+    background: rgba(255, 217, 0, 0.9);
+}
+
+/* List Styling */
+
+.imageservice-list {
+    width: 100%;
+    height: 500px;
+    overflow-y: scroll;
+    clear: both;
+    border-top: 2px solid lightgrey;
+}
+
+/* List-Item Styling */
+
+.imageservice-entity {
+    width: 100%;
+    padding: 2px;
+    margin-top: 4px;
+    border-radius: 3px;
+    background: #f5f5f5;
+    float: left;
+    box-sizing: border-box;
+}
+
+.imageservice-entity .imageservice-preview {
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.imageservice-entity .imageservice-preview img {
+    max-height: 122px;
+    max-width: 100%;
+}
+
+.imageservice-entity .imageservice-attributes {
+    display: inline-block;
+    margin: 0px;
+    box-sizing: border-box;
+}
+
+.imageservice-entity .imageservice-entity-actions {
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+    height: auto;
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+
+.imageservice-entity .imageservice-attributes li{
+    list-style: none;
+    font-size: 11px !important;
+}
+
+.imageservice-entity .imageservice-attributes li label{
+    display: inline-block;
+    line-height: 16px;
+    font-size: inherit !important;
+    font-weight: bold;
+}
+
+.imageservice-entity .imageservice-attributes li input[type="text"],
+.imageservice-entity .imageservice-attributes li select,
+.imageservice-entity .imageservice-attributes li textarea {
+    width: 100%;
+    vertical-align: middle;
+    margin: 1px 0 1px 0;
+    border: 1px solid #ccc;
+    font-size: inherit !important;
+    height: auto !important;
+}
+
+.imageservice-entity .imageservice-attributes .select2.select2-container {
+    width: 100% !important;
+    font-size: inherit !important;
+    height: auto;
+}
+
+.imageservice-entity .imageservice-attributes .select2.select2-container > span *  {
+    padding: 1px;
+    margin: 0;
+    min-height: 0;
+    line-height: 10px !important;
+    font-size: inherit !important;
+}
