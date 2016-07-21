@@ -20,7 +20,7 @@ class ImageServiceListField extends FieldTypeBase
 
     public function getStorageOptions(){
         return [
-            'default' => ''
+            'default' => []
         ];
     }
 
@@ -36,7 +36,7 @@ class ImageServiceListField extends FieldTypeBase
         // Validate and format the input json
         $value = json_decode($value, true);
         foreach($value["items"] as &$item)
-            $item = (string)Image::create($item);
+            $item = Image::create($item);
         $value = json_encode($value);
 
         $qb->setValue($key, ':' . $key);

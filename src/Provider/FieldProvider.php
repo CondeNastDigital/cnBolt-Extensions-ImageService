@@ -15,7 +15,7 @@ class FieldProvider implements ServiceProviderInterface
         $app['storage.typemap'] = array_merge(
             $app['storage.typemap'],
             [
-                'imageservice' => ImageServiceField::class,
+                //'imageservice' => ImageServiceField::class, // Not needed as the List can cover the case of single uplaod
                 'imageservicelist' => ImageServiceListField::class
             ]
         );
@@ -24,7 +24,7 @@ class FieldProvider implements ServiceProviderInterface
             $app->extend(
                 'storage.field_manager',
                 function (FieldManager $manager) {
-                    $manager->addFieldType('imageservice', new ImageServiceField());
+                    //$manager->addFieldType('imageservice', new ImageServiceField()); // Not needed as the List can cover the case of single uplaod 
                     $manager->addFieldType('imageservicelist', new ImageServiceListField());
                     return $manager;
                 }

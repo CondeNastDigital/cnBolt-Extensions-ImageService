@@ -3,12 +3,14 @@ namespace Bolt\Extension\CND\ImageService\Connector;
 
 use Bolt\Application;
 use Bolt\Extension\CND\ImageService\Image;
+use Bolt\Extension\CND\ImageService\IConnector;
 use Bolt\Menu\MenuEntry;
 use Sirius\Upload\Handler as UploadHandler;
 use Sirius\Upload\Result\File;
 
 require_once __DIR__."/../../vendor/cloudinary/Cloudinary.php";
 require_once __DIR__."/../../vendor/cloudinary/Api.php";
+require_once __DIR__."/../../vendor/cloudinary/Uploader.php";
 
 use Cloudinary;
 use Cloudinary\Api;
@@ -89,21 +91,22 @@ class CloudinaryConnector implements IConnector
         $delete = [];
         $clean = [];
 
-        foreach($images as $image){
+        foreach($images as $key => $image){
             switch($image->status){
                 case Image::STATUS_DELETED:
-                    $delete[] = $image;
+                    $delete[$key] = $image;
                     break;
                 case Image::STATUS_DIRTY:
-                    $update[] = $image;
+                    $update[$key] = $image;
                     break;
                 case Image::STATUS_NEW:
+                    $create[$key] = $image;
                     break;
                 case Image::STATUS_CLEAN:
-                    $clean[] = $image;
+                    $clean[$key] = $image;
                     break;
                 default:
-                    $clean[] = $image;
+                    $clean[$key] = $image;
                     $messages[] = [
                         "type" => IConnector::RESULT_TYPE_ERROR,
                         "code" => IConnector::RESULT_CODE_ERRSTATUS,
@@ -114,13 +117,18 @@ class CloudinaryConnector implements IConnector
 
         // Send grouped commands
         if($delete)
-            $this->processDelete($delete, $messages);
+            $delete = $this->processDelete($delete, $messages);
         if($update)
-            $this->processUpdate($update, $messages);
+            $update = $this->processUpdate($update, $messages);
         if($create)
-            $this->processCreate($create, $messages);
+            $create = $this->processCreate($create, $messages);
 
-        return array_merge($clean, $delete, $update, $create);
+        // Merges the results in the clean instance
+        $clean = $update + $create + $clean;
+        // Reorders the key to match the initial key order
+        ksort($clean);
+
+        return $clean;
     }
 
     /**
@@ -173,7 +181,7 @@ class CloudinaryConnector implements IConnector
                 "context" => $image->attributes
             ]);
 
-            dump($result); // TODO: returning result not in docs? Dump and refactor when known
+            //var_dump($result); // TODO: returning result not in docs? Dump and refactor when known
 
             $image->status = Image::STATUS_CLEAN;
         }
@@ -190,8 +198,7 @@ class CloudinaryConnector implements IConnector
      */
     protected function processCreate(array $images, &$messages = []){
 
-        foreach($images as $idx => $image){
-
+        foreach($images as $idx => &$image){
             // Check if a file was posted
             if(!isset($_FILES[$image->id])){
                 $messages[] = [
@@ -209,8 +216,8 @@ class CloudinaryConnector implements IConnector
             $ext        = $fileinfo["extension"];
 
             // Validation Config
-            $allowedExtensions = $this->config['allowed-extensions'];
-            $allowedMaxSize    = $this->config['max-size'];
+            $allowedExtensions = $this->config['security']['allowed-extensions'];
+            $allowedMaxSize    = $this->config['security']['max-size'];
 
             // Simple Validation of the uploaded images
             if(!is_readable($filesource)) {               // file doesnt exist or permissions wrong
@@ -221,8 +228,6 @@ class CloudinaryConnector implements IConnector
                 ];
                 continue;
             }
-
-
 
             if($size > $allowedMaxSize){                    // file size is to large
                 $messages[] = [
@@ -245,16 +250,41 @@ class CloudinaryConnector implements IConnector
 
             $defaults = is_array($this->config["upload-defaults"]) ? $this->config["upload-defaults"] : [];
 
-            $result = Uploader::upload($filesource, [
-                "use_filename" => $filename,
+            $result = Uploader::upload($filesource, $defaults + [
+                "use_filename" => true,
                 "public_id" => $image->id,
                 "tags" => $image->tags,
                 "context" => $image->attributes
-            ] + $defaults);
+            ]);
 
-            dump($result); // TODO: returning result not in docs? Dump and refactor when known
+            // On success a context object is present
+            if(isset($result["context"])) {
 
-            $image->status = Image::STATUS_CLEAN;
+                $image = new Image($result["public_id"], self::ID);
+
+                $image->attributes = isset($result["context"]["custom"]) ? $result["context"]["custom"] : [];
+                $image->tags = isset($result["tags"]) ? $result["tags"] : [];
+
+                $image->info = [
+                    Image::INFO_HEIGHT => $result["height"],
+                    Image::INFO_WIDTH => $result["width"],
+                    Image::INFO_SIZE => $result["bytes"],
+                    Image::INFO_FORMAT => $result["format"],
+                    Image::INFO_SOURCE => $result["url"],
+                    Image::INFO_CREATED => $result["created_at"]
+                ];
+
+                $image->status = Image::STATUS_CLEAN;
+
+            } elseif ($result["existing"]) {
+                $messages[] = [
+                    "type" => IConnector::RESULT_TYPE_ERROR,
+                    "code" => IConnector::RESULT_CODE_ERRFILEEXISTS,
+                    "id" => $image->id
+                ];
+                unset($images[$idx]);
+            }
+
         }
         return $images;
     }
@@ -373,4 +403,5 @@ class CloudinaryConnector implements IConnector
 
         return [ $medialibrary ];
     }
+    
 }

@@ -1,5 +1,5 @@
 <?php
-namespace Bolt\Extension\CND\ImageService\Connector;
+namespace Bolt\Extension\CND\ImageService;
 
 use Bolt\Application;
 use Bolt\Extension\CND\ImageService\Image;
@@ -35,6 +35,7 @@ interface IConnector
     const RESULT_CODE_ERRFILEEXT     = "fileext";
     const RESULT_CODE_ERRSTATUS      = "status";
     const RESULT_CODE_ERRUNKNOWN     = "unknown";
+    const RESULT_CODE_ERRFILEEXISTS  = "fileexists";
 
     /**
      * IConnector constructor.

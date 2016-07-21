@@ -134,6 +134,7 @@ class Image implements JsonSerializable {
         $image->__set("attributes", $input["attributes"]);
         $image->__set("tags",       $input["tags"]);
         $image->__set("options",    $input["options"]);
+        $image->__set("status",     $input["status"]);
 
         return $image;
     }

@@ -1,14 +1,29 @@
 # A list of all active image services with their class names and config variables
+
+security: &security
+    allowed-extensions: [jpg,png,gif]
+    max-size: 500000
+
 connectors:
 
     cloudinary:
         class: Bolt\Extension\CND\ImageService\Connector\CloudinaryConnector
-        cloud-name:
-        api-Key:
-        api-secret:
-        api-base-url:         http://res.cloudinary.com/xxx
-        base-delivery-url:    https://res.cloudinary.com/xxx
-        secure-delivery-url:  https://api.cloudinary.com/v1_1/xxx
+
+        cloud-name:           your-cloudinary-name
+        api-key:              your-cloudinary-key
+        api-secret:           your-cloudinary-secret
+        api-base-url:         https://api.cloudinary.com/v1_1/your-cloudinary-name
+        base-delivery-url:    http://res.cloudinary.com/your-cloudinary-name
+        secure-delivery-url:  https://api.cloudinary.com/your-cloudinary-name
+        security: *security
+        upload-defaults:
+            unique_filename: true
+            overwrite: false
+            folder: false
+            type: upload
+            image_metadata: false
+            colors: false
+            invalidate: false
 
 defaults:
     mode:     limit

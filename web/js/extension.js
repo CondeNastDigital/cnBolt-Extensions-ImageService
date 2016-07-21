@@ -14,8 +14,8 @@ var ImageService = function (data) {
     var ImageServiceErrors = {
         fileexists: 'The file already exists. Please add it via the search field',
         filesize:   'The uploaded file is too big. Please choose a smaller one',
-        nofile:     'No file has been fount, for the new image',
-        fileext:    'The files extension is unknown',
+        nofile:     'One of the new uploaded files, has not been successfully sent to the server',
+        fileext:    'Filetype not allowed. The files extension is unknown',
         status:     'Invalid image status',
         unknown:    'Something went wrong. Try again and if the problem persits call an administrator'
     };

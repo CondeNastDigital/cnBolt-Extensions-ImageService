@@ -7,6 +7,9 @@ use Bolt\Extension\CND\ImageService\Provider\FieldProvider;
 use Bolt\Extension\CND\ImageService\Provider\ServiceProvider;
 use Bolt\Extension\CND\ImageService\Service\ImageService;
 use Bolt\Extension\SimpleExtension;
+use Bolt\Asset\File\JavaScript;
+use Bolt\Asset\File\Stylesheet;
+use Bolt\Controller\Zone;
 
 class Extension extends SimpleExtension
 {
@@ -17,7 +20,7 @@ class Extension extends SimpleExtension
         return [
             $this,
             new FieldProvider(),
-            new Serviceprovider($this->getConfig())
+            new ServiceProvider($this->getConfig())
         ];
     }
 
@@ -25,7 +28,10 @@ class Extension extends SimpleExtension
      * {@inheritdoc}
      */
     protected function registerAssets(){
-        return [];
+        return [
+            (new JavaScript('/js/extension.js'))->setZone(Zone::BACKEND)->setPriority(1),
+            (new Stylesheet('/css/extension.css'))->setZone(Zone::BACKEND)->setPriority(1),
+        ];
     }
 
     /**

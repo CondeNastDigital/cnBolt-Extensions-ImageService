@@ -2,7 +2,7 @@
 namespace Bolt\Extension\CND\ImageService\Service;
 use Bolt;
 use Bolt\Application;
-use Bolt\Extension\CND\ImageService\Connector\IConnector;
+use Bolt\Extension\CND\ImageService\IConnector;
 use Bolt\Extension\CND\ImageService\Image;
 
 class ImageService {

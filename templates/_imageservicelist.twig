@@ -36,13 +36,47 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
 {% block fieldset_controls %}
     <div class="col-xs-12">
         {% set value = context.content.get(contentkey)|default(field.default)|default({items:[]}) %}
+
         <textarea{{ macro.attr(attributes.text) }}>{{ value|json_encode }}</textarea>
+
+        <div id="imageservice-{{ name }}-list"></div>
+
         <script>
-            var dummy = {
-            {% for item in value.items|default([]) %}
-                "{{ item.id }}": "{{ imageservice(item,150,100) }}"{{ loop.last ?"":","}}
-            {% endfor %}
-            }
+
+            $(document).ready(
+                    function() {
+
+                        var defs = {
+                            urls: {
+                                {% for item in value.items|default([]) %}
+                                "{{ item.id }}": "{{ imageservice(item,150,100) }}"{{ loop.last ?"":","}}
+                                {% endfor %}
+                            }
+                        };
+
+                        var imageService = new ImageService({
+                            cache: defs,
+                            serviceUrl: '{{ paths.hosturl }}{{ paths.bolt }}image-service/image',
+                            maxFiles: 6,
+                            maxFileSize: 2000000,
+                            dataElement: '[name="{{ name }}"]',
+                            hostElement: '#imageservice-{{ name }}-list',
+                            attributes: {{ field.attributes|json_encode|raw }}
+                        });
+
+                        /**
+                         * FIXME: Find a more reliable way to attach the save event. The bolt events are not cancelable, that
+                         * is why the Bolt.Content.Save.Start is not a good option. Its also not syncronious.
+                         */
+                        $('#sidebarsavecontinuebutton, #savecontinuebutton').bind('click', {} ,function (event) {
+                            imageService.onSave(event);
+                        });
+
+                    }
+            )
+
+
         </script>
+
     </div>
 {% endblock fieldset_controls %}

@@ -30,6 +30,7 @@ class ImageController implements ControllerProviderInterface
         $ctr = $app['controllers_factory'];
 
         $ctr->get('/imagesearch', [$this, 'imageSearch']);
+        $ctr->post('/imageprocess', [$this, 'imageProcess']);
         $ctr->get('/tagsearch', [$this, 'tagSearch']);
 
         return $ctr;
@@ -42,19 +43,20 @@ class ImageController implements ControllerProviderInterface
      */
     public function imageProcess(Request $request)
     {
-        $body = $request->getContent(false);
-        $body = json_decode($body, true);
+        $messages = [];
+        $items = $request->get('items');
+        $items = json_decode($items, true);
 
         /* @var ImageService $service */
         $service = $this->container[Extension::APP_EXTENSION_KEY.".service"];
 
-        if(!is_array($body["items"]))
+        if(!is_array($items))
             return new JsonResponse([
                 "success" => false
             ]);
 
         $images = [];
-        foreach($body["items"] as $item)
+        foreach($items as $item)
             $images[] = Image::create($item);
 
         $images = $service->imageProcess($images, $messages);
