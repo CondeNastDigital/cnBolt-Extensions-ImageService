@@ -22,6 +22,20 @@ var ImageService = function (data) {
     };
 
     /**
+     * Strings that are used in the application
+     * @type {{button: {itemUpload: string}, fields: {itemFind: string}}}
+     */
+    var ImageServiceLabels = {
+        button: {
+            itemUpload: 'Upload Image',
+        },
+        fields: {
+            itemFind: 'Search in the library'
+        }
+
+    };
+
+    /**
      * Event on which the system reacts
      * @type {{LISTCHANGED: string, ITEMADDED: string, ITEMDELETED: string}}
      */
@@ -52,7 +66,8 @@ var ImageService = function (data) {
         DELETED: 'deleted',
         NEW: 'new',
         CLEAN: 'clean',
-        DIRTY: 'dirty'
+        DIRTY: 'dirty',
+        IGNORE: 'ignore'
     };
 
     /**
@@ -439,7 +454,7 @@ var ImageService = function (data) {
          * @returns {*}
          */
         that.render = function () {
-            container = $('<span class="btn btn-primary fileinput-button"><i class="fa fa-plus"></i><span> Add Files ...</span></span>');
+            container = $('<span class="btn btn-primary fileinput-button"><i class="fa fa-plus"></i><span> '+ ImageServiceLabels.button.itemUpload +' </span></span>');
             that.addUploadField();
             return $('<div class="imageservice-uploader"></div>').append(container);
         };
@@ -511,7 +526,7 @@ var ImageService = function (data) {
 
             that.select.select2({
                 width: '100%',
-                placeholder: 'Type to find an item',
+                placeholder: ImageServiceLabels.fields.itemFind,
                 allowClear: true,
                 ajax: {
                     url: that.dataService.location + "/imagesearch",
@@ -695,8 +710,10 @@ var ImageService = function (data) {
                 }
             });
 
-            $(that.host).on(ImageServiceEVENTS.ITEMDELETED, function (event, data) {
+            $(that.host).on(ImageServiceEVENTS.ITEMDELETED, function (event, item) {
                 that.dirty = true;
+                if(item.getData().status == ImageServiceItemStatuses.IGNORE)
+                    that.removeItem(item);
             });
 
         };
@@ -738,6 +755,17 @@ var ImageService = function (data) {
                 items: items,
                 files: files
             };
+        };
+
+        /**
+         * Removes an element form the list
+         * @param item
+         */
+        that.removeItem = function (item) {
+            var itemIndex = that.imageEntities.indexOf(item);
+            if(itemIndex >=0) {
+                that.imageEntities.splice(itemIndex, 1);
+            }
         };
 
         /**
@@ -995,12 +1023,19 @@ var ImageService = function (data) {
          * Code to execute on entity delete
          */
         that.onItemDelete = function () {
+
             dirty = true;
-            item.status = ImageServiceItemStatuses.DELETED;
+
+            if(item.status != ImageServiceItemStatuses.NEW)   // Delete existing already uploaded images
+                item.status = ImageServiceItemStatuses.DELETED;
+            else
+                item.status = ImageServiceItemStatuses.IGNORE; // Delete of images that not been uploaded
+
             $(container).animate({height: 0, opacity: 0}, 300, function () {
                 $(container).hide();
+                container.trigger(ImageServiceEVENTS.ITEMDELETED, that);
             });
-            container.trigger(ImageServiceEVENTS.ITEMDELETED, item);
+
         };
 
         /**
