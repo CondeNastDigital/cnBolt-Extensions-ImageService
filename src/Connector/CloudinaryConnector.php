@@ -242,7 +242,7 @@ class CloudinaryConnector implements IConnector
             }
 
             if(!in_array($ext, $allowedExtensions) ||        // extension is not allowed
-               !in_array($ext, self::supportedFormats())) {  // extension is not supported
+                !in_array($ext, self::supportedFormats())) {  // extension is not supported
                 $messages[] = [
                     "type" => IConnector::RESULT_TYPE_ERROR,
                     "code" => IConnector::RESULT_CODE_ERRFILEEXT,
@@ -255,14 +255,14 @@ class CloudinaryConnector implements IConnector
             $defaults = is_array($this->config["upload-defaults"]) ? $this->config["upload-defaults"] : [];
 
             $result = Uploader::upload($filesource, $defaults + [
-                "use_filename" => true,
-                "public_id" => $image->id,
-                "tags" => $image->tags,
-                "context" => $image->attributes
-            ]);
+                    "use_filename" => true,
+                    "public_id" => $image->id,
+                    "tags" => $image->tags,
+                    "context" => $image->attributes
+                ]);
 
             // On success a context object is present
-            if(isset($result["context"])) {
+            if(isset($result["public_id"]) && !$result["existing"]) {
 
                 $image = new Image($result["public_id"], self::ID);
 

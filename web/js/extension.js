@@ -67,7 +67,7 @@ var ImageService = function (data) {
         NEW: 'new',
         CLEAN: 'clean',
         DIRTY: 'dirty',
-        IGNORE: 'ignore'
+        EXCLUDE: 'exclude'
     };
 
     /**
@@ -300,14 +300,31 @@ var ImageService = function (data) {
         };
 
         // TODO: Remove as its not needed. The url comes back on item create
-        that.getImageUrl = function (imageId) {
+        that.getImageUrl = function (imageId, service) {
+
+            // TODO: Backend call
+            var deferred =  Promise.defer();
 
             if (that.defaults.hasOwnProperty('urls') && that.defaults.urls.hasOwnProperty(imageId)) {
-                return that.defaults.urls[imageId];
+                deferred.resolve(that.defaults.urls[imageId]);
             } else {
-                // TODO: Backend call
-                return false;
+
+                $.ajax({
+                    url: that.location + '/imageurl',
+                    data: {
+                        imageid: imageId,
+                        width: null,
+                        height: null,
+                        service: service
+                    },
+                    success: function(data) {
+                        deferred.resolve(data.url);
+                    }
+                });
+
             }
+
+            return deferred.promise;
         };
 
         /**
@@ -534,7 +551,7 @@ var ImageService = function (data) {
                     delay: 120,
                     data: function (params) {
                         return {
-                            q: params.term, // search term
+                            q: params.term.replace(/(^\s+)|(\s+$)/igm,''), // search term, trimmed
                             page: params.page
                         };
                     },
@@ -712,7 +729,7 @@ var ImageService = function (data) {
 
             $(that.host).on(ImageServiceEVENTS.ITEMDELETED, function (event, item) {
                 that.dirty = true;
-                if(item.getData().status == ImageServiceItemStatuses.IGNORE)
+                if(item.getData().status == ImageServiceItemStatuses.EXCLUDE)
                     that.removeItem(item);
             });
 
@@ -1002,7 +1019,7 @@ var ImageService = function (data) {
          */
         that.presetImage = function () {
             if (!item.info.source)
-                item.info.source = dataService.getImageUrl(item.id);
+                item.info.source = dataService.getImageUrl(item.id, item.service);
 
             if (item.attributes instanceof Array) {
                 item.attributes = {};
@@ -1029,7 +1046,7 @@ var ImageService = function (data) {
             if(item.status != ImageServiceItemStatuses.NEW)   // Delete existing already uploaded images
                 item.status = ImageServiceItemStatuses.DELETED;
             else
-                item.status = ImageServiceItemStatuses.IGNORE; // Delete of images that not been uploaded
+                item.status = ImageServiceItemStatuses.EXCLUDE; // Delete of images that not been uploaded
 
             $(container).animate({height: 0, opacity: 0}, 300, function () {
                 $(container).hide();
@@ -1135,7 +1152,9 @@ var ImageService = function (data) {
         that.init = function () {
 
             container = $('<div class="col-xs-12 col-sm-3 col-md-3 imageservice-preview"></div>');
-            preview = $('<img src="' + item.info.source + '" />');
+            preview = $('<img/>');
+
+            that.update(item);
 
             preview.on('click', function(){
                 $(this).trigger(ImageServiceEVENTS.ITEMTOGGLE);
@@ -1145,9 +1164,23 @@ var ImageService = function (data) {
 
         };
 
+        /**
+         * Updates the preview data
+         * @param newImage
+         */
         that.update = function (newImage) {
+
             item = newImage;
-            preview.attr('src', newImage.info.source);
+
+            if(item.info.source instanceof Promise && item.status != ImageServiceItemStatuses.NEW) {
+                item.info.source.then(function(url){
+                    preview.attr('src', url);
+                    item.info.source = url;
+                });
+            } else {
+                preview.attr('src', item.info.source);
+            }
+
         };
 
         /**
