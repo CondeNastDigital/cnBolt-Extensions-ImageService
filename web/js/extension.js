@@ -18,7 +18,8 @@ var ImageService = function (data) {
         fileext:     'The files extension is unknown',
         status:      'Invalid image status',
         unknown:     'Something went wrong. Try again and if the problem persits call an administrator',
-        fileinvalid: 'File is invalid. Either too big or the of an unsuported type'
+        fileinvalid: 'File is invalid. Either too big or the of an unsuported type',
+        accessdenied: 'You are not logged in!'
     };
 
     /**
@@ -286,6 +287,9 @@ var ImageService = function (data) {
 
                     if (response.success === true && response.messages && response.messages.length)
                         warningCallback(response.messages);
+
+                    if(response.success === false && response.messages && response.messages.length)
+                        return errorCallback(ImageServiceErrors[response.messages[0].code]);
 
                     if (response.success === true && typeof(callback) === 'function')
                         return callback(response.items);
@@ -1180,7 +1184,7 @@ var ImageService = function (data) {
                     preview.attr('src', url);
                     item.info.source = url;
                 });
-            } else {
+            } else if(!(item.info.source instanceof Promise)) {
                 preview.attr('src', item.info.source);
             }
 
