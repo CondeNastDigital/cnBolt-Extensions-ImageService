@@ -302,8 +302,11 @@ var ImageService = function (data) {
         // TODO: Remove as its not needed. The url comes back on item create
         that.getImageUrl = function (imageId, service) {
 
-            // TODO: Backend call
-            var deferred =  Promise.defer();
+            var deferred =  {};
+            deferred.promise = new Promise(function(resolve, reject){
+                deferred.resolve = resolve;
+                deferred.reject = reject;
+            });
 
             if (that.defaults.hasOwnProperty('urls') && that.defaults.urls.hasOwnProperty(imageId)) {
                 deferred.resolve(that.defaults.urls[imageId]);
