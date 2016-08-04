@@ -4,18 +4,23 @@ namespace Bolt\Extension\CND\ImageService\Controller;
 use Bolt\Extension\CND\ImageService\Extension;
 use Bolt\Extension\CND\ImageService\Image;
 use Bolt\Extension\CND\ImageService\Service\ImageService;
+use Bolt\Users;
 use Silex\Application;
 use Silex\ControllerCollection;
 use Silex\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Security\Core\User\User;
+use Bolt\Extension\CND\ImageService\IConnector;
 
 /**
  * The controller
  */
 class ImageController implements ControllerProviderInterface
 {
+
     /** @var Application */
     protected $container;
 
@@ -44,6 +49,18 @@ class ImageController implements ControllerProviderInterface
      * @return JsonResponse
      */
     public function imageUrl(Request $request) {
+
+        // TODO: Create a MessageClass that hold the common constants and logic
+        if(!$this->canAccess())
+            return new JsonResponse([
+                "url" => null,
+                "messages" => [[
+                    "type" => IConnector::RESULT_TYPE_ERROR,
+                    "code" => IConnector::RESULT_CODE_ACCESSDENIED,
+                    "id" => null
+                ]],
+                "success" => false
+            ]);
 
         $imageId = $request->get('imageid');
         $width   = $request->get('width');
@@ -77,6 +94,19 @@ class ImageController implements ControllerProviderInterface
      */
     public function imageProcess(Request $request)
     {
+
+        // TODO: Create a MessageClass that hold the common constants and logic
+        if(!$this->canAccess())
+            return new JsonResponse([
+                "items" => [],
+                "messages" => [[
+                    "type" => IConnector::RESULT_TYPE_ERROR,
+                    "code" => IConnector::RESULT_CODE_ACCESSDENIED,
+                    "id" => null
+                ]],
+                "success" => false
+            ]);
+
         $messages = [];
         $items = $request->get('items');
         $items = json_decode($items, true);
@@ -110,6 +140,19 @@ class ImageController implements ControllerProviderInterface
      */
     public function imageSearch(Request $request)
     {
+        // TODO: Create a MessageClass that hold the common constants and logic
+        if(!$this->canAccess())
+            return new JsonResponse([
+                "search" => '',
+                "items"  => [],
+                "messages" => [[
+                    "type" => IConnector::RESULT_TYPE_ERROR,
+                    "code" => IConnector::RESULT_CODE_ACCESSDENIED,
+                    "id" => null
+                ]],
+                "success" => false
+            ]);
+
         $text = $request->get('q','');
         $text = strip_tags(urldecode($text));
 
@@ -125,7 +168,8 @@ class ImageController implements ControllerProviderInterface
         return new JsonResponse([
             "search" => $text,
             "items" => $images,
-            "success" => true
+            "success" => true,
+            "messages" => []
         ]);
     }
 
@@ -149,5 +193,16 @@ class ImageController implements ControllerProviderInterface
             "items" => $images,
             "success" => true
         ]);
+    }
+
+    /**
+     * @param string $role
+     * @param Application $app
+     * @return boolean
+     * @internal param Request $request
+     */
+    private function canAccess($role='editor')
+    {
+        return $this->container["users"]->hasRole($role);
     }
 }

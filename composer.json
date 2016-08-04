@@ -14,6 +14,10 @@
         {
             "name": "Tobias Bulla - Condé-Nast Verlag GmbH",
             "email": "tobias.bulla@condenast.de"
+        },
+        {
+          "name": "Rosen Ralev - Condé-Nast Verlag GmbH",
+          "email": "rosen.ralev@condenast.de"
         }
     ],
     "minimum-stability": "dev",
