@@ -36,6 +36,7 @@ interface IConnector
     const RESULT_CODE_ERRSTATUS      = "status";
     const RESULT_CODE_ERRUNKNOWN     = "unknown";
     const RESULT_CODE_ERRFILEEXISTS  = "fileexists";
+    const RESULT_CODE_ACCESSDENIED   = "accessdenied";
 
     /**
      * IConnector constructor.
