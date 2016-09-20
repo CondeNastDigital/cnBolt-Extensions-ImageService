@@ -17,9 +17,6 @@ class Extension extends SimpleExtension
 
     public function getServiceProviders()
     {
-        
-        if($this->container[''])
-        
         return [
             $this,
             new FieldProvider(),
