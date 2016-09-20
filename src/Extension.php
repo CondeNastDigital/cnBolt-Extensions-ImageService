@@ -17,6 +17,9 @@ class Extension extends SimpleExtension
 
     public function getServiceProviders()
     {
+        
+        if($this->container[''])
+        
         return [
             $this,
             new FieldProvider(),
@@ -48,7 +51,7 @@ class Extension extends SimpleExtension
      * {@inheritdoc}
      */
     protected function registerTwigPaths(){
-        return ['templates'];
+        return ['templates','templates/structured-content'];
     }
 
     /**
