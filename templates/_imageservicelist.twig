@@ -54,7 +54,7 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                             }
                         };
 
-                        var imageService = new ImageService({
+                        var imageService = new CnImageService({
                             cache: defs,
                             serviceUrl: '{{ paths.hosturl }}{{ paths.bolt }}image-service/image',
                             {% if field.maxFiles %}
