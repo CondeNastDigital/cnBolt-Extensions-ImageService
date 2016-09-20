@@ -28,8 +28,18 @@ class Extension extends SimpleExtension
      * {@inheritdoc}
      */
     protected function registerAssets(){
+
+        $resources    = $this->container['resources'];
+        $extensionUrl = $resources->getUrl('bolt').'image-service';
+
         return [
+            // js
             (new JavaScript('/js/extension.js'))->setZone(Zone::BACKEND)->setPriority(1),
+            (new JavaScript('/js/extension-for/sir-trevor.js'))
+                ->setZone(Zone::BACKEND)
+                ->setAttributes(['data-extension-url="'.$extensionUrl.'"'])
+                ->setPriority(2),
+            // css
             (new Stylesheet('/css/extension.css'))->setZone(Zone::BACKEND)->setPriority(1),
         ];
     }

@@ -57,6 +57,7 @@ if(typeof(SirTrevor)) {
             var customInstance = new CnImageService(Object.assign(config, defaults ));
 
             // Adds the on-save
+            // TODO: Replace with a better event/catchcancel process
             $('#sidebarsavecontinuebutton, #savecontinuebutton').bind('click', {} ,function (event) {
                 customInstance.onSave(event);
             });

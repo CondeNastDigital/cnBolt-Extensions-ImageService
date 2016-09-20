@@ -63,6 +63,7 @@ class ImageController implements ControllerProviderInterface
             ]);
 
         $imageId = $request->get('imageid');
+        $service = $request->get('service');
         $width   = $request->get('width');
         $height  = $request->get('height');
 
@@ -72,7 +73,8 @@ class ImageController implements ControllerProviderInterface
             ]);
 
         $image = Image::create([
-            'id' => $imageId
+            'id' => $imageId,
+            'service' => $service
         ]);
 
         /* @var ImageService $service */
@@ -203,6 +205,12 @@ class ImageController implements ControllerProviderInterface
      */
     private function canAccess($role='editor')
     {
-        return $this->container["users"]->hasRole($role);
+
+        $app    = $this->container;
+        $user   = $app['users']->getCurrentUser();
+        $userid = $user['id'];
+
+        return $app['users']->hasRole($userid, $role);
+
     }
 }

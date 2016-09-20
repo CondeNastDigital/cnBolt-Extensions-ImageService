@@ -4,7 +4,7 @@
  * @returns {{service: ImageServiceConnector, uploader: ImageServiceUploader, list: ImageServiceList}}
  * @constructor
  */
-var ImageService = function (data) {
+var CnImageService = function (data) {
 
     // ------- Definitions ---------
 
@@ -1025,8 +1025,10 @@ var ImageService = function (data) {
          * TODO: Move this logic to the Item service
          */
         that.presetImage = function () {
-            if (!item.info.source)
+
+            if (!item.info.source){
                 item.info.source = dataService.getImageUrl(item.id, item.service);
+            }
 
             if (item.attributes instanceof Array) {
                 item.attributes = {};
