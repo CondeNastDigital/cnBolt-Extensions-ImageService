@@ -56,10 +56,25 @@ class Extension extends SimpleExtension
      */
     protected function registerTwigFunctions(){
         return [
-            'imageservice' => [[$this->getContainer()[self::APP_EXTENSION_KEY.".service"], "imageUrl" ]]
+            'imageservice' => "imageUrlFilter"
         ];
     }
 
+
+    public function imageUrlFilter($image, $width, $height, $mode = false, $format = false, $quality = false, $options = array()) {
+
+        /* @var \Bolt\Application $app */
+        $app = $this->getContainer();
+        /* @var ImageService $service */
+        $service = $app[self::APP_EXTENSION_KEY.".service"];
+
+        $image = Image::create([
+            "id" => $image->id,
+            "service" => $image->service
+        ]);
+
+        return $service->imageUrl( $image, $width, $height, $mode, $format, $quality, $options );
+    }
 
     /**
      * {@inheritdoc}

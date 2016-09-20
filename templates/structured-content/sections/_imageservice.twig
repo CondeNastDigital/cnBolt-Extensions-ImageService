@@ -1,1 +1,3 @@
-HELLO
+{% for key, image in section.data.items %}
+    <img src="{{ imageservice(image,800,600) }}"/>
+{% endfor %}
