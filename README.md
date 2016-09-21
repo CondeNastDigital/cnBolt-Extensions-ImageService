@@ -40,10 +40,12 @@ pages:
     name: Pages
     singular_name: Page
     fields:
+    
+        # Standalone ImageService field
         imageservice:
             type: imageservicelist
             label: CouldImage
-            attributes:
+            attributes: &ImageServiceAttributes
                 title:
                     type: text
                     label: Image Title
@@ -53,6 +55,18 @@ pages:
                 caption:
                     type: textarea
                     label: Caption
+                    
+        # Image Service as a part of Bolt-Structured-Content (SirTrevor)
+        structuredcontent:
+            type: structuredcontentfield
+            height: 400px
+            blocks: [Imageservice, Heading, Text, List, Video, Quote]
+            extend:  #block_config
+                imageService:
+                    maxFiles: 1
+                    maxFileSize: 20000
+                    attributes: 
+                        <<: *ImageServiceAttributes
 ```
 
 ## Usage
@@ -71,8 +85,10 @@ There is also a custom twig filter, that gives back the image url in different s
 ```
 {% set images = record.imageupload|json_decode %}
 
+<!-- imageservice(image, width, height, mode=false, format=false, quality=false, options=array)) -->
+
 {% for image in images.items %}
-    {{ dump(imageservice(image,150,100)) }}
+    {{ dump(imageservice(image,640,480)) }}
     {{ dump(imageservice(image,250,150)) }}
 {% endfor %}
 ```
