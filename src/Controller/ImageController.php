@@ -24,6 +24,10 @@ class ImageController implements ControllerProviderInterface
     /** @var Application */
     protected $container;
 
+    /* Permissions */
+    CONST PERMISSION_EDIT = 'editcontent';
+    CONST PERMISSION_VIEW = 'overview';
+
     /**
      * {@inheritdoc}
      */
@@ -51,7 +55,7 @@ class ImageController implements ControllerProviderInterface
     public function imageUrl(Request $request) {
 
         // TODO: Create a MessageClass that hold the common constants and logic
-        if(!$this->canAccess())
+        if(!$this->canAccess(self::PERMISSION_VIEW))
             return new JsonResponse([
                 "url" => null,
                 "messages" => [[
@@ -98,7 +102,7 @@ class ImageController implements ControllerProviderInterface
     {
 
         // TODO: Create a MessageClass that hold the common constants and logic
-        if(!$this->canAccess())
+        if(!$this->canAccess(self::PERMISSION_EDIT))
             return new JsonResponse([
                 "items" => [],
                 "messages" => [[
@@ -143,7 +147,7 @@ class ImageController implements ControllerProviderInterface
     public function imageSearch(Request $request)
     {
         // TODO: Create a MessageClass that hold the common constants and logic
-        if(!$this->canAccess())
+        if(!$this->canAccess(self::PERMISSION_VIEW))
             return new JsonResponse([
                 "search" => '',
                 "items"  => [],
@@ -198,19 +202,17 @@ class ImageController implements ControllerProviderInterface
     }
 
     /**
-     * @param string $role
-     * @param Application $app
-     * @return boolean
+     * @param string $permission Possible values: editcontent,deletecontent,contentaction,overview,relatedto
+     * @return bool
+     * @internal param string $role
+     * @internal param Application $app
      * @internal param Request $request
      */
-    private function canAccess($role='editor')
+    private function canAccess($permission='editcontent')
     {
+        $app  = $this->container;
+        $user = $app['users']->getCurrentUser();
 
-        $app    = $this->container;
-        $user   = $app['users']->getCurrentUser();
-        $userid = $user['id'];
-
-        return $app['users']->hasRole($userid, $role);
-
+        return $app['permissions']->isAllowed($permission, $user);
     }
 }
