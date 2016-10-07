@@ -30,3 +30,8 @@ defaults:
     format:   jpg
     quality:  80
     options:  []
+
+permissions:
+    roles:
+        edit: [editor, chief-editor, developer]
+        view: [everyone]

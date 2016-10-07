@@ -25,8 +25,8 @@ class ImageController implements ControllerProviderInterface
     protected $container;
 
     /* Permissions */
-    CONST PERMISSION_EDIT = 'editcontent';
-    CONST PERMISSION_VIEW = 'overview';
+    CONST PERMISSION_EDIT = 'cnd-imageservice-edit';
+    CONST PERMISSION_VIEW = 'cnd-imageservice-view';
 
     /**
      * {@inheritdoc}
@@ -208,7 +208,7 @@ class ImageController implements ControllerProviderInterface
      * @internal param Application $app
      * @internal param Request $request
      */
-    private function canAccess($permission='editcontent')
+    private function canAccess($permission)
     {
         $app  = $this->container;
         $user = $app['users']->getCurrentUser();

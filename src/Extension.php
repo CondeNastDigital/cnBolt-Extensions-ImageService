@@ -97,8 +97,31 @@ class Extension extends SimpleExtension
         /* @var \Bolt\Application $app */
         $app = $this->getContainer();
         $config = $this->getConfig();
+
+        // Registers the new permissions that the controller will need
+        $this->addAccessControl();
+
         return [
             '/image-service/image' => new ImageController($app, $config),
         ];
     }
+
+    /**
+     * Adds a new permission, and assign it to the configured groups
+     */
+    protected function addAccessControl() {
+
+        $app    = $this->container;
+        $config = $this->getConfig();
+        $roles  = $config['permissions']['roles'];
+
+        $permissions = $app['config']->get('permissions/global');
+
+        $permissions[ImageController::PERMISSION_EDIT] = $roles['edit'];
+        $permissions[ImageController::PERMISSION_VIEW] = $roles['view'];
+
+        $app['config']->set('permissions/global', $permissions);
+
+    }
+
 }
