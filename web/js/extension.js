@@ -1379,8 +1379,8 @@ var CnImageService = function (data) {
             var fieldLabel = that.generateLabel();
 
             var container = $('<li class="row"></li>');
-            var label = $('<label class="col-xs-12 col-sm-12 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label>');
-            var bootstrapContainer = $('<div class="col-xs-12 col-sm-12 col-md-9" ></div>');
+            var label = $('<label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label>');
+            var bootstrapContainer = $('<div class="col-xs-12 col-sm-9 col-md-9" ></div>');
             var select = $('<select name="' + fieldName + '" multiple ></select>');
 
             (fieldValue || []).forEach(function (el) {
