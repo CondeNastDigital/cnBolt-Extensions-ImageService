@@ -18,6 +18,7 @@ ImageService
 
 /* Finder Styling */
 .imageservice-finder {
+    width: 100%;
     box-sizing: border-box;
     line-height: 28px;
     padding-left: 5px !important;
@@ -166,6 +167,7 @@ ImageService
     width: 100% !important;
     font-size: inherit !important;
     height: auto;
+    margin: 1px 0;
 }
 
 .imageservice-entity .imageservice-attributes .select2.select2-container > span *  {
