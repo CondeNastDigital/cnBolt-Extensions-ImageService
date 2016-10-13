@@ -134,6 +134,7 @@ ImageService
     text-align: center;
     height: auto;
     box-sizing: border-box;
+    padding-top: 3px;
     padding-left: 0 !important;
     padding-right: 0 !important;
 }
