@@ -154,7 +154,6 @@ ImageService
 .imageservice-entity .imageservice-attributes li input[type="text"],
 .imageservice-entity .imageservice-attributes li select,
 .imageservice-entity .imageservice-attributes li textarea {
-    width: 100%;
     vertical-align: middle;
     margin: 1px 0 1px 0;
     border: 1px solid #ccc;
