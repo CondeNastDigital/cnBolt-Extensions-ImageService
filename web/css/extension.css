@@ -18,7 +18,6 @@ ImageService
 
 /* Finder Styling */
 .imageservice-finder {
-    width: 100%;
     box-sizing: border-box;
     line-height: 28px;
     padding-left: 5px !important;
@@ -154,6 +153,7 @@ ImageService
 .imageservice-entity .imageservice-attributes li input[type="text"],
 .imageservice-entity .imageservice-attributes li select,
 .imageservice-entity .imageservice-attributes li textarea {
+    width: 100%;
     vertical-align: middle;
     margin: 1px 0 1px 0;
     border: 1px solid #ccc;
