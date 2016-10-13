@@ -480,7 +480,7 @@ var CnImageService = function (data) {
         that.render = function () {
             container = $('<span class="btn btn-primary fileinput-button"><i class="fa fa-plus"></i><span> '+ ImageServiceLabels.button.itemUpload +' </span></span>');
             that.addUploadField();
-            return $('<div class="imageservice-uploader col-xs-12 col-lg-2"></div>').append(container);
+            return $('<div class="imageservice-uploader col-xs-12 col-md-3"></div>').append(container);
         };
 
         this.init();
@@ -594,7 +594,7 @@ var CnImageService = function (data) {
          * Initiates HTML
          */
         that.initHTML = function () {
-            that.container = $('<div class="imageservice-finder col-xs-12 col-lg-10"></div>');
+            that.container = $('<div class="imageservice-finder col-xs-12 col-md-9"></div>');
             that.select = $('<select></select>');
             that.container.append(that.select);
             that.addEventListeners();
