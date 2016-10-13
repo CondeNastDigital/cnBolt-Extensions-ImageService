@@ -186,7 +186,7 @@ var CnImageService = function (data) {
          * @param message
          */
         that.error = function (message) {
-            var messageBox = $('<div class="error">' + message + '</div>');
+            var messageBox = $('<div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert">×</button>' + message + '</div>');
             that.addListeners(messageBox);
             that.container.append(messageBox);
 
@@ -197,7 +197,7 @@ var CnImageService = function (data) {
          * @param message
          */
         that.info = function (message) {
-            var messageBox = $('<div class="info">' + message + '</div>');
+            var messageBox = $('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert">×</button>' + message + '</div>');
             that.addListeners(messageBox);
             that.container.append(messageBox);
         };
@@ -207,7 +207,7 @@ var CnImageService = function (data) {
          * @param message
          */
         that.warning = function (message) {
-            var messageBox = $('<div class="warning">' + message + '</div>');
+            var messageBox = $('<div class="alert alert-warning alert-dismissible"><button type="button" class="close" data-dismiss="alert">×</button>' + message + '</div>');
             that.addListeners(messageBox);
             that.container.append(messageBox);
         };
@@ -480,7 +480,7 @@ var CnImageService = function (data) {
         that.render = function () {
             container = $('<span class="btn btn-primary fileinput-button"><i class="fa fa-plus"></i><span> '+ ImageServiceLabels.button.itemUpload +' </span></span>');
             that.addUploadField();
-            return $('<div class="imageservice-uploader"></div>').append(container);
+            return $('<div class="imageservice-uploader col-xs-12 col-lg-2"></div>').append(container);
         };
 
         this.init();
@@ -499,6 +499,7 @@ var CnImageService = function (data) {
         that.dataService = data.service;
         that.container = null;
         that.select = null;
+        that.containerClass=data.containerClass;
 
         /**
          * The template of a single row in the suggestion list
@@ -507,13 +508,15 @@ var CnImageService = function (data) {
          */
         that.rowTemplate = function (state) {
             if (state.hasOwnProperty('id')) {
-                var row = $('<div class="imageservice-finder-result"><img src="' + state.info.source + '"></div>');
-                var text = $('<ul></ul>');
+                var row = $('<div class="imageservice-finder-result col-xs-12"></div>');
+                var preview = $('<div class="col-xs-3 preview" style="background-image: url(' + state.info.source + ');"></div>');
+                var text = $('<ul class="col-xs-9" ></ul>');
 
                 for (var x in state.attributes) {
                     text.append($('<li><span>' + state.attributes[x] + '</span></li>'));
                 }
 
+                row.append(preview);
                 row.append(text);
                 return row;
 
@@ -591,7 +594,7 @@ var CnImageService = function (data) {
          * Initiates HTML
          */
         that.initHTML = function () {
-            that.container = $('<div class="imageservice-finder"></div>');
+            that.container = $('<div class="imageservice-finder col-xs-12 col-lg-10"></div>');
             that.select = $('<select></select>');
             that.container.append(that.select);
             that.addEventListeners();
