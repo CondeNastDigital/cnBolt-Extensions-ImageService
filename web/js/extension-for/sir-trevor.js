@@ -51,8 +51,8 @@ if(typeof(SirTrevor)) {
                 hostElement: this.$('.frontend-target'),
                 serviceUrl: extensionUrl + '/image'
             };
-            var config = SirTrevor.config.defaults.extend.Imageservice || {};
-
+            var config = SirTrevor.getInstance(this.instanceID).options.options.Imageservice || {};
+            
             // Inits the Image Service
             var customInstance = new CnImageService(Object.assign(config, defaults ));
 
