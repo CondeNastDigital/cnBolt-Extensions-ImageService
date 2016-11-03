@@ -1,5 +1,4 @@
-
-if(typeof(SirTrevor)) {
+if( typeof(SirTrevor) == "object" ) {
 
     var extensionUrl = document.currentScript.getAttribute('data-extension-url');
 
