@@ -68,10 +68,17 @@ class Extension extends SimpleExtension
         /* @var ImageService $service */
         $service = $app[self::APP_EXTENSION_KEY.".service"];
 
-        $image = Image::create([
-            "id" => $image->id,
-            "service" => $image->service
-        ]);
+        if(is_object($image)) {
+            $image = Image::create([
+                "id" => $image->id,
+                "service" => $image->service
+            ]);
+        } else {
+            $image = Image::create([
+                "id" => $image['id'],
+                "service" => $image['service']
+            ]);
+        }
 
         return $service->imageUrl( $image, $width, $height, $mode, $format, $quality, $options );
     }

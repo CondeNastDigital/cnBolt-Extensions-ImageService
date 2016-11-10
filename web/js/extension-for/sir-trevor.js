@@ -1,8 +1,7 @@
-if( typeof(SirTrevor) == "object" ) {
-
-    var extensionUrl = document.currentScript.getAttribute('data-extension-url');
-
-    SirTrevor.Blocks.Imageservice = SirTrevor.Block.extend({
+var CnImageServiceST = function(options) {
+    var that = this;
+    var extensionUrl = options.extensionUrl;
+    var protoBlock = {
 
         imageServiceInstance: null,
 
@@ -51,7 +50,7 @@ if( typeof(SirTrevor) == "object" ) {
                 serviceUrl: extensionUrl + '/image'
             };
             var config = SirTrevor.getInstance(this.instanceID).options.options.Imageservice || {};
-            
+
             // Inits the Image Service
             var customInstance = new CnImageService(Object.assign(config, defaults ));
 
@@ -64,7 +63,26 @@ if( typeof(SirTrevor) == "object" ) {
             this.imageServiceInstance = customInstance;
 
         }
-    });
+    };
 
-}
+    that.init = function(blockOptions) {
+        if( typeof(SirTrevor) == "object" ) {
+            SirTrevor.Blocks.Imageservice = SirTrevor.Block.extend(protoBlock);
+        }
+    };
+
+    return that;
+};
+
+
+var cnImageServiceST = new CnImageServiceST({
+    extensionUrl: document.currentScript.getAttribute('data-extension-url')
+});
+
+$(document).on('SirTrevor.DynamicBlock.All', function(){
+    $(document).trigger('SirTrevor.DynamicBlock.Add', [cnImageServiceST] );
+});
+$(document).trigger('SirTrevor.DynamicBlock.Add', [cnImageServiceST] );
+
+
 
