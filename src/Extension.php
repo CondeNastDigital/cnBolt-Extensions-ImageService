@@ -15,12 +15,24 @@ class Extension extends SimpleExtension
 {
     CONST APP_EXTENSION_KEY = "cnd.image-service";
 
+    /**
+     * {@inheritdoc}
+     */
     public function getServiceProviders()
     {
         return [
             $this,
             new FieldProvider(),
             new ServiceProvider($this->getConfig())
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function registerFields() {
+        return [
+            new Bolt\Extension\CND\ImageService\Field\ImageServiceListField()
         ];
     }
 
