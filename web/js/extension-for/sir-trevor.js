@@ -6,7 +6,7 @@ var CnImageServiceST = function(options) {
         imageServiceInstance: null,
 
         type: 'imageservice',
-        title: function() { return 'Imageservice'; },
+        title: function() { return 'Image'; },
         icon_name: 'default',
         toolbarEnabled: true,
         // Custom html that is shown when a block is being edited.

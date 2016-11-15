@@ -90,10 +90,12 @@ ImageService
 
 .imageservice-list {
     width: 100%;
-    height: 400px;
+    max-height: 400px;
+    display: inline-block;
     overflow-y: scroll;
     clear: both;
     border-top: 2px solid lightgrey;
+    padding: 4px 2px 15px 2px;
 }
 
 /* List-Item Styling */
