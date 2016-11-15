@@ -20,7 +20,7 @@ class ImageServiceListField extends FieldTypeBase
 
     public function getStorageOptions(){
         return [
-            'default' => []
+            'default' => ''
         ];
     }
 
