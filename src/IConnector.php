@@ -14,10 +14,11 @@ interface IConnector
     const LINK = "http://www.cloudinary.com";
     */
 
-    const FORMAT_JPG = "jpg";
-    const FORMAT_PNG = "png";
-    const FORMAT_GIF = "gif";
-    const FORMAT_ICO = "ico";
+    const FORMAT_JPG  = "jpg";
+    const FORMAT_JPEG = "jpeg";
+    const FORMAT_PNG  = "png";
+    const FORMAT_GIF  = "gif";
+    const FORMAT_ICO  = "ico";
 
     const MODE_SCALE = "scale"; // Resize exactly to the given width and height without retaining aspect ratio.
     const MODE_LIMIT = "limit"; // Resize inside given width and height and retain aspect ratio. Only if original is larger than target!

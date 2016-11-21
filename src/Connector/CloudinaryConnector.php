@@ -382,6 +382,7 @@ class CloudinaryConnector implements IConnector
             self::FORMAT_GIF,
             self::FORMAT_ICO,
             self::FORMAT_JPG,
+            self::FORMAT_JPEG,
             self::FORMAT_PNG
         ];
     }
