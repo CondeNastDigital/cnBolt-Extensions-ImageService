@@ -34,10 +34,13 @@ class ImageServiceListField extends FieldTypeBase
         $value = $entity->get($key);
 
         // Validate and format the input json
-        $value = json_decode($value, true);
+        if(!is_array($value))
+            $value = json_decode($value, true);
+
         if(isset($value["items"]) && is_array($value["items"]))
             foreach($value["items"] as &$item)
                 $item = Image::create($item);
+
         $value = json_encode($value);
 
         $qb->setValue($key, ':' . $key);
@@ -49,7 +52,8 @@ class ImageServiceListField extends FieldTypeBase
         $key = $this->mapping['fieldname'];
         $value = isset($data[$key]) ? $data[$key] : null;
 
-        $value = json_decode($value, true);
+        if(!is_array($value))
+            $value = json_decode($value, true);
 
         if(isset($value["items"]) && is_array($value["items"]))
             foreach($value["items"] as &$item)
