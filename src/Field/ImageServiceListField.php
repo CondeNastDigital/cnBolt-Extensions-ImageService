@@ -39,7 +39,8 @@ class ImageServiceListField extends FieldTypeBase
 
         if(isset($value["items"]) && is_array($value["items"]))
             foreach($value["items"] as &$item)
-                $item = Image::create($item);
+                if(!($item instanceof Image))
+                    $item = Image::create($item);
 
         $value = json_encode($value);
 
