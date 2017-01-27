@@ -49,36 +49,32 @@ class CloudinaryConnector implements IConnector
     /**
      * @inheritdoc
      */
-    public function imageUrl(Image $image, $width, $height, $mode, $format, $quality, $options)
-    {
+    public function imageUrl(Image $image, $width, $height, $mode, $format, $quality, $options) {
         $mode_map = [
-            self::MODE_SCALE => "c_scale",
-            self::MODE_FILL => "c_fill",
-            self::MODE_PAD => "c_pad",
-            self::MODE_LIMIT => "c_limit",
-            self::MODE_FIT => "c_fit",
+            self::MODE_SCALE => "scale",
+            self::MODE_FILL => "fill",
+            self::MODE_PAD => "pad",
+            self::MODE_LIMIT => "limit",
+            self::MODE_FIT => "fit",
         ];
-
-        // Base URL
-        $url = $this->config["base-delivery-url"]."/image/upload/";
 
         // Apply modifiers
         $modifiers = [];
-        if($mode && isset($mode_map[$mode])) // Resize mpode
-            $modifiers[] = $mode_map[$mode];
-        if((int)$width)                      // Width
-            $modifiers[] = "w_".(int)$width;
-        if((int)$height)                     // Height
-            $modifiers[] = "h_".(int)$height;
-        $url .= $modifiers ? implode(",",$modifiers)."/" : "";
+        if($mode && isset($mode_map[$mode]))
+            $modifiers["crop"] = $mode_map[$mode];
+        if($width)
+            $modifiers["width"] = (int)$width;
+        if($height)
+            $modifiers["height"] = (int)$height;
+        if(in_array($format, $this->supportedFormats()))
+            $modifiers["format"] = $format;
+        if($quality)
+            $modifiers["quality"] = (int)$quality;
 
-        // Image
-        $url .= $image->id.".";
+        if(is_array($options))
+            $modifiers = $modifiers + $options;
 
-        // Format
-        $url .= $format && in_array($format, $this->supportedFormats()) ? $format : "jpg";
-
-        return $url;
+        return Cloudinary::cloudinary_url($image->id, $modifiers);
     }
 
     /**
