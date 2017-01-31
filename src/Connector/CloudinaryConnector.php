@@ -258,7 +258,7 @@ class CloudinaryConnector implements IConnector
                 ]);
 
             // On success a context object is present
-            if(isset($result["public_id"]) && !$result["existing"]) {
+            if(isset($result["public_id"])) {
 
                 $image = new Image($result["public_id"], self::ID);
 
@@ -276,7 +276,9 @@ class CloudinaryConnector implements IConnector
 
                 $image->status = Image::STATUS_CLEAN;
 
-            } elseif ($result["existing"]) {
+            }
+            
+            if ($result["existing"]) {
                 $messages[] = [
                     "type" => IConnector::RESULT_TYPE_ERROR,
                     "code" => IConnector::RESULT_CODE_ERRFILEEXISTS,
