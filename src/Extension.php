@@ -85,11 +85,13 @@ class Extension extends SimpleExtension
                 "id" => $image->id,
                 "service" => $image->service
             ]);
-        } else {
+        } elseif(isset($image['id']) && isset($image['service'])) {
             $image = Image::create([
                 "id" => $image['id'],
                 "service" => $image['service']
             ]);
+        } else {
+            return "";
         }
 
         return $service->imageUrl( $image, $width, $height, $mode, $format, $quality, $options );
