@@ -280,11 +280,10 @@ class CloudinaryConnector implements IConnector
             
             if ($result["existing"]) {
                 $messages[] = [
-                    "type" => IConnector::RESULT_TYPE_ERROR,
+                    "type" => IConnector::RESULT_TYPE_WARN,
                     "code" => IConnector::RESULT_CODE_ERRFILEEXISTS,
                     "id" => $image->id
                 ];
-                unset($images[$idx]);
             }
         }
         return $images;
