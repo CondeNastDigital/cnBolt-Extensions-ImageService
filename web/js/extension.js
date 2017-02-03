@@ -52,6 +52,7 @@ var CnImageService = function (data) {
         ITEMDELETE: 'imageservice-itemdelete',
         ITEMTOGGLE: 'imageservice-itemtoggle',
         ITEMEXCLUDE: 'imageservice-itemexclude',
+        ITEMEXCLUDED: 'imageservice-itemexcluded',
         PREVIEWREADY: 'imageservice-preview-ready',
         ATTRIBUTERENDERED: 'imageservice-attribute-rendered',
         MESSAGEERROR: 'imageservice-message-error',
@@ -744,6 +745,11 @@ var CnImageService = function (data) {
                     that.removeItem(item);
             });
 
+            $(that.host).on(ImageServiceEVENTS.ITEMEXCLUDED, function (event, item) {
+                that.dirty = true;
+                that.removeItem(item);
+            });
+
         };
 
         /**
@@ -1024,10 +1030,21 @@ var CnImageService = function (data) {
                 that.onItemDelete(true);
             });
 
+            // delete
+            $(window).on(ImageServiceEVENTS.ITEMDELETED, function (event, item) {
+                that.onItemDeleted(item);
+            });
+
             // exclude
             container.on(ImageServiceEVENTS.ITEMEXCLUDE, function () {
                 that.onItemDelete(false);
             });
+
+            // exclude
+            $(window).on(ImageServiceEVENTS.ITEMEXCLUDED, function (event, item) {
+                that.onItemExcluded(item);
+            });
+
         };
 
         /**
@@ -1057,20 +1074,62 @@ var CnImageService = function (data) {
         /**
          * Code to execute on entity delete
          */
-        that.onItemDelete = function () {
+        that.onItemDelete = function (hard) {
 
             dirty = true;
 
-            if(item.status != ImageServiceItemStatuses.NEW)   // Delete existing already uploaded images
+            if(hard && item.status != ImageServiceItemStatuses.NEW) {
+                // Delete existing already uploaded images
                 item.status = ImageServiceItemStatuses.DELETED;
-            else
-                item.status = ImageServiceItemStatuses.EXCLUDE; // Delete of images that not been uploaded
+                var responseEvent = ImageServiceEVENTS.ITEMDELETED;
+            }
+            else {
+                // Delete of images that not been uploaded
+                var responseEvent = ImageServiceEVENTS.ITEMEXCLUDED;
+            }
 
-            $(container).animate({height: 0, opacity: 0}, 300, function () {
-                $(container).hide();
-                container.trigger(ImageServiceEVENTS.ITEMDELETED, that);
+            that.hide( function () {
+                container.trigger(responseEvent, that);
             });
 
+        };
+
+        /**
+         * Code to execute on entity delete
+         */
+        that.onItemDeleted = function (deletedItem) {
+
+            dirty = true;
+
+            if(deletedItem.getData().id != item.id)
+                return;
+
+            if(item.status != ImageServiceItemStatuses.DELETED){
+                item.status = ImageServiceItemStatuses.EXCLUDE;
+                container.trigger(ImageServiceEVENTS.ITEMEXCLUDED, that);
+            }
+
+            that.hide();
+        };
+
+
+        /**
+         * Code to execute on entity delete
+         * still no other action required
+         */
+        that.onItemExcluded = function (excludedItem) {
+            return;
+        };
+
+        /**
+         * Hide the element
+         */
+        that.hide = function(success) {
+            $(container).animate({height: 0, opacity: 0}, 300, function () {
+                $(container).hide();
+                if( typeof(success) == 'function' )
+                    success();
+            });
         };
 
         /**
