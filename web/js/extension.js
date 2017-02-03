@@ -51,6 +51,7 @@ var CnImageService = function (data) {
         ITEMDELETED: 'imageservice-itemdeleted',
         ITEMDELETE: 'imageservice-itemdelete',
         ITEMTOGGLE: 'imageservice-itemtoggle',
+        ITEMEXCLUDE: 'imageservice-itemexclude',
         PREVIEWREADY: 'imageservice-preview-ready',
         ATTRIBUTERENDERED: 'imageservice-attribute-rendered',
         MESSAGEERROR: 'imageservice-message-error',
@@ -804,7 +805,7 @@ var CnImageService = function (data) {
         that.addItem = function (imageData, fileData) {
 
             if (imageData.status == ImageServiceItemStatuses.DELETED){
-                container.trigger(ImageServiceEVENTS.MESSAGEWARNING, 'Added image has a delete status');
+                that.container.trigger(ImageServiceEVENTS.MESSAGEWARNING, 'Added image has a delete status');
                 return;
             }
 
@@ -1020,7 +1021,12 @@ var CnImageService = function (data) {
 
             // delete
             container.on(ImageServiceEVENTS.ITEMDELETE, function () {
-                that.onItemDelete();
+                that.onItemDelete(true);
+            });
+
+            // exclude
+            container.on(ImageServiceEVENTS.ITEMEXCLUDE, function () {
+                that.onItemDelete(false);
             });
         };
 
@@ -1118,19 +1124,40 @@ var CnImageService = function (data) {
          */
         that.renderDelete = function () {
 
-            var actionDelete = $('<button class="btn btn-warning delete"><i class="fa fa-remove"></i></button>');
+            var actionDelete = $('<button class="btn delete btn-danger"><i class="fa fa-trash"></i></button>');
 
             actionDelete.on('click', function (event) {
 
                 event.stopPropagation();
                 event.preventDefault();
 
-                if (confirm('Are you sure you want to remove this item from the list?'))
+                if (confirm('Are you sure you want to delete this item from the service?'))
                     actionDelete.trigger(ImageServiceEVENTS.ITEMDELETE, that.item);
 
             });
 
             return actionDelete;
+        };
+
+        /**
+         * Generates the delete button
+         * @returns {jQuery|HTMLElement}
+         */
+        that.renderExclude = function () {
+
+            var action = $('<button class="btn btn-warning remove"><i class="fa fa-minus"></i></button>');
+
+            action.on('click', function (event) {
+
+                event.stopPropagation();
+                event.preventDefault();
+
+                if (confirm('Are you sure you want to exclude this item from the list?'))
+                    action.trigger(ImageServiceEVENTS.ITEMEXCLUDE, that.item);
+
+            });
+
+            return action;
         };
 
         /**
@@ -1140,6 +1167,7 @@ var CnImageService = function (data) {
         that.render = function () {
             var actions = $('<div class="col-xs-12 col-sm-1 col-md-1 imageservice-entity-actions"></div>');
             actions.append(that.renderDelete());
+            actions.append(that.renderExclude());
             return actions;
         }
 

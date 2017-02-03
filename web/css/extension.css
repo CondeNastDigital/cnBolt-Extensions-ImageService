@@ -141,6 +141,10 @@ ImageService
     padding-right: 0 !important;
 }
 
+.imageservice-entity .imageservice-entity-actions .btn {
+    margin: 2px;
+}
+
 .imageservice-entity .imageservice-attributes li{
     list-style: none;
     font-size: 11px !important;
