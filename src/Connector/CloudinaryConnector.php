@@ -237,8 +237,8 @@ class CloudinaryConnector implements IConnector
                 continue;
             }
 
-            if(!in_array($ext, $allowedExtensions) ||        // extension is not allowed
-                !in_array($ext, self::supportedFormats())) {  // extension is not supported
+            if(!in_array(strtolower($ext), $allowedExtensions) ||        // extension is not allowed
+                !in_array(strtolower($ext), self::supportedFormats())) {  // extension is not supported
                 $messages[] = [
                     "type" => IConnector::RESULT_TYPE_ERROR,
                     "code" => IConnector::RESULT_CODE_ERRFILEEXT,
