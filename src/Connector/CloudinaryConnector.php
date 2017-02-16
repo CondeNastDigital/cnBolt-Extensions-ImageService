@@ -22,30 +22,30 @@ class CloudinaryConnector implements IConnector
     const TITLE = "Cloudinary";
     const ICON = "http://res.cloudinary.com/cloudinary/image/upload/new_cloudinary_logo_square.png";
     const LINK = "http://www.cloudinary.com";
-
+    
     /* @var Cloudinary $cloudinary */
     protected $Cloudinary;
-
+    
     /* @var Application $container */
     protected $container = null;
-
+    
     /* @var array $config */
     protected $config = [];
-
+    
     /**
      * @inheritdoc
      */
     public function __construct(Application $app, $config){
         $this->config = $config;
         $this->container = $app;
-
+        
         Cloudinary::config([
             "cloud_name" => $this->config["cloud-name"],
             "api_key"    => $this->config["api-key"],
             "api_secret" => $this->config["api-secret"]
         ]);
     }
-
+    
     /**
      * @inheritdoc
      */
@@ -57,7 +57,7 @@ class CloudinaryConnector implements IConnector
             self::MODE_LIMIT => "limit",
             self::MODE_FIT => "fit",
         ];
-
+        
         // Apply modifiers
         $modifiers = [];
         if($mode && isset($mode_map[$mode]))
@@ -70,13 +70,13 @@ class CloudinaryConnector implements IConnector
             $modifiers["format"] = $format;
         if($quality)
             $modifiers["quality"] = (int)$quality;
-
+        
         if(is_array($options))
             $modifiers = $modifiers + $options;
-
+        
         return Cloudinary::cloudinary_url($image->id, $modifiers);
     }
-
+    
     /**
      * @inheritdoc
      */
@@ -86,7 +86,7 @@ class CloudinaryConnector implements IConnector
         $update = [];
         $delete = [];
         $clean = [];
-
+        
         foreach($images as $key => $image){
             switch($image->status){
                 case Image::STATUS_DELETED:
@@ -110,7 +110,7 @@ class CloudinaryConnector implements IConnector
                     ];
             }
         }
-
+        
         // Send grouped commands
         if($delete)
             $delete = $this->processDelete($delete, $messages);
@@ -118,15 +118,15 @@ class CloudinaryConnector implements IConnector
             $update = $this->processUpdate($update, $messages);
         if($create)
             $create = $this->processCreate($create, $messages);
-
+        
         // Merges the results in the clean instance
         $clean = $update + $create + $clean;
         // Reorders the key to match the initial key order
         ksort($clean);
-
+        
         return $clean;
     }
-
+    
     /**
      * Delete all ids in array
      * @param Image[] $images
@@ -138,13 +138,13 @@ class CloudinaryConnector implements IConnector
         $ids = [];
         foreach($images as $image)
             $ids[] = $image->id;
-
+        
         // Process deletion request
         $api = new Api();
         $result = $api->delete_resources($ids, [
             "all" => true
         ]);
-
+        
         // Update status
         foreach($images as $idx => $image) {
             if (isset($result["deleted"][$image->id]) && $result["deleted"][$image->id] == "deleted")
@@ -156,10 +156,10 @@ class CloudinaryConnector implements IConnector
                     "id" => $image->id
                 ];
         }
-
+        
         return $images;
     }
-
+    
     /**
      * Delete all ids in array
      * NOTE: Cloudinary
@@ -168,23 +168,23 @@ class CloudinaryConnector implements IConnector
      * @return \Bolt\Extension\CND\ImageService\Image[]
      */
     protected function processUpdate(array $images, &$messages = []){
-
+        
         $api = new Api();
-
+        
         foreach($images as $idx => $image){
             $result = $api->update($image->id, [
                 "tags" => $image->tags,
                 "context" => $image->attributes
             ]);
-
+            
             //var_dump($result); // TODO: returning result not in docs? Dump and refactor when known
-
+            
             $image->status = Image::STATUS_CLEAN;
         }
-
+        
         return $images;
     }
-
+    
     /**
      * Delete all ids in array
      * NOTE: Cloudinary
@@ -193,7 +193,9 @@ class CloudinaryConnector implements IConnector
      * @return \Bolt\Extension\CND\ImageService\Image[]
      */
     protected function processCreate(array $images, &$messages = []){
-
+        
+        $existing = [];
+        
         foreach($images as $idx => &$image){
             // Check if a file was posted
             if(!isset($_FILES[$image->id])){
@@ -205,17 +207,17 @@ class CloudinaryConnector implements IConnector
                 unset($images[$idx]);
                 continue;
             }
-
+            
             $filesource = $_FILES[$image->id]["tmp_name"];
             $filename   = $_FILES[$image->id]["name"];
             $size       = $_FILES[$image->id]["size"];
             $fileinfo   = pathinfo($filename);
             $ext        = $fileinfo["extension"];
-
+            
             // Validation Config
             $allowedExtensions = $this->config['security']['allowed-extensions'];
             $allowedMaxSize    = $this->config['security']['max-size'];
-
+            
             // Simple Validation of the uploaded images
             if(!is_readable($filesource)) {               // file doesnt exist or permissions wrong
                 $messages[] = [
@@ -226,7 +228,7 @@ class CloudinaryConnector implements IConnector
                 unset($images[$idx]);
                 continue;
             }
-
+            
             if($size > $allowedMaxSize){                    // file size is to large
                 $messages[] = [
                     "type" => IConnector::RESULT_TYPE_ERROR,
@@ -236,7 +238,7 @@ class CloudinaryConnector implements IConnector
                 unset($images[$idx]);
                 continue;
             }
-
+            
             if(!in_array(strtolower($ext), $allowedExtensions) ||        // extension is not allowed
                 !in_array(strtolower($ext), self::supportedFormats())) {  // extension is not supported
                 $messages[] = [
@@ -247,38 +249,30 @@ class CloudinaryConnector implements IConnector
                 unset($images[$idx]);
                 continue;
             }
-
+            
             $defaults = is_array($this->config["upload-defaults"]) ? $this->config["upload-defaults"] : [];
-
+            
             $result = Uploader::upload($filesource, $defaults + [
                     "use_filename" => true,
                     "public_id" => $image->id,
                     "tags" => $image->tags,
                     "context" => $image->attributes
                 ]);
-
+            
             // On success a context object is present
             if(isset($result["public_id"])) {
-
-                $image = new Image($result["public_id"], self::ID);
-
-                $image->attributes = isset($result["context"]["custom"]) ? $result["context"]["custom"] : [];
-                $image->tags = isset($result["tags"]) ? $result["tags"] : [];
-
-                $image->info = [
-                    Image::INFO_HEIGHT => $result["height"],
-                    Image::INFO_WIDTH => $result["width"],
-                    Image::INFO_SIZE => $result["bytes"],
-                    Image::INFO_FORMAT => $result["format"],
-                    Image::INFO_SOURCE => $result["url"],
-                    Image::INFO_CREATED => $result["created_at"]
-                ];
-
+                
+                $image = $this->cloudinaryToImage($result);
                 $image->status = Image::STATUS_CLEAN;
-
+                
             }
             
             if ($result["existing"]) {
+                
+                $api = new Api();
+                $existing = $api->resource($result["public_id"]);
+                $image = $this->cloudinaryToImage($existing);
+                
                 $messages[] = [
                     "type" => IConnector::RESULT_TYPE_WARN,
                     "code" => IConnector::RESULT_CODE_ERRFILEEXISTS,
@@ -286,18 +280,19 @@ class CloudinaryConnector implements IConnector
                 ];
             }
         }
+        
         return $images;
     }
-
+    
     /**
      * @inheritdoc
      */
     public function imageSearch($search)
     {
         $api = new Api();
-
+        
         /* @var Cloudinary\Api\Response $result */
-
+        
         // Search by id
         $resultId = $api->resources([
             "type" => "upload",
@@ -307,7 +302,7 @@ class CloudinaryConnector implements IConnector
             "tags" => true,
             "context" => true
         ]);
-
+        
         // Search by tag
         $resultTag = $api->resources_by_tag($search, [
             "type" => "upload",
@@ -316,46 +311,33 @@ class CloudinaryConnector implements IConnector
             "tags" => true,
             "context" => true
         ]);
-
+        
         // Merge both search results into one
         $results = array_merge($resultId["resources"], $resultTag["resources"]);
-
+        
         // Convert cloudinary resource items to image items
         $images = [];
         foreach($results as $item){
-            $image = new Image($item["public_id"], self::ID);
-
-            $image->attributes = isset($item["context"]["custom"]) ? $item["context"]["custom"] : [];
-            $image->tags = isset($item["tags"]) ? $item["tags"] : [];
-
-            $image->info = [
-                Image::INFO_HEIGHT => $item["height"],
-                Image::INFO_WIDTH => $item["width"],
-                Image::INFO_SIZE => $item["bytes"],
-                Image::INFO_FORMAT => $item["format"],
-                Image::INFO_SOURCE => $item["url"],
-                Image::INFO_CREATED => $item["created_at"]
-            ];
-
+            $image = $this->cloudinaryToImage($item);
             $images[$item["public_id"]] = $image;
         }
-
+        
         return $images;
     }
-
+    
     /**
      * @inheritdoc
      */
     public function tagSearch($search){
         $api = new Api();
-
+        
         $result = $api->tags([
             "prefix" => $search
         ]);
-
+        
         return $result["tags"];
     }
-
+    
     /**
      * @inheritdoc
      */
@@ -369,7 +351,31 @@ class CloudinaryConnector implements IConnector
             self::MODE_SCALE
         ];
     }
-
+    
+    /**
+     * Converts cloudinary format to Imageservice Image object
+     * @param $coudinary
+     * @return Image
+     */
+    private function cloudinaryToImage($coudinary) {
+        
+        $image = new Image($coudinary["public_id"], self::ID);
+        
+        $image->attributes = isset($coudinary["context"]["custom"]) ? $coudinary["context"]["custom"] : [];
+        $image->tags = isset($coudinary["tags"]) ? $coudinary["tags"] : [];
+        
+        $image->info = [
+            Image::INFO_HEIGHT => $coudinary["height"],
+            Image::INFO_WIDTH => $coudinary["width"],
+            Image::INFO_SIZE => $coudinary["bytes"],
+            Image::INFO_FORMAT => $coudinary["format"],
+            Image::INFO_SOURCE => $coudinary["url"],
+            Image::INFO_CREATED => $coudinary["created_at"]
+        ];
+        
+        return $image;
+    }
+    
     /**
      * @inheritdoc
      */
@@ -383,7 +389,7 @@ class CloudinaryConnector implements IConnector
             self::FORMAT_PNG
         ];
     }
-
+    
     /**
      * @inheritdoc
      */
@@ -391,7 +397,7 @@ class CloudinaryConnector implements IConnector
     {
         // TODO: Implement adminImage() method.
     }
-
+    
     /**
      * @inheritdoc
      */
@@ -401,7 +407,7 @@ class CloudinaryConnector implements IConnector
         $medialibrary->setLabel("Cloudinary Media")
             ->setIcon('fa:cloud')
             ->setPermission('editor');
-
+        
         return [ $medialibrary ];
     }
     
