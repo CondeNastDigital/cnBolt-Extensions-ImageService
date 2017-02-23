@@ -304,13 +304,16 @@ class CloudinaryConnector implements IConnector
         ]);
         
         // Search by tag
-        $resultTag = $api->resources_by_tag($search, [
-            "type" => "upload",
-            "resource_type" => "image",
-            "max_results" => 10,
-            "tags" => true,
-            "context" => true
-        ]);
+        $resultTag = $api->resources_by_tag(
+            urlencode($search),
+            [
+                "type" => "upload",
+                "resource_type" => "image",
+                "max_results" => 10,
+                "tags" => true,
+                "context" => true
+            ]
+        );
         
         // Merge both search results into one
         $results = array_merge($resultId["resources"], $resultTag["resources"]);
