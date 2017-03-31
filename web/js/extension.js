@@ -1582,6 +1582,61 @@ var CnImageService = function (data) {
          * @param fieldValue
          * @returns {jQuery|HTMLElement}
          */
+        that.select = function (fieldValue) {
+
+            var fieldName = that.generateFieldName();
+            var fieldLabel = that.generateLabel();
+            var options = data.definition.options || [];
+
+            var container = $('<li class="row">' +
+                '<label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label>' +
+                '<div class="col-xs-12 col-sm-9 col-md-9 field-container" ></div>' +
+                '</li>');
+
+            var select = $('<select name="'+fieldName+'"></select>');
+            for(x in options ){
+                var option = $('<option value="'+x+'">'+data.definition.options[x]+'</option>');
+                if(x == fieldValue)
+                    option.attr('selected','selected');
+                select.append(option);
+            }
+
+            container.find('.field-container').append(select);
+            container.on('change', function (event) {
+                that.value = $(event.target).val();
+            });
+
+            return container;
+        };
+
+        /**
+         * Generates a simple input field
+         * @param fieldValue
+         * @returns {jQuery|HTMLElement}
+         */
+        that.checkbox = function (fieldValue) {
+
+            var fieldName = that.generateFieldName();
+            var fieldLabel = that.generateLabel();
+            var checkboxValue = that.definition.value || '';
+
+            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9" ><input type="checkbox" name="' + fieldName + '" value="' + checkboxValue + '"></div></li>');
+
+            container.on('click', function (event) {
+                that.value = $(event.target).checked() ? checkboxValue: '' ;
+            });
+
+            if(fieldValue == checkboxValue)
+                container.find('input').attr('checked','checked');
+
+            return container;
+        };
+
+        /**
+         * Generates a simple input field
+         * @param fieldValue
+         * @returns {jQuery|HTMLElement}
+         */
         that.text = function (fieldValue) {
 
             var fieldName = that.generateFieldName();

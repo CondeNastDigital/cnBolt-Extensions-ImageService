@@ -124,12 +124,6 @@ ImageService
     max-width: 100%;
 }
 
-.imageservice-entity .imageservice-attributes {
-    display: inline-block;
-    margin: 0px;
-    box-sizing: border-box;
-}
-
 .imageservice-entity .imageservice-entity-actions {
     display: inline-block;
     vertical-align: top;
@@ -145,21 +139,27 @@ ImageService
     margin: 2px;
 }
 
-.imageservice-entity .imageservice-attributes li{
+.imageservice-attributes-global, .imageservice-entity .imageservice-attributes {
+    display: inline-block;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.imageservice-attributes-global, .imageservice-entity .imageservice-attributes li{
     list-style: none;
     font-size: 11px !important;
 }
 
-.imageservice-entity .imageservice-attributes li label{
+.imageservice-attributes-global, .imageservice-entity .imageservice-attributes li label{
     display: inline-block;
     line-height: 16px;
     font-size: inherit !important;
     font-weight: bold;
 }
 
-.imageservice-entity .imageservice-attributes li input[type="text"],
-.imageservice-entity .imageservice-attributes li select,
-.imageservice-entity .imageservice-attributes li textarea {
+.imageservice-attributes li input[type="text"],
+.imageservice-attributes li select,
+.imageservice-attributes li textarea {
     width: 100%;
     vertical-align: middle;
     margin: 1px 0 1px 0;
@@ -182,4 +182,43 @@ ImageService
     min-height: 0;
     line-height: 10px !important;
     font-size: inherit !important;
+}
+
+.imageservice-attributes-global {
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 5px;
+}
+
+.imageservice-attributes-global {
+    width: 100%;
+}
+
+.imageservice-attributes-global ul {
+    list-style: none;
+}
+
+.imageservice-modal {
+    display: block;
+    top: calc( 50% - 200px );
+    left: calc( 50% - 200px );
+    border: 1px solid gray;
+    border-radius: 3px;
+    z-index: 9999;
+}
+
+.imageservice-settings-trigger {
+    padding: 5px;
+}
+
+.imageservice-settings {
+    border-width: 1px 0 1px 0;
+    border-style: solid;
+    border-color: #ccc;
+    overflow: auto;
+}
+
+.imageservice-settings hr {
+    padding: 3px;
+    margin-bottom: 2px;
+    margin-top:  2px;
 }
