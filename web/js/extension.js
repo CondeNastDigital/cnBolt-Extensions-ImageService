@@ -57,7 +57,9 @@ var CnImageService = function (data) {
         ATTRIBUTERENDERED: 'imageservice-attribute-rendered',
         MESSAGEERROR: 'imageservice-message-error',
         MESSAGEWARNING: 'imageservice-message-warning',
-        MESSAGEINFO: 'imageservice-message-info'
+        MESSAGEINFO: 'imageservice-message-info',
+        PRESETTERREGISTER: 'imageservice-presetter-register',
+        SETTINGREGISTER: 'imageservice-setting-register'
 
     };
 
@@ -74,25 +76,62 @@ var CnImageService = function (data) {
     };
 
     /**
-     * Item Model
+     * Item Model Factory
      * @type {{id: null, service: string, status: string, attributes: {}, tags: Array, options: Array, info: {height: null, width: null, size: null, format: null, source: null, created: null}}}
      */
-    var ImageServiceImageModel = {
+    var ImageServiceImageModel = function(options){
 
-        id: null,
-        service: "cloudinary",
-        status: ImageServiceItemStatuses.NEW,
-        attributes: {},
-        tags: [],
-        options: [],
-        info: {
-            height: null,
-            width: null,
-            size: null,
-            format: null,
-            source: null,
-            created: null
-        }
+        var that = this;
+        var presetters = options.presetters || [];
+        var host = options.host;
+
+        var model = {
+
+            id: null,
+            service: "cloudinary",
+            status: ImageServiceItemStatuses.NEW,
+            attributes: {},
+            tags: [],
+            options: [],
+            info: {
+                height: null,
+                width: null,
+                size: null,
+                format: null,
+                source: null,
+                created: null
+            }
+
+        };
+
+        /**
+         * Initiaation
+         */
+        that.init = function() {
+            // Registers a listener for a new model presetter
+            host.on(ImageServiceEVENTS.PRESETTERREGISTER, function(event, presetter){
+                presetters.push(presetter);
+            });
+        };
+
+        /**
+         * Returns a full model containing all the default values
+         * @param defaults
+         * @returns {*}
+         */
+        that.create = function(defaults){
+
+            defaults = defaults || {};
+
+            var result = Object.assign({}, model);
+            presetters.forEach(function(presetter){
+                presetter.apply(result);
+            });
+
+            return Object.assign(result, defaults);
+        };
+
+        that.init();
     };
 
     /**
@@ -429,15 +468,16 @@ var CnImageService = function (data) {
             var name = file.name;
 
             // Creates a copy of the Item model, as javascript only works with pointers.
-            var newImage = JSON.parse(JSON.stringify(ImageServiceImageModel));
-            newImage.id = name;
-            newImage.info = {
-                source: null,
-                height: null,
-                width: null,
-                size: file.size,
-                format: file.type
-            };
+            var newImage = modelFactory.create({
+                id: name,
+                info: {
+                    source: null,
+                    height: null,
+                    width: null,
+                    size: file.size,
+                    format: file.type
+                }
+            });
 
             // The host is used as Events controller
             host.trigger(ImageServiceEVENTS.ITEMADDED, {
@@ -480,9 +520,16 @@ var CnImageService = function (data) {
          * @returns {*}
          */
         that.render = function () {
+
+            var attributes = new ImageServiceAttributes({
+                definitions: {
+                    a: 'text'
+                }
+            });
+
             container = $('<span class="btn btn-primary fileinput-button"><i class="fa fa-plus"></i><span> '+ ImageServiceLabels.button.itemUpload +' </span></span>');
             that.addUploadField();
-            return $('<div class="imageservice-uploader col-xs-12 col-md-3"></div>').append(container);
+            return $('<div class="imageservice-uploader col-xs-12 col-md-2"></div>').append(container);
         };
 
         this.init();
@@ -876,7 +923,7 @@ var CnImageService = function (data) {
          * Item data
          * @type {*|{id: null, service: string, status: string, attributes: {}, tags: Array, options: Array, info: {height: null, width: null, size: null, format: null, source: null, created: null}}}
          */
-        var item = data.item || ImageServiceImageModel;
+        var item = modelFactory.create(data.item);
 
         /**
          * The source file for new Items
@@ -943,7 +990,7 @@ var CnImageService = function (data) {
         that.init = function () {
 
             // creates an unique id of the entity
-            id = data.prefix + '_' + data.item.id.replace(/[^a-z0-9\_\-]+/ig, '_');
+            id = data.prefix + '_' + item.id.replace(/[^a-z0-9\_\-]+/ig, '_');
 
             // Prepares the attributes
             definitions = jQuery.extend({}, data.definitions, systemAttributes);
@@ -1303,7 +1350,7 @@ var CnImageService = function (data) {
     var ImageServiceAttributes = function (data) {
 
         var that = this;
-        that.values = data.values;
+        that.values = data.values || [];
         that.prefix = data.prefix || '';
         that.definitions = data.definitions;
         that.attributes = [];
@@ -1571,6 +1618,109 @@ var CnImageService = function (data) {
         return that;
     };
 
+
+    /**
+     * A proesetter responsible for the default attribute values of the uploaded images
+     * @param data
+     * @constructor
+     */
+    var ImageServicePresets = function (data) {
+
+        var that = this;
+
+        // Where the UI resides
+        that.container = null;
+        // The host where the events go
+        that.host = data.host;
+
+        // Creates an attributes object that will be used for the UI
+        var attributes = new ImageServiceAttributes({
+            definitions: data.attributes,
+            dataService: data.service,
+            values: []
+        });
+
+        /**
+         * Makes the preset changes of the model
+         * @param model
+         * @returns {*}
+         */
+        this.apply = function(model) {
+
+            if(!model.hasOwnProperty('attributes'))
+                return model;
+
+            var values = attributes.getValues();
+
+            return Object.assign(model.attributes, values);
+        };
+
+        /**
+         * Renders the frontend part
+         * @returns {null|jQuery|HTMLElement|*}
+         */
+        this.render = function() {
+
+            if(that.container)
+                that.container.remove();
+
+            that.container = $('<div class="imageservice-attributes-global"><h5>Default Values</h5><hr/></div>');
+            that.container.append(attributes.render());
+            host.append(that.container);
+
+            return that.container;
+        };
+
+        /**
+         * Initialization
+         */
+        this.init = function() {
+            that.host.trigger(ImageServiceEVENTS.PRESETTERREGISTER, this);
+            that.host.trigger(ImageServiceEVENTS.SETTINGREGISTER, this);
+        };
+
+        this.init();
+
+    };
+
+
+    var ImageServiceSettings = function(options) {
+
+        var that = this;
+        var host = options.host;
+        var components = [];
+        var container = null;
+
+        this.init = function() {
+
+            var containerControl = $('<div class="col-sm-1 col-xs-12 imageservice-settings-trigger"><button class="btn btn-secondary"><i class="fa fa-cogs" aria-hidden="true"></i></button></div>');
+            container = $('<div class="col-xs-12 imageservice-settings" ><h4>Settings</h4></div>');
+
+            containerControl.on('click', function(event){
+                event.preventDefault();
+                event.stopPropagation();
+
+                $(container).animate({ height: 'toggle' });
+            });
+
+            host.append(containerControl);
+            host.append(container.hide());
+
+            host.on(ImageServiceEVENTS.SETTINGREGISTER, function(event, data){
+                that.addComponent(data);
+            });
+
+        };
+
+        this.addComponent = function(component) {
+            components.push(component);
+            container.append(component.render());
+        };
+
+        this.init();
+
+    };
+
     // ------ Factory --------
 
     /**
@@ -1594,6 +1744,10 @@ var CnImageService = function (data) {
         store.hide();
         ImageServiceErrors = jQuery.extend(ImageServiceErrors, data.errors);
     };
+
+    var modelFactory = new ImageServiceImageModel({
+        host: host
+    });
 
     /**
      * Backend connector
@@ -1620,6 +1774,17 @@ var CnImageService = function (data) {
      */
     var finder = new ImageServiceFinder({
         host: host,
+        service: service
+    });
+
+    var settings = new ImageServiceSettings({
+        host: host
+    });
+
+    var presets = new ImageServicePresets({
+        host: host,
+        parentContainer: null,
+        attributes: data.attributes,
         service: service
     });
 

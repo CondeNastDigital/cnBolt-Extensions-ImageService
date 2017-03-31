@@ -88,6 +88,7 @@ class CloudinaryConnector implements IConnector
         $clean = [];
         
         foreach($images as $key => $image){
+            $images[$key] = $this->prepareImage($image);
             switch($image->status){
                 case Image::STATUS_DELETED:
                     $delete[$key] = $image;
@@ -353,6 +354,22 @@ class CloudinaryConnector implements IConnector
             self::MODE_PAD,
             self::MODE_SCALE
         ];
+    }
+    
+    /**
+     * Converts cloudinary format to Imageservice Image object
+     * @param $coudinary
+     * @return Image
+     */
+    private function prepareImage(Image $image) {
+        
+        $attributes = $image->attributes;
+        foreach($attributes as &$attribute){
+            $attribute = htmlentities($attribute, ENT_COMPAT | ENT_HTML401 , ini_get("default_charset"), false );
+        }
+        $image->attributes = $attributes;
+        
+        return $image;
     }
     
     /**
