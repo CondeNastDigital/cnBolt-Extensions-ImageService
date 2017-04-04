@@ -1041,7 +1041,7 @@ var CnImageService = function (data) {
             item.tags = attrValues.tags;
 
             for (var i in definitions)
-                if(!systemAttributes.hasOwnProperty(i))
+                if(!ImageServiceConfig.systemAttributes.hasOwnProperty(i))
                     item.attributes[i] = attrValues[i];
 
             return item;
