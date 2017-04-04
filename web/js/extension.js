@@ -134,6 +134,20 @@ var CnImageService = function (data) {
         that.init();
     };
 
+
+    var ImageServiceConfig = {
+        /**
+         * Definition of the system fields
+         * @type {{tags: {type: string, label: string}}}
+         */
+        systemAttributes: {
+            tags: {
+                type: 'tag',
+                label: 'Tags'
+            }
+        }
+    };
+
     /**
      * Imageservice messaging
      * @param data
@@ -974,17 +988,6 @@ var CnImageService = function (data) {
         var actions = null;
 
         /**
-         * Definition of the system fields
-         * @type {{tags: {type: string, label: string}}}
-         */
-        var systemAttributes = {
-            tags: {
-                type: 'tag',
-                label: 'Tags'
-            }
-        };
-
-        /**
          * Initiates the object
          */
         that.init = function () {
@@ -993,7 +996,7 @@ var CnImageService = function (data) {
             id = data.prefix + '_' + item.id.replace(/[^a-z0-9\_\-]+/ig, '_');
 
             // Prepares the attributes
-            definitions = jQuery.extend({}, data.definitions, systemAttributes);
+            definitions = jQuery.extend({}, data.definitions, ImageServiceConfig.systemAttributes);
             var attrValues = jQuery.extend({}, item.attributes, {tags: item.tags});
 
             // tries to retrieve the item url
@@ -1690,7 +1693,7 @@ var CnImageService = function (data) {
 
         // Creates an attributes object that will be used for the UI
         var attributes = new ImageServiceAttributes({
-            definitions: data.attributes,
+            definitions: jQuery.extend({}, data.attributes, ImageServiceConfig.systemAttributes),
             dataService: data.service,
             values: []
         });
@@ -1706,6 +1709,7 @@ var CnImageService = function (data) {
                 return model;
 
             var values = attributes.getValues();
+            model.tags = values.tags;
 
             return Object.assign(model.attributes, values);
         };
@@ -1739,6 +1743,11 @@ var CnImageService = function (data) {
     };
 
 
+    /**
+     * Block containing the settings for the imageservice block
+     * @param options
+     * @constructor
+     */
     var ImageServiceSettings = function(options) {
 
         var that = this;
