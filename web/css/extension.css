@@ -139,18 +139,18 @@ ImageService
     margin: 2px;
 }
 
-.imageservice-attributes-global, .imageservice-entity .imageservice-attributes {
+.imageservice-entity .imageservice-attributes {
     display: inline-block;
     margin: 0;
     box-sizing: border-box;
 }
 
-.imageservice-attributes-global, .imageservice-entity .imageservice-attributes li{
+.imageservice-entity .imageservice-attributes li{
     list-style: none;
     font-size: 11px !important;
 }
 
-.imageservice-attributes-global, .imageservice-entity .imageservice-attributes li label{
+.imageservice-entity .imageservice-attributes li label{
     display: inline-block;
     line-height: 16px;
     font-size: inherit !important;
@@ -163,10 +163,16 @@ ImageService
     width: 100%;
     vertical-align: middle;
     margin: 1px 0 1px 0;
-    border: 1px solid #ccc;
+    border: 1px solid #ccc !important;
+    line-height: inherit !important;
     font-size: inherit !important;
     height: auto !important;
-    padding: 3px;
+    padding: 3px !important;
+    min-height: 15px;
+}
+
+.imageservice-attributes li textarea:hover {
+    border: initial;
 }
 
 .imageservice-attributes .select2.select2-container {
@@ -187,6 +193,8 @@ ImageService
 .imageservice-attributes-global {
     background-color: rgba(255, 255, 255, 0.85);
     padding: 5px;
+    font-size: 12px;
+
 }
 
 .imageservice-attributes-global {
