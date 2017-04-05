@@ -26,15 +26,24 @@ var CnImageService = function (data) {
      * Strings that are used in the application
      * @type {{button: {itemUpload: string}, fields: {itemFind: string}}}
      */
-    var ImageServiceLabels = {
+    var ImageServiceLabels = Object.assign({
         button: {
-            itemUpload: 'Upload Image',
+            itemUpload: 'Upload Image'
         },
         fields: {
             itemFind: 'Search in the library'
+        },
+        ImageServicePresets: {
+            title: 'Defaults'
+        },
+        ImageServiceGlobals: {
+            title: 'Globals'
+        },
+        ImageServiceSettings: {
+            title: 'Settings'
         }
 
-    };
+    }, data.labels);
 
     /**
      * Event on which the system reacts
@@ -1364,6 +1373,12 @@ var CnImageService = function (data) {
             return that.values;
         };
 
+        that.setValues = function(values) {
+            that.attributes.forEach(function(el){
+                el.setValue(values[el.name] || el.value);
+            });
+        };
+
         /**
          * Creates the attributes of the item
          */
@@ -1475,6 +1490,15 @@ var CnImageService = function (data) {
          */
         that.getValue = function () {
             return that.value;
+        };
+
+        /**
+         * Return the attribute value
+         * @returns {*|jQuery}
+         */
+        that.setValue = function (value) {
+            that.value = value;
+            that.render();
         };
 
         /**
@@ -1626,7 +1650,8 @@ var CnImageService = function (data) {
             var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9" ><input type="checkbox" name="' + fieldName + '" value="' + checkboxValue + '"></div></li>');
 
             container.on('click', function (event) {
-                that.value = $(event.target).checked() ? checkboxValue: '' ;
+                console.debug(4);
+                that.value = event.target.checked ? checkboxValue: '' ;
             });
 
             if(fieldValue == checkboxValue)
@@ -1695,8 +1720,20 @@ var CnImageService = function (data) {
         var attributes = new ImageServiceAttributes({
             definitions: jQuery.extend({}, data.attributes, ImageServiceConfig.systemAttributes),
             dataService: data.service,
-            values: []
+            values: data.values
         });
+
+        this.getIdentifier = function() {
+            return 'ImageServicePresets'
+        };
+
+        this.getValues = function() {
+            return attributes.getValues();
+        };
+
+        this.setValues = function(values) {
+            return attributes.setValues(values);
+        };
 
         /**
          * Makes the preset changes of the model
@@ -1723,7 +1760,7 @@ var CnImageService = function (data) {
             if(that.container)
                 that.container.remove();
 
-            that.container = $('<div class="imageservice-attributes-global"><h5>Default Values</h5><hr/></div>');
+            that.container = $('<div class="imageservice-attributes-global"><h5>'+ImageServiceLabels.ImageServicePresets.title+'</h5><hr/></div>');
             that.container.append(attributes.render());
             host.append(that.container);
 
@@ -1742,6 +1779,66 @@ var CnImageService = function (data) {
 
     };
 
+    /**
+     * A proesetter responsible for the default attribute values of the uploaded images
+     * @param data
+     * @constructor
+     */
+    var ImageServiceGlobals = function (data) {
+
+        var that = this;
+
+        // Where the UI resides
+        that.container = null;
+        // The host where the events go
+        that.host = data.host;
+
+        // Creates an attributes object that will be used for the UI
+        var attributes = new ImageServiceAttributes({
+            definitions: data.attributes,
+            dataService: data.service,
+            values: data.values
+        });
+
+        this.getIdentifier = function() {
+            return 'ImageServiceGlobals'
+        };
+
+        this.getValues = function() {
+            return attributes.getValues();
+        };
+
+        this.setValues = function(values) {
+            attributes.setValues(values);
+            return this.render();
+        };
+
+        /**
+         * Renders the frontend part
+         * @returns {null|jQuery|HTMLElement|*}
+         */
+        this.render = function() {
+
+            if(that.container)
+                that.container.remove();
+
+            that.container = $('<div class="imageservice-attributes-global"><h5>'+ImageServiceLabels.ImageServiceGlobals.title+'</h5><hr/></div>');
+            that.container.append(attributes.render());
+            host.append(that.container);
+
+            return that.container;
+        };
+
+        /**
+         * Initialization
+         */
+        this.init = function() {
+            that.host.trigger(ImageServiceEVENTS.SETTINGREGISTER, this);
+        };
+
+        this.init();
+
+    };
 
     /**
      * Block containing the settings for the imageservice block
@@ -1754,11 +1851,12 @@ var CnImageService = function (data) {
         var host = options.host;
         var components = [];
         var container = null;
+        var store = options.data || {};
 
         this.init = function() {
 
             var containerControl = $('<div class="col-sm-1 col-xs-12 imageservice-settings-trigger"><button class="btn btn-secondary"><i class="fa fa-cogs" aria-hidden="true"></i></button></div>');
-            container = $('<div class="col-xs-12 imageservice-settings" ><h4>Settings</h4></div>');
+            container = $('<div class="col-xs-12 imageservice-settings" ><h4>'+ImageServiceLabels.ImageServiceSettings.title+'</h4></div>');
 
             containerControl.on('click', function(event){
                 event.preventDefault();
@@ -1771,14 +1869,25 @@ var CnImageService = function (data) {
             host.append(container.hide());
 
             host.on(ImageServiceEVENTS.SETTINGREGISTER, function(event, data){
+                data.setValues(store[data.getIdentifier()] || {});
                 that.addComponent(data);
             });
 
         };
 
         this.addComponent = function(component) {
+            var newElement = $('<div class="imageservice-settings-component"></div>').append(component.render());
             components.push(component);
-            container.append(component.render());
+            container.append(newElement);
+        };
+
+        this.getData = function() {
+
+            components.forEach(function(el){
+                store[el.getIdentifier()] = el.getValues();
+            });
+
+            return store;
         };
 
         this.init();
@@ -1792,6 +1901,7 @@ var CnImageService = function (data) {
      * @type {jQuery|HTMLElement}
      */
     var store = $(data.dataElement);
+    var storeJson = JSON.parse(store.val());
 
     /**
      * Host HTML Element holding all new generated elements
@@ -1841,16 +1951,42 @@ var CnImageService = function (data) {
         service: service
     });
 
+    /**
+     * Block containing some settings blocks.
+     * The block should have
+     * getValues
+     * setValues
+     * getIdentifier
+     * render
+     */
     var settings = new ImageServiceSettings({
-        host: host
+        host: host,
+        data: storeJson.settings
     });
 
-    var presets = new ImageServicePresets({
-        host: host,
-        parentContainer: null,
-        attributes: data.attributes,
-        service: service
-    });
+    /**
+     * Global settings concerning the instance
+     */
+    if(Object.keys(data.globals || {}).length)
+        var globals = new ImageServiceGlobals({
+            host: host,
+            parentContainer: null,
+            attributes: data.globals,
+            service: service,
+            values: {}
+        });
+
+    /**
+     * Presets of the Image attributes
+     */
+    if(Object.keys(data.attributes || {} ).length)
+        var presets = new ImageServicePresets({
+            host: host,
+            parentContainer: null,
+            attributes: data.attributes,
+            service: service,
+            values: {}
+        });
 
     /**
      * Massage UI
@@ -1872,7 +2008,7 @@ var CnImageService = function (data) {
     var list = new ImageServiceList({
         service: service,
         hostElement: host,
-        items: JSON.parse(store.val()),
+        items: storeJson,
         attributes: data.attributes,
         maxItems: data.maxFiles || null
     });
@@ -1894,6 +2030,8 @@ var CnImageService = function (data) {
 
             // Gets the current list data
             var data = list.getData();
+            var settingsValues = settings.getData();
+            console.debug(1);
 
             // Invokes the Backend-Connector Save
             service.imageSave({
@@ -1903,10 +2041,13 @@ var CnImageService = function (data) {
 
                 // Updates the JSON-holding element and recalls the save event
                 callback: function (newItems) {
+                    console.debug(settingsValues);
+                    var stringified = JSON.stringify({items: newItems, settings: settingsValues});
+                    console.debug(stringified);
                     // transforms the response to json for the backend-save
-                    store.val(JSON.stringify({items: newItems}));
+                    store.val(stringified);
                     // informs the host that the list has been saved
-                    $(host).trigger(ImageServiceEVENTS.LISTSAVED, {items:newItems});
+                    $(host).trigger(ImageServiceEVENTS.LISTSAVED, stringified);
                     // reinitiates the event
                     $(event.target).trigger(event.type);
                 },

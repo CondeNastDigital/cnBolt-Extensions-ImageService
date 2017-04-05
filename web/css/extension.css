@@ -198,10 +198,19 @@ ImageService
 }
 
 .imageservice-attributes-global {
+    display: block;
     width: 100%;
 }
 
+.imageservice-attributes-global h5 {
+    width: 100%;
+    display: block;
+    margin:0;
+    padding: 10px 3px 3px 3px;
+}
+
 .imageservice-attributes-global ul {
+    width: 100% !important;
     list-style: none;
 }
 
@@ -226,7 +235,13 @@ ImageService
 }
 
 .imageservice-settings hr {
+    display: block;
     padding: 3px;
     margin-bottom: 2px;
     margin-top:  2px;
+}
+
+.imageservice-settings-component {
+    display: block;
+    width: 100%;
 }
