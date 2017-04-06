@@ -1,0 +1,19 @@
+{
+  "name": "cn-image-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "image",
+    "service",
+    "condenast"
+  ],
+  "author": "Rosen Ralev",
+  "license": "ISC",
+  "dependencies": {
+    "requirejs": "^2.3.3"
+  }
+}
