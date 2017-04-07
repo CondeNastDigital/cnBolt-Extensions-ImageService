@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-./node_modules/requirejs/bin/r.js -o build.js optimize=none
+./node_modules/requirejs/bin/r.js -o build.js
+./node_modules/requirejs/bin/r.js -o build.dev.js optimize=none
+cp -r css ../web

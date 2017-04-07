@@ -46,11 +46,10 @@ class Extension extends SimpleExtension
 
         return [
             // js
-            (new JavaScript('/js/extension.js'))->setZone(Zone::BACKEND)->setPriority(1),
-            (new JavaScript('/js/extension-for/sir-trevor.js'))
+            (new JavaScript('/js/extension.js'))
                 ->setZone(Zone::BACKEND)
                 ->setAttributes(['data-extension-url="'.$extensionUrl.'"'])
-                ->setPriority(2),
+                ->setPriority(1),
             // css
             (new Stylesheet('/css/extension.css'))->setZone(Zone::BACKEND)->setPriority(1),
         ];

@@ -1,12 +1,16 @@
 /**
  * Created by ralev on 05.04.17.
  */
-define(function (data) {
+define(function () {
 
-    return function(data) {
+    return function (data) {
 
         var that = this;
 
+        /**
+         * Set of available events that the system knows and the
+         * class sends
+         */
         var Events = data.config.events;
 
         /**

@@ -4,7 +4,7 @@
 ({
     name: 'cnImageService',
     baseUrl: './javascript',
-    out: '../web/js/extension.min.js',
+    out: '../web/js/extension.js',
     wrap: false,
     paths: {
         "requirejs": "../node_modules/requirejs/require",

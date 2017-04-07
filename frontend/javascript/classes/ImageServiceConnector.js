@@ -7,6 +7,11 @@ define(function () {
     return function(data) {
 
         var that = this;
+
+        /**
+         * Error Factory
+         * TODO: Turn in to a real factory
+         */
         var Errors = data.factory.errors;
 
         /**
@@ -15,8 +20,10 @@ define(function () {
          */
         that.defaults = data.defaults || {};
 
-        // Where the backened services reside
-        that.location = data.location;
+        /**
+         * Where the backened services reside
+         */
+        that.baseUrl = data.basUrl;
 
         /**
          * Save a list of items. the new items expact a corresponding memebr of the files array.
@@ -58,7 +65,7 @@ define(function () {
             return $.ajax({
 
                 type: 'POST',
-                url: that.location + '/imageprocess',
+                url: that.baseUrl + '/imageprocess',
                 data: formData,
                 dataType: 'json',
                 contentType: false,
@@ -71,7 +78,7 @@ define(function () {
                         warningCallback(response.messages);
 
                     if (response.success === false && response.messages && response.messages.length)
-                        return errorCallback(Errors[response.messages[0].code]);
+                        return errorCallback(Errors.create(response.messages[0].code));
 
                     if (response.success === true && typeof(callback) === 'function')
                         return callback(response.items);
@@ -99,7 +106,7 @@ define(function () {
             } else {
 
                 $.ajax({
-                    url: that.location + '/imageurl',
+                    url: that.baseUrl + '/imageurl',
                     data: {
                         imageid: imageId,
                         width: null,

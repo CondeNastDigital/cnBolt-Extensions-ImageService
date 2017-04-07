@@ -17,11 +17,13 @@ require.config({
         "ImageServiceEntityAction": "classes/ImageServiceEntityActions",
         "ImageServicePreview": "classes/ImageServicePreview",
         "ImageServiceAttribute": "classes/ImageServiceAttribute",
-        "ImageServiceAttributes": "classes/ImageServiceAttributes"
+        "ImageServiceAttributes": "classes/ImageServiceAttributes",
+        "ImageServiceSirTrevor": "extension/sir-trevor/extension"
     }
 });
 
 var CnImageService = {};
+var baseUrl = document.currentScript.getAttribute('data-extension-url');
 
 require([
     "ImageServiceAttributesFactory",
@@ -41,7 +43,8 @@ require([
     "ImageServiceEntityAction",
     "ImageServicePreview",
     "ImageServiceAttribute",
-    "ImageServiceAttributes"
+    "ImageServiceAttributes",
+    "ImageServiceSirTrevor"
 ], function (
      ImageServiceAttributesFactory,
      ImageServiceImageModelFactory,
@@ -60,8 +63,8 @@ require([
      ImageServiceEntityAction,
      ImageServicePreview,
      ImageServiceAttribute,
-     ImageServiceAttributes) {
-
+     ImageServiceAttributes,
+     ImageServiceSirTrevor) {
 
     CnImageService =  function(data) {
         // ------ Factory --------
@@ -80,7 +83,7 @@ require([
          */
         var host = $(data.hostElement);
 
-        var errors = jQuery.extend(ImageServiceErrors, data.errors);
+        var errors = new ImageServiceErrors(data.errors);
         var config = ImageServiceConfig;
 
         /**
@@ -119,7 +122,7 @@ require([
          */
         var service = new ImageServiceConnector({
             defaults: data.cache,
-            location: data.serviceUrl,
+            basUrl: data.serviceUrl,
             factory: {
                 errors: errors
             }
@@ -282,5 +285,19 @@ require([
             messaging: messaging,
             onSave: onSave
         }
-    }
+    };
+
+    var cnImageServiceST = new ImageServiceSirTrevor({
+        extensionUrl: baseUrl,
+        model: {
+            imageService: CnImageService
+        }
+    });
+
+    $(document).on('SirTrevor.DynamicBlock.All', function(){
+        $(document).trigger('SirTrevor.DynamicBlock.Add', [cnImageServiceST] );
+    });
+
+    $(document).trigger('SirTrevor.DynamicBlock.Add', [cnImageServiceST] );
+
 });
