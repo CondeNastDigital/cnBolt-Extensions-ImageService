@@ -3428,7 +3428,6 @@ define('ImageServiceListItem',[],function () {
             id = data.prefix + '_' + item.id.replace(/[^a-z0-9\_\-]+/ig, '_');
 
             // Prepares the attributes
-            definitions = jQuery.extend({}, data.definitions, data.config.systemAttributes);
             var attrValues = jQuery.extend({}, item.attributes, {tags: item.tags});
 
             // tries to retrieve the item url
@@ -3449,7 +3448,7 @@ define('ImageServiceListItem',[],function () {
             attributes = Attributes.create({
                 prefix: id,
                 values: attrValues,
-                definitions: definitions,
+                definitions: data.definitions,
                 dataService: dataService
             });
 
@@ -3481,8 +3480,7 @@ define('ImageServiceListItem',[],function () {
             item.tags = attrValues.tags;
 
             for (var i in definitions)
-                if (!data.config.systemAttributes.hasOwnProperty(i))
-                    item.attributes[i] = attrValues[i];
+                item.attributes[i] = attrValues[i];
 
             return item;
         };
@@ -4477,7 +4475,7 @@ require([
                 info: config.events.MESSAGEINFO
             }
         });
-console.debug(1);
+
         /**
          * List of items
          * @type {ImageServiceList}

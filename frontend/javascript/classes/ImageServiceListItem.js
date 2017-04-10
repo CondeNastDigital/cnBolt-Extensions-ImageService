@@ -82,7 +82,6 @@ define(function () {
             id = data.prefix + '_' + item.id.replace(/[^a-z0-9\_\-]+/ig, '_');
 
             // Prepares the attributes
-            definitions = jQuery.extend({}, data.definitions, data.config.systemAttributes);
             var attrValues = jQuery.extend({}, item.attributes, {tags: item.tags});
 
             // tries to retrieve the item url
@@ -103,7 +102,7 @@ define(function () {
             attributes = Attributes.create({
                 prefix: id,
                 values: attrValues,
-                definitions: definitions,
+                definitions: data.definitions,
                 dataService: dataService
             });
 
@@ -135,8 +134,7 @@ define(function () {
             item.tags = attrValues.tags;
 
             for (var i in definitions)
-                if (!data.config.systemAttributes.hasOwnProperty(i))
-                    item.attributes[i] = attrValues[i];
+                item.attributes[i] = attrValues[i];
 
             return item;
         };
