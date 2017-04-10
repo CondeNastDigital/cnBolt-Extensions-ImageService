@@ -46,25 +46,25 @@ require([
     "ImageServiceAttributes",
     "ImageServiceSirTrevor"
 ], function (
-     ImageServiceAttributesFactory,
-     ImageServiceImageModelFactory,
-     ImageServiceListItemFactory,
-     ImageServiceConnector,
-     ImageServiceUploader,
-     ImageServiceSettings,
-     ImageServiceFinder,
-     ImageServicePresets,
-     ImageServiceMessaging,
-     ImageServiceList,
-     ImageServiceConfig,
-     ImageServiceErrors,
-     ImageServiceGlobals,
-     ImageServiceListItem,
-     ImageServiceEntityAction,
-     ImageServicePreview,
-     ImageServiceAttribute,
-     ImageServiceAttributes,
-     ImageServiceSirTrevor) {
+    ImageServiceAttributesFactory,
+    ImageServiceImageModelFactory,
+    ImageServiceListItemFactory,
+    ImageServiceConnector,
+    ImageServiceUploader,
+    ImageServiceSettings,
+    ImageServiceFinder,
+    ImageServicePresets,
+    ImageServiceMessaging,
+    ImageServiceList,
+    ImageServiceConfig,
+    ImageServiceErrors,
+    ImageServiceGlobals,
+    ImageServiceListItem,
+    ImageServiceEntityAction,
+    ImageServicePreview,
+    ImageServiceAttribute,
+    ImageServiceAttributes,
+    ImageServiceSirTrevor) {
 
     CnImageService =  function(data) {
         // ------ Factory --------
@@ -112,7 +112,8 @@ require([
             actions: ImageServiceEntityAction,
             preview: ImageServicePreview,
             attributes: attributesFactory,
-            dataModel: modelFactory
+            dataModel: modelFactory,
+            config: config
         });
 
 
@@ -211,7 +212,7 @@ require([
             service: service,
             hostElement: host,
             items: JSON.parse(store.val()),
-            attributes: data.attributes,
+            attributes: Object.assign({}, data.attributes, config.systemAttributes),
             maxItems: data.maxFiles || null,
             config: config,
             factory: {

@@ -4386,7 +4386,8 @@ require([
             actions: ImageServiceEntityAction,
             preview: ImageServicePreview,
             attributes: attributesFactory,
-            dataModel: modelFactory
+            dataModel: modelFactory,
+            config: config
         });
 
 
@@ -4476,7 +4477,7 @@ require([
                 info: config.events.MESSAGEINFO
             }
         });
-
+console.debug(1);
         /**
          * List of items
          * @type {ImageServiceList}
@@ -4485,7 +4486,7 @@ require([
             service: service,
             hostElement: host,
             items: JSON.parse(store.val()),
-            attributes: data.attributes,
+            attributes: Object.assign({}, data.attributes, config.systemAttributes),
             maxItems: data.maxFiles || null,
             config: config,
             factory: {
