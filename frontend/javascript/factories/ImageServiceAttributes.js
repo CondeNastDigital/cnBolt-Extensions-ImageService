@@ -1,8 +1,7 @@
-/**
- * Created by ralev on 05.04.17.
- */
 define(function () {
-
+    /**
+     * Factory class for creating Attributes Componenets
+     */
     return function(data) {
 
         var that = this;

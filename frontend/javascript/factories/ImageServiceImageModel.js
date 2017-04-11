@@ -1,8 +1,8 @@
-/**
- * Created by ralev on 05.04.17.
- */
 define(function() {
 
+    /**
+     * Factory for creating Data objects that represent and Image
+     */
     return function(options) {
 
         var that = this;
@@ -38,7 +38,7 @@ define(function() {
         };
 
         /**
-         * Initiaation
+         * Initialisation
          */
         that.init = function () {
             // Registers a listener for a new model presetter

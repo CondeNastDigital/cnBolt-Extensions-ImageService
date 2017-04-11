@@ -1,8 +1,8 @@
-/**
- * Created by ralev on 05.04.17.
- */
 define(function () {
 
+    /**
+     * Factory for creating a List Items (List Rows)
+     */
     return function(data) {
         var that = this;
 
@@ -12,6 +12,9 @@ define(function () {
         var Preview = data.preview;
         var Attributes = data.attributes;
         var DataModel = data.dataModel;
+
+        var attributeDefinition = data.definitions.attributes;
+        var service = data.dataService;
 
         that.create = function (options) {
             return new Model(
@@ -26,7 +29,9 @@ define(function () {
                         model: {
                             actions: Actions,
                             preview: Preview
-                        }
+                        },
+                        definitions: attributeDefinition,
+                        dataService: service
                     },
                     options
                 )

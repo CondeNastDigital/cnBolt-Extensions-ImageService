@@ -1,23 +1,24 @@
 require.config({
     paths: {
+        "ImageServiceSettingsInterface": "interfaces/ImageServiceSettingsInterface",
         "ImageServiceAttributesFactory": "factories/ImageServiceAttributes",
         "ImageServiceImageModelFactory": "factories/ImageServiceImageModel",
         "ImageServiceListItemFactory": "factories/ImageServiceListItem",
-        "ImageServiceConnector": "classes/ImageServiceConnector",
-        "ImageServiceUploader": "classes/ImageServiceUploader",
-        "ImageServiceSettings": "classes/ImageServiceSettings",
-        "ImageServiceFinder": "classes/ImageServiceFinder",
-        "ImageServicePresets": "classes/ImageServicePresets",
-        "ImageServiceMessaging": "classes/ImageServiceMessaging",
-        "ImageServiceList": "classes/ImageServiceList",
-        "ImageServiceConfig": "classes/ImageServiceConfig",
-        "ImageServiceErrors": "classes/ImageServiceErrors",
-        "ImageServiceGlobals": "classes/ImageServiceGlobals",
-        "ImageServiceListItem": "classes/ImageServiceListItem",
-        "ImageServiceEntityAction": "classes/ImageServiceEntityActions",
-        "ImageServicePreview": "classes/ImageServicePreview",
-        "ImageServiceAttribute": "classes/ImageServiceAttribute",
-        "ImageServiceAttributes": "classes/ImageServiceAttributes",
+        "ImageServiceErrors": "factories/ImageServiceErrors",
+        "ImageServiceConnector": "components/ImageServiceConnector",
+        "ImageServiceUploader": "components/ImageServiceUploader",
+        "ImageServiceSettings": "components/ImageServiceSettings",
+        "ImageServiceFinder": "components/ImageServiceFinder",
+        "ImageServicePresets": "components/ImageServicePresets",
+        "ImageServiceMessaging": "components/ImageServiceMessaging",
+        "ImageServiceList": "components/ImageServiceList",
+        "ImageServiceConfig": "components/ImageServiceConfig",
+        "ImageServiceGlobals": "components/ImageServiceGlobals",
+        "ImageServiceListItem": "components/ImageServiceListItem",
+        "ImageServiceEntityAction": "components/ImageServiceEntityActions",
+        "ImageServicePreview": "components/ImageServicePreview",
+        "ImageServiceAttribute": "components/ImageServiceAttribute",
+        "ImageServiceAttributes": "components/ImageServiceAttributes",
         "ImageServiceSirTrevor": "extension/sir-trevor/extension"
     }
 });
@@ -87,6 +88,18 @@ require([
         var config = ImageServiceConfig;
 
         /**
+         * Backend connector
+         * @type {ImageServiceConnector}
+         */
+        var service = new ImageServiceConnector({
+            defaults: data.cache,
+            basUrl: data.serviceUrl,
+            factory: {
+                errors: errors
+            }
+        });
+
+        /**
          * Constructor
          */
         var init = function () {
@@ -113,19 +126,10 @@ require([
             preview: ImageServicePreview,
             attributes: attributesFactory,
             dataModel: modelFactory,
-            config: config
-        });
-
-
-        /**
-         * Backend connector
-         * @type {ImageServiceConnector}
-         */
-        var service = new ImageServiceConnector({
-            defaults: data.cache,
-            basUrl: data.serviceUrl,
-            factory: {
-                errors: errors
+            config: config,
+            dataService: service,
+            definitions: {
+                attributes: Object.assign({}, data.attributes, config.systemAttributes)
             }
         });
 
@@ -137,7 +141,10 @@ require([
             host: host,
             maxFileSize: data.maxFileSize,
             service: service,
-            config: config,
+            config: {
+                events: config.events,
+                labels: config.labels.ImageServiceUploader
+            },
             factory: {
                 model: modelFactory
             }
@@ -150,12 +157,18 @@ require([
         var finder = new ImageServiceFinder({
             host: host,
             service: service,
-            config: config
+            config: {
+                events: config.events,
+                labels: config.labels.ImageServiceFinder
+            }
         });
 
         var settings = new ImageServiceSettings({
             host: host,
-            config: config,
+            config: {
+                events: config.events,
+                labels: config.labels.ImageServiceSettings
+            },
             data: storeJson.settings
         });
 
@@ -168,7 +181,11 @@ require([
                 parentContainer: null,
                 attributes: data.globals,
                 service: service,
-                config: config,
+                prefix: 'globals',
+                config: {
+                    events: config.events,
+                    labels: config.labels.ImageServiceGlobals
+                },
                 values: {},
                 factory: {
                     attributes: attributesFactory
@@ -182,9 +199,13 @@ require([
             var presets = new ImageServicePresets({
                 host: host,
                 parentContainer: null,
-                attributes: data.attributes,
+                attributes: jQuery.extend({}, data.attributes, config.systemAttributes),
                 service: service,
-                config: config,
+                prefix: 'presets',
+                config: {
+                    events: config.events,
+                    labels: config.labels.ImageServicePresets
+                },
                 values: {},
                 factory: {
                     attributes: attributesFactory
@@ -197,7 +218,7 @@ require([
          */
         var messaging = new ImageServiceMessaging({
             host: host,
-            messages: {
+            events: {
                 error: config.events.MESSAGEERROR,
                 warning: config.events.MESSAGEWARNING,
                 info: config.events.MESSAGEINFO
@@ -209,12 +230,12 @@ require([
          * @type {ImageServiceList}
          */
         var list = new ImageServiceList({
-            service: service,
             hostElement: host,
             items: JSON.parse(store.val()),
-            attributes: Object.assign({}, data.attributes, config.systemAttributes),
             maxItems: data.maxFiles || null,
-            config: config,
+            config: {
+                events: config.events
+            },
             factory: {
                 listItem: listItemFactory,
                 model: modelFactory
@@ -248,7 +269,7 @@ require([
                     // Updates the JSON-holding element and recalls the save event
                     callback: function (newItems) {
                         // transforms the response to json for the backend-save
-                        store.val(JSON.stringify({items: newItems}));
+                        store.val(JSON.stringify({items: newItems, settings: settings.getData()}));
                         // informs the host that the list has been saved
                         $(host).trigger(config.events.LISTSAVED, {items: newItems});
                         // reinitiates the event
