@@ -34,7 +34,14 @@ define(function(){
                 if(!this.imageServiceInstance)
                     return;
 
-                this.setData(this.imageServiceInstance.list.getData());
+                var data = $.merge(
+                    {
+                        settings: this.imageServiceInstance.settings.getData()
+                    },
+                    this.imageServiceInstance.list.getData()
+                );
+
+                this.setData(data);
 
             },
 

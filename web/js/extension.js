@@ -2148,7 +2148,11 @@ define("requirejs", function(){});
 
 define('ImageServiceAttributesFactory',[],function () {
     /**
-     * Factory class for creating Attributes Componenets
+     * Factory class for creating Attributes Components
+     * @param data {Object}
+     * @param data.attribute {Object} Model of a single Attribute (Field)
+     * @param data.events {Object} Events that the Attribute will listen to and fire
+     * @param data.model {Object} DataModel of an Image
      */
     return function(data) {
 
@@ -2173,6 +2177,11 @@ define('ImageServiceImageModelFactory',[],function() {
 
     /**
      * Factory for creating Data objects that represent and Image
+     * @param options {Object}
+     * @param options.config {Object} Configuration Object
+     * @param options.config.events {Object} Events that the component knows: PRESETTERREGISTER - Registers an object that hass an apply method TODO: Make an Interface for it
+     * @param options.host {Object} jQuery element where events will be fired and listened to
+     * @param options.presetters {Object} A set of Presseters that will manipulate the initializatialized new Model
      */
     return function(options) {
 
@@ -2242,6 +2251,16 @@ define('ImageServiceListItemFactory',[],function () {
 
     /**
      * Factory for creating a List Items (List Rows)
+     * @param data {Object}
+     * @param data.definitions {Object} Set of definitions
+     * @param data.definitions.attributes {Object} Definition of the attributes that a List Item has
+     * @param data.model {Object} ListItem Component (ImageServiceListItem)
+     * @param data.events {Object} The event names that the ListItem fires
+     * @param data.actions {Object} The Actions Component (ImageServiceEntityActions) of a ListItem
+     * @param data.preview {Object} The Preview Component (ImageServicePreview) of a List Item
+     * @param data.attributes {Object} The Attributes Factory of a ListItem
+     * @param data.dataModel {Object} DataModel of an Image
+     * @param data.dataService {Object} Backend Service
      */
     return function(data) {
         var that = this;
@@ -2768,6 +2787,16 @@ define('ImageServiceSettingsInterface',[],function(){
 
     /**
      * Interface / Abstract object for Settings-Blocks
+     * @param data {Object}
+     * @param data.attributes {Object} Definition of the attributes that the Settings Component
+     * @param data.host {Object} jQuery element hosting the events and components html
+     * @param data.service {Object} Backened Service
+     * @param data.name {Object} Identifier of the settings block
+     * @param data.values {Object} Initial values of the Settings component
+     * @param data.config {Object} System configuration for the Component
+     * @param data.config.events {Object} Component Event-names
+     * @param data.factory {Object} Collection of factory objects that the component needs
+     * @param data.factory.attributes {Object} Factory Object for generating Attributes Components.
      */
     return function(data) {
 
@@ -3347,6 +3376,8 @@ define('ImageServiceErrors',[],function(){
      * Error Factory Class
      * Translates the system errors in to human messages
      * Mainly used by the Backend Service
+     * @param options {Object}
+     * @param options.errors {Object} A set of error: message key value pairs
      */
     return function(options) {
 
@@ -4361,7 +4392,14 @@ define('ImageServiceSirTrevor',[],function(){
                 if(!this.imageServiceInstance)
                     return;
 
-                this.setData(this.imageServiceInstance.list.getData());
+                var data = $.merge(
+                    {
+                        settings: this.imageServiceInstance.settings.getData()
+                    },
+                    this.imageServiceInstance.list.getData()
+                );
+
+                this.setData(data);
 
             },
 
@@ -4694,7 +4732,7 @@ require([
                             console.warn(message);
                             host.trigger(
                                 config.events.MESSAGEWARNING,
-                                ImageServiceErrors[message.code] + ' - ' + message.id
+                                errors.create(message.code) + ' - ' + message.id
                             );
                         });
                     },
@@ -4717,6 +4755,7 @@ require([
             finder: finder,
             list: list,
             messaging: messaging,
+            settings: settings,
             onSave: onSave
         }
     };

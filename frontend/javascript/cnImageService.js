@@ -282,7 +282,7 @@ require([
                             console.warn(message);
                             host.trigger(
                                 config.events.MESSAGEWARNING,
-                                ImageServiceErrors[message.code] + ' - ' + message.id
+                                errors.create(message.code) + ' - ' + message.id
                             );
                         });
                     },
@@ -305,6 +305,7 @@ require([
             finder: finder,
             list: list,
             messaging: messaging,
+            settings: settings,
             onSave: onSave
         }
     };
