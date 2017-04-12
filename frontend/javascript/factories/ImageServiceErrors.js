@@ -3,6 +3,8 @@ define(function(){
      * Error Factory Class
      * Translates the system errors in to human messages
      * Mainly used by the Backend Service
+     * @param options {Object}
+     * @param options.errors {Object} A set of error: message key value pairs
      */
     return function(options) {
 

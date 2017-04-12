@@ -1,6 +1,10 @@
 define(function () {
     /**
-     * Factory class for creating Attributes Componenets
+     * Factory class for creating Attributes Components
+     * @param data {Object}
+     * @param data.attribute {Object} Model of a single Attribute (Field)
+     * @param data.events {Object} Events that the Attribute will listen to and fire
+     * @param data.model {Object} DataModel of an Image
      */
     return function(data) {
 

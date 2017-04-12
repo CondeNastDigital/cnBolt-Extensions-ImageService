@@ -2,6 +2,16 @@ define(function(){
 
     /**
      * Interface / Abstract object for Settings-Blocks
+     * @param data {Object}
+     * @param data.attributes {Object} Definition of the attributes that the Settings Component
+     * @param data.host {Object} jQuery element hosting the events and components html
+     * @param data.service {Object} Backened Service
+     * @param data.name {Object} Identifier of the settings block
+     * @param data.values {Object} Initial values of the Settings component
+     * @param data.config {Object} System configuration for the Component
+     * @param data.config.events {Object} Component Event-names
+     * @param data.factory {Object} Collection of factory objects that the component needs
+     * @param data.factory.attributes {Object} Factory Object for generating Attributes Components.
      */
     return function(data) {
 

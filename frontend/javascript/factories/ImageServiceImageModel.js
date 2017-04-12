@@ -2,6 +2,11 @@ define(function() {
 
     /**
      * Factory for creating Data objects that represent and Image
+     * @param options {Object}
+     * @param options.config {Object} Configuration Object
+     * @param options.config.events {Object} Events that the component knows: PRESETTERREGISTER - Registers an object that hass an apply method TODO: Make an Interface for it
+     * @param options.host {Object} jQuery element where events will be fired and listened to
+     * @param options.presetters {Object} A set of Presseters that will manipulate the initializatialized new Model
      */
     return function(options) {
 

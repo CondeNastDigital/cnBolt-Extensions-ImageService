@@ -43,10 +43,11 @@ class Extension extends SimpleExtension
 
         $resources    = $this->container['resources'];
         $extensionUrl = $resources->getUrl('bolt').'image-service';
-
+        $jsName = $this->getContainer()["debug"] ? '/js/extension.js': '/js/extension.min.js';
+        
         return [
             // js
-            (new JavaScript('/js/extension.js'))
+            (new JavaScript($jsName))
                 ->setZone(Zone::BACKEND)
                 ->setAttributes(['data-extension-url="'.$extensionUrl.'"'])
                 ->setPriority(1),
