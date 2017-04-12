@@ -4391,15 +4391,14 @@ define('ImageServiceSirTrevor',[],function(){
 
                 if(!this.imageServiceInstance)
                     return;
+                
+                var listData = this.imageServiceInstance.list.getData();
+                var settingsData = this.imageServiceInstance.settings.getData();
 
-                var data = $.merge(
-                    {
-                        settings: this.imageServiceInstance.settings.getData()
-                    },
-                    this.imageServiceInstance.list.getData()
-                );
-
-                this.setData(data);
+                this.setData({
+                    items: listData.items,
+                    settings: settingsData
+                });
 
             },
 
