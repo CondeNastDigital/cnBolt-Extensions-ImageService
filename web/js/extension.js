@@ -2323,7 +2323,7 @@ define('ImageServiceConnector',[],function () {
         /**
          * Where the backened services reside
          */
-        that.baseUrl = data.basUrl;
+        that.baseUrl = data.baseUrl;
 
         /**
          * Save a list of items. the new items expact a corresponding memebr of the files array.
@@ -2725,7 +2725,7 @@ define('ImageServiceFinder',['require'],function (data) {
                 placeholder: Labels.fields.itemFind,
                 allowClear: true,
                 ajax: {
-                    url: that.dataService.location + "/imagesearch",
+                    url: that.dataService.baseUrl + "/imagesearch",
                     dataType: 'json',
                     delay: 120,
                     data: function (params) {
@@ -3128,7 +3128,7 @@ define('ImageServiceList',[],function () {
          * Resets the content of the list with new content
          * @param newItems
          */
-        that.reset = function (newItems) {
+         that.reset = function (newItems) {
 
             newItems = newItems || [];
 
@@ -4073,7 +4073,7 @@ define('ImageServiceAttribute',[],function () {
                     tags: true,
                     tokenSeparators: [',', ' '],
                     ajax: {
-                        url: that.dataService.location + "/tagsearch",
+                        url: that.dataService.baseUrl + "/tagsearch",
                         dataType: 'json',
                         delay: 100,
                         data: function (params) {
@@ -4171,8 +4171,9 @@ define('ImageServiceAttribute',[],function () {
                 that.value = event.target.checked ? checkboxValue : '';
             });
 
-            if (fieldValue == checkboxValue)
-                container.find('input').attr('checked', 'checked');
+            if (fieldValue == checkboxValue){
+                container.find('input').attr('checked', 'checked').prop('checked', true);
+            }
 
             return container;
         };
@@ -4391,7 +4392,7 @@ define('ImageServiceSirTrevor',[],function(){
 
                 if(!this.imageServiceInstance)
                     return;
-                
+
                 var listData = this.imageServiceInstance.list.getData();
                 var settingsData = this.imageServiceInstance.settings.getData();
 
@@ -4542,7 +4543,7 @@ require([
          */
         var service = new ImageServiceConnector({
             defaults: data.cache,
-            basUrl: data.serviceUrl,
+            baseUrl: data.serviceUrl,
             factory: {
                 errors: errors
             }

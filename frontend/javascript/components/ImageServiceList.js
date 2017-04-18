@@ -73,7 +73,7 @@ define(function () {
          * Resets the content of the list with new content
          * @param newItems
          */
-        that.reset = function (newItems) {
+         that.reset = function (newItems) {
 
             newItems = newItems || [];
 

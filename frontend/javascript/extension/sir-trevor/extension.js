@@ -33,7 +33,7 @@ define(function(){
 
                 if(!this.imageServiceInstance)
                     return;
-                
+
                 var listData = this.imageServiceInstance.list.getData();
                 var settingsData = this.imageServiceInstance.settings.getData();
 

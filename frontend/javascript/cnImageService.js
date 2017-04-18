@@ -93,7 +93,7 @@ require([
          */
         var service = new ImageServiceConnector({
             defaults: data.cache,
-            basUrl: data.serviceUrl,
+            baseUrl: data.serviceUrl,
             factory: {
                 errors: errors
             }

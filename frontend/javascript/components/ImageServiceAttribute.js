@@ -138,7 +138,7 @@ define(function () {
                     tags: true,
                     tokenSeparators: [',', ' '],
                     ajax: {
-                        url: that.dataService.location + "/tagsearch",
+                        url: that.dataService.baseUrl + "/tagsearch",
                         dataType: 'json',
                         delay: 100,
                         data: function (params) {
@@ -236,8 +236,9 @@ define(function () {
                 that.value = event.target.checked ? checkboxValue : '';
             });
 
-            if (fieldValue == checkboxValue)
-                container.find('input').attr('checked', 'checked');
+            if (fieldValue == checkboxValue){
+                container.find('input').attr('checked', 'checked').prop('checked', true);
+            }
 
             return container;
         };

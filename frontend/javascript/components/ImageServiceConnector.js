@@ -23,7 +23,7 @@ define(function () {
         /**
          * Where the backened services reside
          */
-        that.baseUrl = data.basUrl;
+        that.baseUrl = data.baseUrl;
 
         /**
          * Save a list of items. the new items expact a corresponding memebr of the files array.

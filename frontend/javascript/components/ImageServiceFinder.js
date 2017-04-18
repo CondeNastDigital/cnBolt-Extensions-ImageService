@@ -75,7 +75,7 @@ define(function (data) {
                 placeholder: Labels.fields.itemFind,
                 allowClear: true,
                 ajax: {
-                    url: that.dataService.location + "/imagesearch",
+                    url: that.dataService.baseUrl + "/imagesearch",
                     dataType: 'json',
                     delay: 120,
                     data: function (params) {
