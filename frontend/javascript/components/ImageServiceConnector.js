@@ -5,7 +5,7 @@ define(function () {
      * @param data {Object}
      * @param data.factory {Object} Holds the Factories needed by the class - in this case the ErrorsFactory
      */
-    return function(data) {
+    return function (data) {
 
         var that = this;
 
@@ -19,6 +19,12 @@ define(function () {
          * @type {*|{}}
          */
         that.defaults = data.defaults || {};
+
+        /**
+         * The name of the service that will be used to deal with the images - cloudinary for example
+         * @type {*}
+         */
+        that.serviceName = data.serviceName;
 
         /**
          * Where the backened services reside
@@ -92,8 +98,14 @@ define(function () {
             });
         };
 
-        // TODO: Remove as its not needed. The url comes back on item create
-        that.getImageUrl = function (imageId, service) {
+        /**
+         * Gets an image url
+         * TODO: Remove as its not needed. The url comes back on item create
+         *
+         * @param imageId
+         * @returns {Promise}
+         */
+        that.getImageUrl = function (imageId) {
 
             var deferred = {};
             deferred.promise = new Promise(function (resolve, reject) {
@@ -111,7 +123,7 @@ define(function () {
                         imageid: imageId,
                         width: null,
                         height: null,
-                        service: service
+                        service: that.serviceName
                     },
                     success: function (data) {
                         deferred.resolve(data.url);
@@ -119,6 +131,40 @@ define(function () {
                 });
 
             }
+
+            return deferred.promise;
+        };
+
+        /**
+         * Finds an image of the service
+         * @param params
+         * @returns {Promise}
+         */
+        that.imageFind = function (params) {
+
+            var deferred = {};
+            deferred.promise = new Promise(function (resolve, reject) {
+                deferred.resolve = resolve;
+                deferred.reject = reject;
+            });
+
+            var search = Object.assign(
+                {
+                    service: that.serviceName
+                },
+                params
+            );
+
+            $.ajax({
+                url: that.baseUrl + '/imagesearch',
+                data: search,
+                success: function (data) {
+                    deferred.resolve(data);
+                },
+                error: function (data) {
+                    deferred.reject(data);
+                }
+            });
 
             return deferred.promise;
         };

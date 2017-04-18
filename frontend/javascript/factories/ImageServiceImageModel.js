@@ -26,7 +26,7 @@ define(function() {
         var model = {
 
             id: null,
-            service: "cloudinary",
+            service: options.defaults.service,
             status: that.statuses.NEW,
             attributes: {},
             tags: [],

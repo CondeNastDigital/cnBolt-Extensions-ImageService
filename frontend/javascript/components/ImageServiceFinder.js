@@ -8,7 +8,7 @@ define(function (data) {
      * @param data.config.labels {Object} Labels that the class will use for its component, { fields.itemFind: string }
      *
      */
-    return function(data) {
+    return function (data) {
 
         var that = this;
         var Events = data.config.events;
@@ -75,14 +75,19 @@ define(function (data) {
                 placeholder: Labels.fields.itemFind,
                 allowClear: true,
                 ajax: {
-                    url: that.dataService.baseUrl + "/imagesearch",
-                    dataType: 'json',
+                    //url: that.dataService.baseUrl + "/imagesearch",
+                    //dataType: 'json',
                     delay: 120,
+
                     data: function (params) {
                         return {
                             q: params.term.replace(/(^\s+)|(\s+$)/igm, ''), // search term, trimmed
                             page: params.page
                         };
+                    },
+                    transport: function (params, success, failure) {
+                        return that.dataService.imageFind(params.data)
+                            .then(success)
                     },
                     processResults: function (data, params) {
 

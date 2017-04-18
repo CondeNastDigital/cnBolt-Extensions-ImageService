@@ -46,28 +46,27 @@ require([
     "ImageServiceAttribute",
     "ImageServiceAttributes",
     "ImageServiceSirTrevor"
-], function (
-     ImageServiceAttributesFactory,
-     ImageServiceImageModelFactory,
-     ImageServiceListItemFactory,
-     ImageServiceConnector,
-     ImageServiceUploader,
-     ImageServiceSettings,
-     ImageServiceFinder,
-     ImageServicePresets,
-     ImageServiceMessaging,
-     ImageServiceList,
-     ImageServiceConfig,
-     ImageServiceErrors,
-     ImageServiceGlobals,
-     ImageServiceListItem,
-     ImageServiceEntityAction,
-     ImageServicePreview,
-     ImageServiceAttribute,
-     ImageServiceAttributes,
-     ImageServiceSirTrevor) {
+], function (ImageServiceAttributesFactory,
+             ImageServiceImageModelFactory,
+             ImageServiceListItemFactory,
+             ImageServiceConnector,
+             ImageServiceUploader,
+             ImageServiceSettings,
+             ImageServiceFinder,
+             ImageServicePresets,
+             ImageServiceMessaging,
+             ImageServiceList,
+             ImageServiceConfig,
+             ImageServiceErrors,
+             ImageServiceGlobals,
+             ImageServiceListItem,
+             ImageServiceEntityAction,
+             ImageServicePreview,
+             ImageServiceAttribute,
+             ImageServiceAttributes,
+             ImageServiceSirTrevor) {
 
-    CnImageService =  function(data) {
+    CnImageService = function (data) {
         // ------ Factory --------
 
         /**
@@ -94,6 +93,7 @@ require([
         var service = new ImageServiceConnector({
             defaults: data.cache,
             baseUrl: data.serviceUrl,
+            serviceName: data.serviceName,
             factory: {
                 errors: errors
             }
@@ -110,7 +110,9 @@ require([
         var modelFactory = new ImageServiceImageModelFactory({
             host: host,
             config: config,
-            data: storeJson.settings
+            defaults: {
+                service: data.serviceName
+            }
         });
 
         var attributesFactory = new ImageServiceAttributesFactory({
@@ -127,9 +129,12 @@ require([
             attributes: attributesFactory,
             dataModel: modelFactory,
             config: config,
-            dataService: service,
+            service: service,
             definitions: {
-                attributes: Object.assign({}, data.attributes, config.systemAttributes)
+                attributes: Object.assign(
+                    {},
+                    data.attributes, config.systemAttributes
+                )
             }
         });
 
@@ -175,7 +180,7 @@ require([
         /**
          * Global settings concerning the instance
          */
-        if(Object.keys(data.globals || {}).length)
+        if (Object.keys(data.globals || {}).length)
             var globals = new ImageServiceGlobals({
                 host: host,
                 parentContainer: null,
@@ -195,7 +200,7 @@ require([
         /**
          * Presets of the Image attributes
          */
-        if(Object.keys(data.attributes || {} ).length)
+        if (Object.keys(data.attributes || {}).length)
             var presets = new ImageServicePresets({
                 host: host,
                 parentContainer: null,
@@ -317,10 +322,10 @@ require([
         }
     });
 
-    $(document).on('SirTrevor.DynamicBlock.All', function(){
-        $(document).trigger('SirTrevor.DynamicBlock.Add', [cnImageServiceST] );
+    $(document).on('SirTrevor.DynamicBlock.All', function () {
+        $(document).trigger('SirTrevor.DynamicBlock.Add', [cnImageServiceST]);
     });
 
-    $(document).trigger('SirTrevor.DynamicBlock.Add', [cnImageServiceST] );
+    $(document).trigger('SirTrevor.DynamicBlock.Add', [cnImageServiceST]);
 
 });

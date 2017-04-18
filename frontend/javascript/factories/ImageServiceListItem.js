@@ -24,7 +24,7 @@ define(function () {
         var DataModel = data.dataModel;
 
         var attributeDefinition = data.definitions.attributes;
-        var service = data.dataService;
+        var service = data.service;
 
         that.create = function (options) {
             return new Model(
@@ -41,7 +41,7 @@ define(function () {
                             preview: Preview
                         },
                         definitions: attributeDefinition,
-                        dataService: service
+                        service: service
                     },
                     options
                 )

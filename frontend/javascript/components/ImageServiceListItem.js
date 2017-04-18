@@ -53,7 +53,7 @@ define(function () {
          * Communication service with the backened
          * @type {*|ImageServiceConnector|string|ImageServiceConnector|string}
          */
-        var dataService = data.dataService;
+        var dataService = data.service;
 
         /**
          * jQuery Object of the Entity

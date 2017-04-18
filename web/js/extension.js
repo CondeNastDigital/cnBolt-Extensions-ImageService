@@ -2201,7 +2201,7 @@ define('ImageServiceImageModelFactory',[],function() {
         var model = {
 
             id: null,
-            service: "cloudinary",
+            service: options.defaults.service,
             status: that.statuses.NEW,
             attributes: {},
             tags: [],
@@ -2273,7 +2273,7 @@ define('ImageServiceListItemFactory',[],function () {
         var DataModel = data.dataModel;
 
         var attributeDefinition = data.definitions.attributes;
-        var service = data.dataService;
+        var service = data.service;
 
         that.create = function (options) {
             return new Model(
@@ -2290,7 +2290,7 @@ define('ImageServiceListItemFactory',[],function () {
                             preview: Preview
                         },
                         definitions: attributeDefinition,
-                        dataService: service
+                        service: service
                     },
                     options
                 )
@@ -2305,7 +2305,7 @@ define('ImageServiceConnector',[],function () {
      * @param data {Object}
      * @param data.factory {Object} Holds the Factories needed by the class - in this case the ErrorsFactory
      */
-    return function(data) {
+    return function (data) {
 
         var that = this;
 
@@ -2319,6 +2319,12 @@ define('ImageServiceConnector',[],function () {
          * @type {*|{}}
          */
         that.defaults = data.defaults || {};
+
+        /**
+         * The name of the service that will be used to deal with the images - cloudinary for example
+         * @type {*}
+         */
+        that.serviceName = data.serviceName;
 
         /**
          * Where the backened services reside
@@ -2392,8 +2398,14 @@ define('ImageServiceConnector',[],function () {
             });
         };
 
-        // TODO: Remove as its not needed. The url comes back on item create
-        that.getImageUrl = function (imageId, service) {
+        /**
+         * Gets an image url
+         * TODO: Remove as its not needed. The url comes back on item create
+         *
+         * @param imageId
+         * @returns {Promise}
+         */
+        that.getImageUrl = function (imageId) {
 
             var deferred = {};
             deferred.promise = new Promise(function (resolve, reject) {
@@ -2411,7 +2423,7 @@ define('ImageServiceConnector',[],function () {
                         imageid: imageId,
                         width: null,
                         height: null,
-                        service: service
+                        service: that.serviceName
                     },
                     success: function (data) {
                         deferred.resolve(data.url);
@@ -2419,6 +2431,40 @@ define('ImageServiceConnector',[],function () {
                 });
 
             }
+
+            return deferred.promise;
+        };
+
+        /**
+         * Finds an image of the service
+         * @param params
+         * @returns {Promise}
+         */
+        that.imageFind = function (params) {
+
+            var deferred = {};
+            deferred.promise = new Promise(function (resolve, reject) {
+                deferred.resolve = resolve;
+                deferred.reject = reject;
+            });
+
+            var search = Object.assign(
+                {
+                    service: that.serviceName
+                },
+                params
+            );
+
+            $.ajax({
+                url: that.baseUrl + '/imagesearch',
+                data: search,
+                success: function (data) {
+                    deferred.resolve(data);
+                },
+                error: function (data) {
+                    deferred.reject(data);
+                }
+            });
 
             return deferred.promise;
         };
@@ -2658,7 +2704,7 @@ define('ImageServiceFinder',['require'],function (data) {
      * @param data.config.labels {Object} Labels that the class will use for its component, { fields.itemFind: string }
      *
      */
-    return function(data) {
+    return function (data) {
 
         var that = this;
         var Events = data.config.events;
@@ -2725,14 +2771,19 @@ define('ImageServiceFinder',['require'],function (data) {
                 placeholder: Labels.fields.itemFind,
                 allowClear: true,
                 ajax: {
-                    url: that.dataService.baseUrl + "/imagesearch",
-                    dataType: 'json',
+                    //url: that.dataService.baseUrl + "/imagesearch",
+                    //dataType: 'json',
                     delay: 120,
+
                     data: function (params) {
                         return {
                             q: params.term.replace(/(^\s+)|(\s+$)/igm, ''), // search term, trimmed
                             page: params.page
                         };
+                    },
+                    transport: function (params, success, failure) {
+                        return that.dataService.imageFind(params.data)
+                            .then(success)
                     },
                     processResults: function (data, params) {
 
@@ -3523,7 +3574,7 @@ define('ImageServiceListItem',[],function () {
          * Communication service with the backened
          * @type {*|ImageServiceConnector|string|ImageServiceConnector|string}
          */
-        var dataService = data.dataService;
+        var dataService = data.service;
 
         /**
          * jQuery Object of the Entity
@@ -4496,28 +4547,27 @@ require([
     "ImageServiceAttribute",
     "ImageServiceAttributes",
     "ImageServiceSirTrevor"
-], function (
-     ImageServiceAttributesFactory,
-     ImageServiceImageModelFactory,
-     ImageServiceListItemFactory,
-     ImageServiceConnector,
-     ImageServiceUploader,
-     ImageServiceSettings,
-     ImageServiceFinder,
-     ImageServicePresets,
-     ImageServiceMessaging,
-     ImageServiceList,
-     ImageServiceConfig,
-     ImageServiceErrors,
-     ImageServiceGlobals,
-     ImageServiceListItem,
-     ImageServiceEntityAction,
-     ImageServicePreview,
-     ImageServiceAttribute,
-     ImageServiceAttributes,
-     ImageServiceSirTrevor) {
+], function (ImageServiceAttributesFactory,
+             ImageServiceImageModelFactory,
+             ImageServiceListItemFactory,
+             ImageServiceConnector,
+             ImageServiceUploader,
+             ImageServiceSettings,
+             ImageServiceFinder,
+             ImageServicePresets,
+             ImageServiceMessaging,
+             ImageServiceList,
+             ImageServiceConfig,
+             ImageServiceErrors,
+             ImageServiceGlobals,
+             ImageServiceListItem,
+             ImageServiceEntityAction,
+             ImageServicePreview,
+             ImageServiceAttribute,
+             ImageServiceAttributes,
+             ImageServiceSirTrevor) {
 
-    CnImageService =  function(data) {
+    CnImageService = function (data) {
         // ------ Factory --------
 
         /**
@@ -4544,6 +4594,7 @@ require([
         var service = new ImageServiceConnector({
             defaults: data.cache,
             baseUrl: data.serviceUrl,
+            serviceName: data.serviceName,
             factory: {
                 errors: errors
             }
@@ -4560,7 +4611,9 @@ require([
         var modelFactory = new ImageServiceImageModelFactory({
             host: host,
             config: config,
-            data: storeJson.settings
+            defaults: {
+                service: data.serviceName
+            }
         });
 
         var attributesFactory = new ImageServiceAttributesFactory({
@@ -4577,9 +4630,12 @@ require([
             attributes: attributesFactory,
             dataModel: modelFactory,
             config: config,
-            dataService: service,
+            service: service,
             definitions: {
-                attributes: Object.assign({}, data.attributes, config.systemAttributes)
+                attributes: Object.assign(
+                    {},
+                    data.attributes, config.systemAttributes
+                )
             }
         });
 
@@ -4625,7 +4681,7 @@ require([
         /**
          * Global settings concerning the instance
          */
-        if(Object.keys(data.globals || {}).length)
+        if (Object.keys(data.globals || {}).length)
             var globals = new ImageServiceGlobals({
                 host: host,
                 parentContainer: null,
@@ -4645,7 +4701,7 @@ require([
         /**
          * Presets of the Image attributes
          */
-        if(Object.keys(data.attributes || {} ).length)
+        if (Object.keys(data.attributes || {}).length)
             var presets = new ImageServicePresets({
                 host: host,
                 parentContainer: null,
@@ -4767,11 +4823,11 @@ require([
         }
     });
 
-    $(document).on('SirTrevor.DynamicBlock.All', function(){
-        $(document).trigger('SirTrevor.DynamicBlock.Add', [cnImageServiceST] );
+    $(document).on('SirTrevor.DynamicBlock.All', function () {
+        $(document).trigger('SirTrevor.DynamicBlock.Add', [cnImageServiceST]);
     });
 
-    $(document).trigger('SirTrevor.DynamicBlock.Add', [cnImageServiceST] );
+    $(document).trigger('SirTrevor.DynamicBlock.Add', [cnImageServiceST]);
 
 });
 define("cnImageService", function(){});
