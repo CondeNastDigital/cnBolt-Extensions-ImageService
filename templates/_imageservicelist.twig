@@ -57,6 +57,7 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                         var imageService = new CnImageService({
                             cache: defs,
                             serviceUrl: '{{ paths.hosturl }}{{ paths.bolt }}image-service/image',
+                            serviceName: '{{ field.service }}',
                             {% if field.maxFiles %}
                             maxFiles: {{ field.maxFiles }},
                             {% endif %}
@@ -65,7 +66,8 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                             {% endif %}
                             dataElement: '[name="{{ name }}"]',
                             hostElement: '#imageservice-{{ name }}-list',
-                            attributes: {{ field.attributes|json_encode|raw }}
+                            attributes: {{ field.attributes|json_encode|raw }},
+                            globals: {{ field.globals|json_encode|raw }}
                         });
 
                         /**
