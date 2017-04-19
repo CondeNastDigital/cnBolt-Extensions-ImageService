@@ -23,14 +23,16 @@ class Image implements JsonSerializable {
     const INFO_SIZE = "size";
     const INFO_FORMAT = "format";
     const INFO_SOURCE = "source";
+    const INFO_CUSTOM = "custom";
     const INFO_CREATED = "created";
+    const INFO_CACHED = "cached";
 
     const STATUS_CLEAN = "clean";       // image is in sync with the local database and the image service
     const STATUS_NEW = "new";           // image needs to be created in local database and image service (The id can be left empty and will be set by the image service!)
     const STATUS_DIRTY = "dirty";       // image needs to be updated in local database and image service
     const STATUS_DELETED = "deleted";   // image needs to be deleted (Will be removed from local database but may not be deleted from image service at discretion of the service)
 
-    protected static $info_fields = [self::INFO_HEIGHT,self::INFO_WIDTH,self::INFO_SIZE,self::INFO_FORMAT,self::INFO_SOURCE,self::INFO_CREATED];
+    protected static $info_fields = [self::INFO_HEIGHT,self::INFO_WIDTH,self::INFO_SIZE,self::INFO_FORMAT,self::INFO_SOURCE,self::INFO_CREATED,self::INFO_CACHED,self::INFO_CUSTOM];
 
     protected $id;
     protected $service;
@@ -99,7 +101,8 @@ class Image implements JsonSerializable {
                 break;
             // fixed key/value arrays
             case "info":
-                $this->info = array_intersect_key($value, array_flip(self::$info_fields)) + $this->info;
+                if(is_array($value))
+                    $this->info = array_intersect_key($value, array_flip(self::$info_fields)) + $this->info;
                 break;
             default:
                 throw new Exception("Unknown property '{$name}' requested");
@@ -135,6 +138,7 @@ class Image implements JsonSerializable {
         $image->__set("tags",       $input["tags"]);
         $image->__set("options",    $input["options"]);
         $image->__set("status",     $input["status"]);
+        $image->__set("info",       $input["info"]);
 
         return $image;
     }
