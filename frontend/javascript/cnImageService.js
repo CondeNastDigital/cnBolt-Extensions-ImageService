@@ -69,71 +69,73 @@ require([
     CnImageService = function (data) {
         // ------ Factory --------
 
+        var that = this;
         /**
          * Filed Holding the generated JSON
          * @type {jQuery|HTMLElement}
          */
-        var store = $(data.dataElement);
-        var storeJson = JSON.parse(store.val());
+        that.store = $(data.dataElement);
+        that.storeJson = JSON.parse(that.store.val());
 
         /**
          * Host HTML Element holding all new generated elements
          * Also used as an Event-Arena
          * @type {jQuery|HTMLElement}
          */
-        var host = $(data.hostElement);
+        that.host = $(data.hostElement);
 
-        var errors = new ImageServiceErrors(data.errors);
-        var config = ImageServiceConfig;
+        that.errors = new ImageServiceErrors(data.errors);
+        that.config = ImageServiceConfig;
 
         /**
          * Backend connector
          * @type {ImageServiceConnector}
          */
-        var service = new ImageServiceConnector({
+        that.service = new ImageServiceConnector({
             defaults: data.cache,
             baseUrl: data.serviceUrl,
             serviceName: data.serviceName,
             factory: {
-                errors: errors
+                errors: that.errors
             }
         });
 
         /**
          * Constructor
          */
-        var init = function () {
-            host.addClass('imageservice-container');
-            store.hide();
+        that.init = function () {
+            that.host.addClass('imageservice-container');
+            that.store.hide();
+            $(document).trigger(ImageServiceConfig.events.LISTREADY, { instance: that });
         };
 
-        var modelFactory = new ImageServiceImageModelFactory({
-            host: host,
-            config: config,
+        that.modelFactory = new ImageServiceImageModelFactory({
+            host: that.host,
+            config: that.config,
             defaults: {
                 service: data.serviceName
             }
         });
 
-        var attributesFactory = new ImageServiceAttributesFactory({
+        that.attributesFactory = new ImageServiceAttributesFactory({
             attribute: ImageServiceAttribute,
-            events: config.events,
+            events: that.config.events,
             model: ImageServiceAttributes
         });
 
-        var listItemFactory = new ImageServiceListItemFactory({
+        that.listItemFactory = new ImageServiceListItemFactory({
             model: ImageServiceListItem,
-            events: config.events,
+            events: that.config.events,
             actions: ImageServiceEntityAction,
             preview: ImageServicePreview,
-            attributes: attributesFactory,
-            dataModel: modelFactory,
-            config: config,
-            service: service,
+            attributes: that.attributesFactory,
+            dataModel: that.modelFactory,
+            config: that.config,
+            service: that.service,
             definitions: {
                 attributes: Object.assign(
                     {},
-                    data.attributes, config.systemAttributes
+                    data.attributes, that.config.systemAttributes
                 )
             }
         });
@@ -142,16 +144,16 @@ require([
          * Uploader of items
          * @type {ImageServiceUploader}
          */
-        var uploader = new ImageServiceUploader({
-            host: host,
+        that.uploader = new ImageServiceUploader({
+            host: that.host,
             maxFileSize: data.maxFileSize,
-            service: service,
+            service: that.service,
             config: {
-                events: config.events,
-                labels: config.labels.ImageServiceUploader
+                events: that.config.events,
+                labels: that.config.labels.ImageServiceUploader
             },
             factory: {
-                model: modelFactory
+                model: that.modelFactory
             }
         });
 
@@ -159,41 +161,41 @@ require([
          * Finds images on the rmeote service and adds them to the list
          * @type {ImageServiceFinder}
          */
-        var finder = new ImageServiceFinder({
-            host: host,
-            service: service,
+        that.finder = new ImageServiceFinder({
+            host: that.host,
+            service: that.service,
             config: {
-                events: config.events,
-                labels: config.labels.ImageServiceFinder
+                events: that.config.events,
+                labels: that.config.labels.ImageServiceFinder
             }
         });
 
-        var settings = new ImageServiceSettings({
-            host: host,
+        that.settings = new ImageServiceSettings({
+            host: that.host,
             config: {
-                events: config.events,
-                labels: config.labels.ImageServiceSettings
+                events: that.config.events,
+                labels: that.config.labels.ImageServiceSettings
             },
-            data: storeJson.settings
+            data: that.storeJson.settings
         });
 
         /**
          * Global settings concerning the instance
          */
         if (Object.keys(data.globals || {}).length)
-            var globals = new ImageServiceGlobals({
-                host: host,
+            that.globals = new ImageServiceGlobals({
+                host: that.host,
                 parentContainer: null,
                 attributes: data.globals,
-                service: service,
+                service: that.service,
                 prefix: 'globals',
                 config: {
-                    events: config.events,
-                    labels: config.labels.ImageServiceGlobals
+                    events: that.config.events,
+                    labels: that.config.labels.ImageServiceGlobals
                 },
                 values: {},
                 factory: {
-                    attributes: attributesFactory
+                    attributes: that.attributesFactory
                 }
             });
 
@@ -201,19 +203,19 @@ require([
          * Presets of the Image attributes
          */
         if (Object.keys(data.attributes || {}).length)
-            var presets = new ImageServicePresets({
-                host: host,
+            that.presets = new ImageServicePresets({
+                host: that.host,
                 parentContainer: null,
-                attributes: jQuery.extend({}, data.attributes, config.systemAttributes),
-                service: service,
+                attributes: jQuery.extend({}, data.attributes, that.config.systemAttributes),
+                service: that.service,
                 prefix: 'presets',
                 config: {
-                    events: config.events,
-                    labels: config.labels.ImageServicePresets
+                    events: that.config.events,
+                    labels: that.config.labels.ImageServicePresets
                 },
                 values: {},
                 factory: {
-                    attributes: attributesFactory
+                    attributes: that.attributesFactory
                 }
             });
 
@@ -221,12 +223,12 @@ require([
          * Massage UI
          * @type {ImageServiceMessaging}
          */
-        var messaging = new ImageServiceMessaging({
-            host: host,
+        that.messaging = new ImageServiceMessaging({
+            host: that.host,
             events: {
-                error: config.events.MESSAGEERROR,
-                warning: config.events.MESSAGEWARNING,
-                info: config.events.MESSAGEINFO
+                error: that.config.events.MESSAGEERROR,
+                warning: that.config.events.MESSAGEWARNING,
+                info: that.config.events.MESSAGEINFO
             }
         });
 
@@ -234,16 +236,16 @@ require([
          * List of items
          * @type {ImageServiceList}
          */
-        var list = new ImageServiceList({
-            hostElement: host,
-            items: JSON.parse(store.val()),
+        that.list = new ImageServiceList({
+            hostElement: that.host,
+            items: JSON.parse(that.store.val()),
             maxItems: data.maxFiles || null,
             config: {
-                events: config.events
+                events: that.config.events
             },
             factory: {
-                listItem: listItemFactory,
-                model: modelFactory
+                listItem: that.listItemFactory,
+                model: that.modelFactory
             }
         });
 
@@ -254,19 +256,19 @@ require([
          * @param event
          * @returns {*}
          */
-        var onSave = function (event) {
+        that.save = function (event) {
 
-            if (list.dirty) {
+            if (that.list.dirty) {
                 // Stop the initial save process - syncronious save
-                event = event || new Event(config.events.LISTSAVED);
+                event = event || new Event(that.config.events.LISTSAVED);
                 event.preventDefault();
                 event.stopImmediatePropagation();
 
                 // Gets the current list data
-                var data = list.getData();
+                var data = that.list.getData();
 
                 // Invokes the Backend-Connector Save
-                service.imageSave({
+                that.service.imageSave({
                     async: false, // unfortunately, this functionality is deprecated
                     items: data.items,
                     files: data.files,
@@ -274,20 +276,20 @@ require([
                     // Updates the JSON-holding element and recalls the save event
                     callback: function (newItems) {
                         // transforms the response to json for the backend-save
-                        store.val(JSON.stringify({items: newItems, settings: settings.getData()}));
+                        that.store.val(JSON.stringify({items: newItems, settings: that.settings.getData()}));
                         // informs the host that the list has been saved
-                        $(host).trigger(config.events.LISTSAVED, {items: newItems});
+                        $(that.host).trigger(that.config.events.LISTSAVED, {items: newItems});
                         // reinitiates the event
-                        $(event.target).trigger(event.type);
+                        //$(event.target).trigger(event.type);
                     },
 
                     // Warning handler, the saving process is not cancelled!
                     warning: function (messages) {
                         messages.forEach(function (message) {
                             console.warn(message);
-                            host.trigger(
-                                config.events.MESSAGEWARNING,
-                                errors.create(message.code) + ' - ' + message.id
+                            that.host.trigger(
+                                that.config.events.MESSAGEWARNING,
+                                that.errors.create(that.message.code) + ' - ' + message.id
                             );
                         });
                     },
@@ -295,15 +297,18 @@ require([
                     // Error handler, the saving process is cancelled
                     error: function (error) {
                         console.error(error);
-                        host.trigger(config.events.MESSAGEERROR, error);
+                        that.host.trigger(that.config.events.MESSAGEERROR, error);
                     }
                 });
+            } else {
+                $(that.host).trigger(that.config.events.LISTSAVINGSKIPPED, that.store );
             }
 
         };
 
-        init();
+        that.init();
 
+        /*
         return {
             service: service,
             uploader: uploader,
@@ -311,8 +316,8 @@ require([
             list: list,
             messaging: messaging,
             settings: settings,
-            onSave: onSave
-        }
+            save: save
+        }*/
     };
 
     var cnImageServiceST = new ImageServiceSirTrevor({

@@ -52,22 +52,23 @@ define(function(){
                 // Gives the container an unique id
                 $(this.$('.frontend-target')).attr('id', 'ImageService' + String(new Date().valueOf()));
 
+                var config = SirTrevor.getInstance(this.instanceID).options.options.Imageservice || {};
                 // Merges the Field config with the defaults
                 var defaults = {
                     dataElement: this.$('.data-target'),
                     hostElement: this.$('.frontend-target'),
-                    serviceUrl: extensionUrl + '/image'
+                    serviceUrl: extensionUrl + '/image',
+                    serviceName: config.service
                 };
-                var config = SirTrevor.getInstance(this.instanceID).options.options.Imageservice || {};
 
                 // Inits the Image Service
                 var customInstance = new ImageServiceModel(Object.assign(config, defaults ));
 
                 // Adds the on-save
                 // TODO: Replace with a better event/catchcancel process
-                $('#sidebarsavecontinuebutton, #savecontinuebutton').bind('click', {} ,function (event) {
-                    customInstance.onSave(event);
-                });
+                //$('#sidebarsavecontinuebutton, #savecontinuebutton').bind('click', {} ,function (event) {
+                //    customInstance.save(event);
+                //});
 
                 this.imageServiceInstance = customInstance;
 

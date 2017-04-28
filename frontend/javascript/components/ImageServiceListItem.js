@@ -210,10 +210,11 @@ define(function () {
          */
         that.presetImage = function () {
 
-            if (!item.info.source) {
+            if (!item.info.source && item.status == DataModel.statuses.CLEAN) {
                 item.info.source = dataService.getImageUrl(item.id, item.service);
             }
 
+            // Php array - to Javascript object
             if (item.attributes instanceof Array) {
                 item.attributes = {};
             }
