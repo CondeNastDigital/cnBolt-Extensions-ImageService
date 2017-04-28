@@ -66,14 +66,6 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                             attributes: {{ field.attributes|json_encode|raw }}
                         });
 
-                        /**
-                         * FIXME: Find a more reliable way to attach the save event. The bolt events are not cancelable, that
-                         * is why the Bolt.Content.Save.Start is not a good option. Its also not syncronious.
-                         */
-                        $('#sidebarsavecontinuebutton, #savecontinuebutton').bind('click', {} ,function (event) {
-                            imageService.onSave(event);
-                        });
-
                     }
             )
 

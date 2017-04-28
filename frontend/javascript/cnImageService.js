@@ -275,12 +275,11 @@ require([
 
                     // Updates the JSON-holding element and recalls the save event
                     callback: function (newItems) {
+                        var newData = {items: newItems, settings: that.settings.getData()};
                         // transforms the response to json for the backend-save
-                        that.store.val(JSON.stringify({items: newItems, settings: that.settings.getData()}));
+                        $(that.store).val(JSON.stringify(newData));
                         // informs the host that the list has been saved
-                        $(that.host).trigger(that.config.events.LISTSAVED, {items: newItems});
-                        // reinitiates the event
-                        //$(event.target).trigger(event.type);
+                        $(that.host).trigger(that.config.events.LISTSAVED, newData);
                     },
 
                     // Warning handler, the saving process is not cancelled!
@@ -289,7 +288,7 @@ require([
                             console.warn(message);
                             that.host.trigger(
                                 that.config.events.MESSAGEWARNING,
-                                that.errors.create(that.message.code) + ' - ' + message.id
+                                that.errors.create(message.code) + ' - ' + message.id
                             );
                         });
                     },
@@ -307,17 +306,6 @@ require([
         };
 
         that.init();
-
-        /*
-        return {
-            service: service,
-            uploader: uploader,
-            finder: finder,
-            list: list,
-            messaging: messaging,
-            settings: settings,
-            save: save
-        }*/
     };
 
     var cnImageServiceST = new ImageServiceSirTrevor({

@@ -4764,7 +4764,6 @@ require([
         that.save = function (event) {
 
             if (that.list.dirty) {
-                console.log('save');
                 // Stop the initial save process - syncronious save
                 event = event || new Event(that.config.events.LISTSAVED);
                 event.preventDefault();
@@ -4781,12 +4780,11 @@ require([
 
                     // Updates the JSON-holding element and recalls the save event
                     callback: function (newItems) {
+                        var newData = {items: newItems, settings: that.settings.getData()};
                         // transforms the response to json for the backend-save
-                        that.store.val(JSON.stringify({items: newItems, settings: that.settings.getData()}));
+                        $(that.store).val(JSON.stringify(newData));
                         // informs the host that the list has been saved
-                        $(that.host).trigger(that.config.events.LISTSAVED, {items: newItems});
-                        // reinitiates the event
-                        //$(event.target).trigger(event.type);
+                        $(that.host).trigger(that.config.events.LISTSAVED, newData);
                     },
 
                     // Warning handler, the saving process is not cancelled!
@@ -4795,7 +4793,7 @@ require([
                             console.warn(message);
                             that.host.trigger(
                                 that.config.events.MESSAGEWARNING,
-                                that.errors.create(that.message.code) + ' - ' + message.id
+                                that.errors.create(message.code) + ' - ' + message.id
                             );
                         });
                     },
@@ -4807,24 +4805,12 @@ require([
                     }
                 });
             } else {
-                console.log('not save');
                 $(that.host).trigger(that.config.events.LISTSAVINGSKIPPED, that.store );
             }
 
         };
 
         that.init();
-
-        /*
-        return {
-            service: service,
-            uploader: uploader,
-            finder: finder,
-            list: list,
-            messaging: messaging,
-            settings: settings,
-            save: save
-        }*/
     };
 
     var cnImageServiceST = new ImageServiceSirTrevor({
@@ -4851,43 +4837,50 @@ require(['ImageServiceConfig'], function (ImageServiceConfig) {
         var that = this;
         var instances = [];
         var saved = 0;
-        var boltSaveEvent = null;
         var lastEvent = null;
 
+        // Listenes for saved events of the Instances, and when all are saved, fieres the save event of the original save button
+        // The CnImageService Compoenent fires different events on list saved, or the list does not need saving
         $(document).on( ImageServiceConfig.events.LISTSAVED + ' ' + ImageServiceConfig.events.LISTSAVINGSKIPPED , function (event, data) {
-            console.log(event, data);
             if (--saved == 0) {
-                $(lastEvent.target).trigger(lastEvent.type, {
+                $(lastEvent.target).data('parentButton').trigger(lastEvent.type, {
                     imageserviceskip: true
                 });
             }
         });
 
+        // Listens for new ImageServiceFields
         $(document).on(ImageServiceConfig.events.LISTREADY, function (event, data) {
             instances.push(data.instance);
-            console.log(instances);
         });
 
-        $(document).on('click', '#sidebarsavecontinuebutton, #savecontinuebutton' ,function (event, data) {
-            if(!data || !data.hasOwnProperty('imageserviceskip')) {
-                console.log('Will Save forms');
-                event.stopPropagation();
-                event.preventDefault();
-                lastEvent = event;
-                that.save(event);
-            } else {
-                console.log('Will Save forms NOT');
-            }
+        // Clones the save button to makes sure that we save the imageservice fields first
+        $(document).ready(function(){
+            $('#sidebarsavecontinuebutton, #savecontinuebutton').each(function(el){
+                var customButton = $($(this).prop('outerHTML'));
+                customButton.data('parentButton', $(this));
+                customButton.attr('id', customButton.attr('id') + '-imageservice');
+                customButton.insertBefore($(this));
+                customButton.on('click', function(event){
+                    event.stopPropagation();
+                    event.preventDefault();
+                    that.save(event); //customButton.data('parentButton').trigger('click');
+                });
+                $(this).hide();
+            });
         });
 
-        that.save = function (event) {
-
+        /**
+         * Calls all the instances and saves the data to the wished store
+         * @param event
+         * @param data
+         */
+        that.save = function (event, data) {
+            lastEvent = event;
             saved = instances.length;
-
             instances.forEach(function (instance) {
                 instance.save();
             });
-
         };
 
     })();
