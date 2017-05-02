@@ -96,3 +96,8 @@ There is also a custom twig filter, that gives back the image url in different s
 # Vendor libraries
 The folder vendor contains libraries from various image services. These folders are not managed by any automatism like composer and need to be updated manually.
 
+# Tech Notes
+
+The extension makes a copy of the save button, in order to make sure that, that images will be saved 
+as a first thing on saving. If the event needs to be cancelled, e.g. by problem on saving, the saving of the
+article must be abandond as well. No better way found to deal with the events.
