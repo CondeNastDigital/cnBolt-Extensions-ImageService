@@ -27,7 +27,8 @@
         "ImageServicePreview": "components/ImageServicePreview",
         "ImageServiceAttribute": "components/ImageServiceAttribute",
         "ImageServiceAttributes": "components/ImageServiceAttributes",
-        "ImageServiceSirTrevor": "extension/sir-trevor/extension"
+        "ImageServiceSirTrevor": "extension/sir-trevor/extension",
+        "CnImageServiceBolt": "extension/bolt/extension"
     },
-    include: ['requirejs']
+    include: ['requirejs','CnImageServiceBolt']
 })
