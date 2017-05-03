@@ -339,6 +339,7 @@ class ContentConnector implements IConnector
                     "code" => IConnector::RESULT_CODE_ERRFILEINVALID,
                     "id" => $image->id
                 ];
+                unset($images[$idx]);
             }
         }
         
