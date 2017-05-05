@@ -22,6 +22,9 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
 }
 } %}
 
+{#=== Extensions Config ==============================================================================================#}
+{% set config = imageserviceConfig() %}
+
 {#=== FIELDSET =======================================================================================================#}
 
 {% extends '@bolt/_base/_fieldset.twig' %}
@@ -35,6 +38,7 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
 
 {% block fieldset_controls %}
     <div class="col-xs-12">
+
         {% set value = context.content.get(contentkey)|default(field.default)|default({items:[]}) %}
 
         <textarea{{ macro.attr(attributes.text) }}>{{ value|json_encode }}</textarea>
@@ -57,13 +61,11 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                         var imageService = new CnImageService({
                             cache: defs,
                             serviceUrl: '{{ paths.hosturl }}{{ paths.bolt }}image-service/image',
-                            serviceName: '{{ field.service }}',
+                            serviceName: '{{ field.service ? field.service : config.serviceName }}',
                             {% if field.maxFiles %}
                             maxFiles: {{ field.maxFiles }},
                             {% endif %}
-                            {% if field.maxFileSize %}
-                            maxFileSize: {{ field.maxFileSize }},
-                            {% endif %}
+                            maxFileSize: {{ field.maxFileSize ? field.maxFileSize: config.security['max-size'] }},
                             dataElement: '[name="{{ name }}"]',
                             hostElement: '#imageservice-{{ name }}-list',
                             attributes: {{ field.attributes|json_encode|raw }},

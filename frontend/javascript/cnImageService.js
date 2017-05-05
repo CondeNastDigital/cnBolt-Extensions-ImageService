@@ -25,7 +25,7 @@ require.config({
 
 var CnImageService = {};
 var baseUrl = document.currentScript.getAttribute('data-extension-url');
-
+var defaultServiceName = document.currentScript.getAttribute('data-default-servicename');
 require([
     "ImageServiceAttributesFactory",
     "ImageServiceImageModelFactory",
@@ -308,8 +308,15 @@ require([
         that.init();
     };
 
+    // Makes sure that the current script is available as a function
+    $(document).currentScript = document.currentScript || (function() {
+            var scripts = document.getElementsByTagName('script');
+            return scripts[scripts.length - 1];
+    })();
+
     var cnImageServiceST = new ImageServiceSirTrevor({
         extensionUrl: baseUrl,
+        serviceName: defaultServiceName,
         model: {
             imageService: CnImageService
         }

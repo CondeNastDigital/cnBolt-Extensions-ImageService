@@ -3,6 +3,7 @@ define(function(){
     return  function(options) {
         var that = this;
         var extensionUrl = options.extensionUrl;
+        var serviceName = options.serviceName;
         var ImageServiceModel = options.model.imageService;
         var protoBlock = {
 
@@ -58,17 +59,11 @@ define(function(){
                     dataElement: this.$('.data-target'),
                     hostElement: this.$('.frontend-target'),
                     serviceUrl: extensionUrl + '/image',
-                    serviceName: config.service
+                    serviceName: config.service || serviceName
                 };
 
                 // Inits the Image Service
                 var customInstance = new ImageServiceModel(Object.assign(config, defaults ));
-
-                // Adds the on-save
-                // TODO: Replace with a better event/catchcancel process
-                //$('#sidebarsavecontinuebutton, #savecontinuebutton').bind('click', {} ,function (event) {
-                //    customInstance.save(event);
-                //});
 
                 this.imageServiceInstance = customInstance;
 

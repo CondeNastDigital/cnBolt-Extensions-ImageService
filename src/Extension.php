@@ -40,16 +40,17 @@ class Extension extends SimpleExtension
      * {@inheritdoc}
      */
     protected function registerAssets(){
-
+    
         $resources    = $this->container['resources'];
         $extensionUrl = $resources->getUrl('bolt').'image-service';
-        $jsName = $this->getContainer()["debug"] ? '/js/extension.js': '/js/extension.min.js';
-        
+        $jsName       = $this->getContainer()["debug"] ? '/js/extension.js': '/js/extension.min.js';
+        $config       = $this->imageConfig();
+    
         return [
             // js
             (new JavaScript($jsName))
                 ->setZone(Zone::BACKEND)
-                ->setAttributes(['data-extension-url="'.$extensionUrl.'"'])
+                ->setAttributes(['data-extension-url="'.$extensionUrl.'"', 'data-default-servicename="'.$config['serviceName'].'"'])
                 ->setPriority(1),
             // css
             (new Stylesheet('/css/extension.css'))->setZone(Zone::BACKEND)->setPriority(1),
@@ -62,13 +63,29 @@ class Extension extends SimpleExtension
     protected function registerTwigPaths(){
         return ['templates','templates/structured-content'];
     }
-
+    
     /**
      * {@inheritdoc}
      */
     protected function registerTwigFunctions(){
         return [
-            'imageservice' => "imageUrlFilter"
+            'imageservice'       => "imageUrlFilter",
+            'imageserviceConfig' => "imageConfig"
+        ];
+    }
+    
+    /**
+     * Delivers the extensions config to the template
+     * @return array
+     */
+    public function imageConfig() {
+        
+        $config = $this->getConfig();
+        
+        return [
+            "serviceName" => $config['defaults']['connector'],
+            "image"       => $config['defaults']['image'],
+            "security"    => $config['security']
         ];
     }
 

@@ -4416,6 +4416,7 @@ define('ImageServiceSirTrevor',[],function(){
     return  function(options) {
         var that = this;
         var extensionUrl = options.extensionUrl;
+        var serviceName = options.serviceName;
         var ImageServiceModel = options.model.imageService;
         var protoBlock = {
 
@@ -4471,17 +4472,11 @@ define('ImageServiceSirTrevor',[],function(){
                     dataElement: this.$('.data-target'),
                     hostElement: this.$('.frontend-target'),
                     serviceUrl: extensionUrl + '/image',
-                    serviceName: config.service
+                    serviceName: config.service || serviceName
                 };
-
+console.log(defaults);
                 // Inits the Image Service
                 var customInstance = new ImageServiceModel(Object.assign(config, defaults ));
-
-                // Adds the on-save
-                // TODO: Replace with a better event/catchcancel process
-                //$('#sidebarsavecontinuebutton, #savecontinuebutton').bind('click', {} ,function (event) {
-                //    customInstance.save(event);
-                //});
 
                 this.imageServiceInstance = customInstance;
 
@@ -4530,7 +4525,7 @@ require.config({
 
 var CnImageService = {};
 var baseUrl = document.currentScript.getAttribute('data-extension-url');
-
+var defaultServiceName = document.currentScript.getAttribute('data-default-servicename');
 require([
     "ImageServiceAttributesFactory",
     "ImageServiceImageModelFactory",
@@ -4813,8 +4808,15 @@ require([
         that.init();
     };
 
+    // Makes sure that the current script is available as a function
+    $(document).currentScript = document.currentScript || (function() {
+            var scripts = document.getElementsByTagName('script');
+            return scripts[scripts.length - 1];
+    })();
+
     var cnImageServiceST = new ImageServiceSirTrevor({
         extensionUrl: baseUrl,
+        serviceName: defaultServiceName,
         model: {
             imageService: CnImageService
         }
