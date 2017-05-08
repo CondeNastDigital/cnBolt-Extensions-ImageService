@@ -100,4 +100,8 @@ The folder vendor contains libraries from various image services. These folders 
 
 The extension makes a copy of the save button, in order to make sure that, that images will be saved 
 as a first thing on saving. If the event needs to be cancelled, e.g. by problem on saving, the saving of the
-article must be abandond as well. No better way found to deal with the events.
+article must be abandoned as well. No better way found to deal with the events.
+
+If the field is needed as a single file upload, one should set the maxFiles property on 1. 
+The forntend does not allow the creation on new Images of different service types. That is why the 
+ images of different services can only be managed in separate fields.
