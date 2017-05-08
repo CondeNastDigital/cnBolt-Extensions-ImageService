@@ -3315,7 +3315,9 @@ define('ImageServiceList',[],function () {
             }
 
             // Limits the number of files in the list
-            if (that.maxItems && that.getListLength() >= that.maxItems) {
+            if (that.maxItems == 1 && that.getListLength() >= that.maxItems) {
+                that.imageEntities[0].onItemDelete(false);
+            } else if (that.maxItems && that.getListLength() >= that.maxItems) {
                 that.container.trigger(Events.MESSAGEWARNING, 'Maximal number of list items reached.');
                 return;
             }
@@ -3677,6 +3679,8 @@ define('ImageServiceListItem',[],function () {
 
             return item;
         };
+
+
 
         /**
          * Returns the loaded file. Needed when saving the new entities

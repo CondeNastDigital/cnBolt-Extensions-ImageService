@@ -47,23 +47,22 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
 
                         var defs = {
                             urls: {
-                                {% if value %}
-                                "{{ value.id }}": "{{ imageservice(value,150,100) }}"
-                                {% endif %}
+                                {% for item in value.items|default([]) %}
+                                "{{ item.id }}": "{{ imageservice(item,150,100) }}"{{ loop.last ?"":","}}
+                                {% endfor %}
                             }
                         };
 
                         var imageService = new CnImageService({
                             cache: defs,
                             serviceUrl: '{{ paths.hosturl }}{{ paths.bolt }}image-service/image',
-                            serviceName: '{{ field.service }}',
+                            serviceName: '{{ field.service ? field.service : config.defaultService }}',
                             maxFiles: 1,
-                            {% if field.maxFileSize %}
-                                maxFileSize: {{ field.maxFileSize }},
-                            {% endif %}
+                            maxFileSize: {{ field.maxFileSize ? field.maxFileSize: config.security['max-size'] }},
                             dataElement: '[name="{{ name }}"]',
-                            hostElement: '#imageservice-{{ name }}',
-                            attributes: {{ field.attributes|json_encode|raw }}
+                            hostElement: '#imageservice-{{ name }}-list',
+                            attributes: {{ field.attributes|json_encode|raw }},
+                            globals: {{ field.globals|json_encode|raw }}
                         });
 
                     }

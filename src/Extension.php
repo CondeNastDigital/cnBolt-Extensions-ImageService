@@ -50,7 +50,7 @@ class Extension extends SimpleExtension
             // js
             (new JavaScript($jsName))
                 ->setZone(Zone::BACKEND)
-                ->setAttributes(['data-extension-url="'.$extensionUrl.'"', 'data-default-servicename="'.$config['serviceName'].'"'])
+                ->setAttributes(['data-extension-url="'.$extensionUrl.'"', 'data-default-servicename="'.$config['defaultService'].'"'])
                 ->setPriority(1),
             // css
             (new Stylesheet('/css/extension.css'))->setZone(Zone::BACKEND)->setPriority(1),
@@ -83,9 +83,9 @@ class Extension extends SimpleExtension
         $config = $this->getConfig();
         
         return [
-            "serviceName" => $config['defaults']['connector'],
-            "image"       => $config['defaults']['image'],
-            "security"    => $config['security']
+            "defaultService" => $config['defaults']['connector'],
+            "image"          => $config['defaults']['image'],
+            "security"       => $config['security']
         ];
     }
 

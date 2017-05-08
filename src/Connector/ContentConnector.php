@@ -559,7 +559,6 @@ class ContentConnector implements IConnector
         /* @var UploadHandler $handler */
         $handler = $this->container['upload'];
         $handler->setPrefix($path . '/');
-
         try {
             $result = $handler->process($fileToProcess);
         } catch (IOException $e) {
