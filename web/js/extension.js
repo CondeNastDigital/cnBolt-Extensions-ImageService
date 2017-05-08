@@ -4474,7 +4474,7 @@ define('ImageServiceSirTrevor',[],function(){
                     serviceUrl: extensionUrl + '/image',
                     serviceName: config.service || serviceName
                 };
-console.log(defaults);
+
                 // Inits the Image Service
                 var customInstance = new ImageServiceModel(Object.assign(config, defaults ));
 
