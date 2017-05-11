@@ -38,6 +38,7 @@ define(['ImageServiceSettingsInterface'], function (ImageServiceSettingsInterfac
 
             var values = that.attributes.getValues();
             model.tags = values.tags;
+            delete values['tags'];
 
             return Object.assign(model.attributes, values);
         };
