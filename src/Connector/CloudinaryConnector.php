@@ -357,15 +357,16 @@ class CloudinaryConnector implements IConnector
     }
     
     /**
-     * Converts cloudinary format to Imageservice Image object
-     * @param $coudinary
+     * Cleans the attributes to contain only valid symbols
+     * @param Image $image
      * @return Image
      */
     private function prepareImage(Image $image) {
         
         $attributes = $image->attributes;
         foreach($attributes as &$attribute){
-            $attribute = htmlentities($attribute, ENT_COMPAT | ENT_HTML401 , ini_get("default_charset"), false );
+            if(is_string($attribute))
+                $attribute = htmlentities($attribute, ENT_COMPAT | ENT_HTML401 , ini_get("default_charset"), false );
         }
         $image->attributes = $attributes;
         
