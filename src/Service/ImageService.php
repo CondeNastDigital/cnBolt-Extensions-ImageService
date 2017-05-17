@@ -48,7 +48,7 @@ class ImageService {
     }
 
     public function imageUrl(Image $image, $width, $height, $mode = false, $format = false, $quality = false, $options = array()){
-        $defaults = $this->config["defaults"];
+        $defaults = $this->config["defaults"]['image'];
 
         $mode    = $mode    ? $mode    : $defaults["mode"];
         $format  = $format  ? $format  : $defaults["format"];
