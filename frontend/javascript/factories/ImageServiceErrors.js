@@ -15,7 +15,7 @@ define(function(){
          * @type {{fileexists: string, filesize: string, nofile: string, fileext: string, status: string, unknown: string, fileinvalid: string, accessdenied: string}}
          */
         var errors = {
-            fileexists:  'The file already exists. Please add it via the search field',
+            fileexists:  'The uploaded file already exists. The initially uploaded file has been added to the list',
             filesize:    'The uploaded file is too big. Please choose a smaller one',
             nofile:      'No file has been fount, for the new image',
             fileext:     'The files extension is unknown',

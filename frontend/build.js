@@ -2,10 +2,13 @@
  * Created by ralev on 06.04.17.
  */
 ({
-    name: 'cnImageService',
+    name: 'CnImageService',
     baseUrl: './javascript',
     out: '../web/js/extension.min.js',
-    wrap: false,
+    wrap: {
+        start: "(function() {",
+        end: "}());"
+    },
     paths: {
         "requirejs": "../node_modules/requirejs/require",
         "ImageServiceSettingsInterface": "interfaces/ImageServiceSettingsInterface",

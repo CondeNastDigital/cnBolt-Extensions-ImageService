@@ -1,3 +1,4 @@
+(function() {
 /** vim: et:ts=4:sw=4:sts=4
  * @license RequireJS 2.3.3 Copyright jQuery Foundation and other contributors.
  * Released under MIT license, https://github.com/requirejs/requirejs/blob/master/LICENSE
@@ -3444,7 +3445,7 @@ define('ImageServiceErrors',[],function(){
          * @type {{fileexists: string, filesize: string, nofile: string, fileext: string, status: string, unknown: string, fileinvalid: string, accessdenied: string}}
          */
         var errors = {
-            fileexists:  'The file already exists. Please add it via the search field',
+            fileexists:  'The uploaded file already exists. The initially uploaded file has been added to the list',
             filesize:    'The uploaded file is too big. Please choose a smaller one',
             nofile:      'No file has been fount, for the new image',
             fileext:     'The files extension is unknown',
@@ -4247,7 +4248,9 @@ define('ImageServiceAttribute',[],function () {
             var fieldName = that.generateFieldName();
             var fieldLabel = that.generateLabel();
 
-            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9" ><input type="text" name="' + fieldName + '" value="' + fieldValue + '"></div></li>');
+            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9" ><input type="text" name="' + fieldName + '" value=""></div></li>');
+
+            container.find('input').val(fieldValue);
 
             container.on('change', function (event) {
                 that.value = $(event.target).val();
@@ -4503,34 +4506,12 @@ define('ImageServiceSirTrevor',[],function(){
 
 
 
-require.config({
-    paths: {
-        "ImageServiceSettingsInterface": "interfaces/ImageServiceSettingsInterface",
-        "ImageServiceAttributesFactory": "factories/ImageServiceAttributes",
-        "ImageServiceImageModelFactory": "factories/ImageServiceImageModel",
-        "ImageServiceListItemFactory": "factories/ImageServiceListItem",
-        "ImageServiceErrors": "factories/ImageServiceErrors",
-        "ImageServiceConnector": "components/ImageServiceConnector",
-        "ImageServiceUploader": "components/ImageServiceUploader",
-        "ImageServiceSettings": "components/ImageServiceSettings",
-        "ImageServiceFinder": "components/ImageServiceFinder",
-        "ImageServicePresets": "components/ImageServicePresets",
-        "ImageServiceMessaging": "components/ImageServiceMessaging",
-        "ImageServiceList": "components/ImageServiceList",
-        "ImageServiceConfig": "components/ImageServiceConfig",
-        "ImageServiceGlobals": "components/ImageServiceGlobals",
-        "ImageServiceListItem": "components/ImageServiceListItem",
-        "ImageServiceEntityAction": "components/ImageServiceEntityActions",
-        "ImageServicePreview": "components/ImageServicePreview",
-        "ImageServiceAttribute": "components/ImageServiceAttribute",
-        "ImageServiceAttributes": "components/ImageServiceAttributes",
-        "ImageServiceSirTrevor": "extension/sir-trevor/extension"
-    }
-});
 
-var CnImageService = {};
-var baseUrl = document.currentScript.getAttribute('data-extension-url');
-var defaultServiceName = document.currentScript.getAttribute('data-default-servicename');
+var CnImageServiceBackendConfig = {
+   baseUrl: document.currentScript.getAttribute('data-extension-url'),
+   defaultServiceName: document.currentScript.getAttribute('data-default-servicename')
+};
+
 require([
     "ImageServiceAttributesFactory",
     "ImageServiceImageModelFactory",
@@ -4571,7 +4552,7 @@ require([
              ImageServiceAttributes,
              ImageServiceSirTrevor) {
 
-    CnImageService = function (data) {
+    window.CnImageService = function (data) {
         // ------ Factory --------
 
         var that = this;
@@ -4820,8 +4801,8 @@ require([
     })();
 
     var cnImageServiceST = new ImageServiceSirTrevor({
-        extensionUrl: baseUrl,
-        serviceName: defaultServiceName,
+        extensionUrl: CnImageServiceBackendConfig.baseUrl,
+        serviceName: CnImageServiceBackendConfig.defaultServiceName,
         model: {
             imageService: CnImageService
         }
@@ -4834,12 +4815,11 @@ require([
     $(document).trigger('SirTrevor.DynamicBlock.Add', [cnImageServiceST]);
 
 });
-define("cnImageService", function(){});
+define("CnImageService", function(){});
 
-var CnImageServiceBolt = {};
 require(['ImageServiceConfig'], function (ImageServiceConfig) {
 
-    CnImageServiceBolt = new (function () {
+    window.CnImageServiceBolt = new (function () {
 
         var that = this;
         var instances = [];
@@ -4895,3 +4875,4 @@ require(['ImageServiceConfig'], function (ImageServiceConfig) {
 
 define("CnImageServiceBolt", function(){});
 
+}());

@@ -1,7 +1,6 @@
-var CnImageServiceBolt = {};
 require(['ImageServiceConfig'], function (ImageServiceConfig) {
 
-    CnImageServiceBolt = new (function () {
+    window.CnImageServiceBolt = new (function () {
 
         var that = this;
         var instances = [];

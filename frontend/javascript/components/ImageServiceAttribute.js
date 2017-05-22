@@ -253,7 +253,9 @@ define(function () {
             var fieldName = that.generateFieldName();
             var fieldLabel = that.generateLabel();
 
-            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9" ><input type="text" name="' + fieldName + '" value="' + fieldValue + '"></div></li>');
+            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9" ><input type="text" name="' + fieldName + '" value=""></div></li>');
+
+            container.find('input').val(fieldValue);
 
             container.on('change', function (event) {
                 that.value = $(event.target).val();

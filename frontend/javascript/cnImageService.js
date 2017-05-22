@@ -1,31 +1,9 @@
-require.config({
-    paths: {
-        "ImageServiceSettingsInterface": "interfaces/ImageServiceSettingsInterface",
-        "ImageServiceAttributesFactory": "factories/ImageServiceAttributes",
-        "ImageServiceImageModelFactory": "factories/ImageServiceImageModel",
-        "ImageServiceListItemFactory": "factories/ImageServiceListItem",
-        "ImageServiceErrors": "factories/ImageServiceErrors",
-        "ImageServiceConnector": "components/ImageServiceConnector",
-        "ImageServiceUploader": "components/ImageServiceUploader",
-        "ImageServiceSettings": "components/ImageServiceSettings",
-        "ImageServiceFinder": "components/ImageServiceFinder",
-        "ImageServicePresets": "components/ImageServicePresets",
-        "ImageServiceMessaging": "components/ImageServiceMessaging",
-        "ImageServiceList": "components/ImageServiceList",
-        "ImageServiceConfig": "components/ImageServiceConfig",
-        "ImageServiceGlobals": "components/ImageServiceGlobals",
-        "ImageServiceListItem": "components/ImageServiceListItem",
-        "ImageServiceEntityAction": "components/ImageServiceEntityActions",
-        "ImageServicePreview": "components/ImageServicePreview",
-        "ImageServiceAttribute": "components/ImageServiceAttribute",
-        "ImageServiceAttributes": "components/ImageServiceAttributes",
-        "ImageServiceSirTrevor": "extension/sir-trevor/extension"
-    }
-});
 
-var CnImageService = {};
-var baseUrl = document.currentScript.getAttribute('data-extension-url');
-var defaultServiceName = document.currentScript.getAttribute('data-default-servicename');
+var CnImageServiceBackendConfig = {
+   baseUrl: document.currentScript.getAttribute('data-extension-url'),
+   defaultServiceName: document.currentScript.getAttribute('data-default-servicename')
+};
+
 require([
     "ImageServiceAttributesFactory",
     "ImageServiceImageModelFactory",
@@ -66,7 +44,7 @@ require([
              ImageServiceAttributes,
              ImageServiceSirTrevor) {
 
-    CnImageService = function (data) {
+    window.CnImageService = function (data) {
         // ------ Factory --------
 
         var that = this;
@@ -315,8 +293,8 @@ require([
     })();
 
     var cnImageServiceST = new ImageServiceSirTrevor({
-        extensionUrl: baseUrl,
-        serviceName: defaultServiceName,
+        extensionUrl: CnImageServiceBackendConfig.baseUrl,
+        serviceName: CnImageServiceBackendConfig.defaultServiceName,
         model: {
             imageService: CnImageService
         }
