@@ -88,7 +88,7 @@ class CloudinaryConnector implements IConnector
         $clean = [];
         
         foreach($images as $key => $image){
-            $images[$key] = $this->prepareImage($image);
+            //$images[$key] = $this->imageToCloudinary($image);
             switch($image->status){
                 case Image::STATUS_DELETED:
                     $delete[$key] = $image;
@@ -361,7 +361,7 @@ class CloudinaryConnector implements IConnector
      * @param Image $image
      * @return Image
      */
-    private function prepareImage(Image $image) {
+    private function imageToCloudinary(Image $image) {
         
         $attributes = $image->attributes;
         foreach($attributes as &$attribute){
