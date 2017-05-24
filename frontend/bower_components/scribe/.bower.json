@@ -1,0 +1,26 @@
+{
+  "name": "scribe",
+  "version": "3.3.0",
+  "main": "./scribe.js",
+  "description": "Content editable wrapper and polyfill",
+  "authors": [
+    "Oliver Joseph Ash <oliverjash@icloud.com>"
+  ],
+  "license": "MIT",
+  "ignore": [],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/guardian/scribe.git"
+  },
+  "homepage": "https://github.com/guardian/scribe",
+  "_release": "3.3.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v3.3.0",
+    "commit": "f4493c4c4a6f65ee56c2dcf4968c598ebfef01ac"
+  },
+  "_source": "https://github.com/guardian/scribe.git",
+  "_target": "^3.3.0",
+  "_originalSource": "scribe",
+  "_direct": true
+}

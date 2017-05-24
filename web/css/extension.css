@@ -148,6 +148,7 @@ ImageService
 .imageservice-entity .imageservice-attributes li{
     list-style: none;
     font-size: 11px !important;
+    position: relative;
 }
 
 .imageservice-entity .imageservice-attributes li label{
@@ -155,6 +156,50 @@ ImageService
     line-height: 16px;
     font-size: inherit !important;
     font-weight: bold;
+}
+
+.imageservice-attributes li .toolbar {
+
+    top: 0;
+    position: absolute;
+    margin: -2.5em 0 0;
+    background: #252525;
+    z-index: 10;
+    border-radius: .4em;
+    border: 1px solid black;
+    padding: 0;
+    -webkit-transition: opacity .2s ease-in-out;
+    transition: opacity .2s ease-in-out;
+
+}
+
+.imageservice-attributes li .toolbar button {
+    font-size: 1.3em;
+    background-color: black;
+    color: white;
+    border: none;
+    z-index:5;
+}
+
+.imageservice-attributes li .toolbar button.active {
+    background-color: #535353;
+}
+
+.imageservice-attributes li div[contenteditable="true"] {
+    width: 100%;
+    min-height: 50px;
+    background-color: white;
+    border: 1px solid lightgray;
+    padding: 5px;
+    max-height: 200px;
+    height: auto;
+    margin: 1px;
+    font-size: inherit !important;
+    overflow: auto;
+}
+
+.imageservice-attributes li div[contenteditable="true"] * {
+    font-size: inherit !important;
 }
 
 .imageservice-attributes li input[type="text"],
@@ -244,4 +289,8 @@ ImageService
 .imageservice-settings-component {
     display: block;
     width: 100%;
+}
+
+.imageservice-attributes .imageservice-scribe {
+    border: 1px solid lightgrey !important;
 }

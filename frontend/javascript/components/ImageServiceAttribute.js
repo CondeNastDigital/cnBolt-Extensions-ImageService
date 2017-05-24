@@ -1,4 +1,4 @@
-define(function () {
+define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scribe-plugin-sanitizer'], function (Scribe, ScribePluginToolbar, CnLinkCreate, ScribePluginSanitizer) {
 
     /**
      * A component representing a form attribute.
@@ -124,7 +124,7 @@ define(function () {
 
             var container = $('<li class="row"></li>');
             var label = $('<label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label>');
-            var bootstrapContainer = $('<div class="col-xs-12 col-sm-9 col-md-9" ></div>');
+            var bootstrapContainer = $('<div class="col-xs-12 col-sm-9 col-md-9 no-drag" ></div>');
             var select = $('<select name="' + fieldName + '" multiple ></select>');
 
             (fieldValue || []).forEach(function (el) {
@@ -199,8 +199,8 @@ define(function () {
             var options = data.definition.options || [];
 
             var container = $('<li class="row">' +
-                '<label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label>' +
-                '<div class="col-xs-12 col-sm-9 col-md-9 field-container" ></div>' +
+                    '<label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label>' +
+                    '<div class="col-xs-12 col-sm-9 col-md-9 field-container no-drag" ></div>' +
                 '</li>');
 
             var select = $('<select name="' + fieldName + '"></select>');
@@ -230,13 +230,16 @@ define(function () {
             var fieldLabel = that.generateLabel();
             var checkboxValue = that.definition.value || '';
 
-            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9" ><input type="checkbox" name="' + fieldName + '" value="' + checkboxValue + '"></div></li>');
+            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9 no-drag" ><input type="checkbox" name="' + fieldName + '" value=""></div></li>');
 
+            container.find('checkbox').val(fieldValue);
+            container.find('checkbox').attr('value', fieldValue);
+            
             container.on('click', function (event) {
                 that.value = event.target.checked ? checkboxValue : '';
             });
 
-            if (fieldValue == checkboxValue){
+            if (fieldValue == checkboxValue) {
                 container.find('input').attr('checked', 'checked').prop('checked', true);
             }
 
@@ -253,9 +256,10 @@ define(function () {
             var fieldName = that.generateFieldName();
             var fieldLabel = that.generateLabel();
 
-            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9" ><input type="text" name="' + fieldName + '" value=""></div></li>');
+            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9 no-drag" ><input type="text" name="' + fieldName + '" value=""></div></li>');
 
             container.find('input').val(fieldValue);
+            container.find('input').attr('value', fieldValue);
 
             container.on('change', function (event) {
                 that.value = $(event.target).val();
@@ -274,10 +278,60 @@ define(function () {
             var fieldName = that.generateFieldName();
             var fieldLabel = that.generateLabel();
 
-            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9"><textarea name="' + fieldName + '" >' + fieldValue + '</textarea></div></li>');
+            var container = $('<li class="row">' +
+                '<label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label>' +
+                '<div class="col-xs-12 col-sm-9 col-md-9">' +
+                '<div class="toolbar no-drag">  ' +
+                '<button data-command-name="bold"         type="button"><strong>Aa</strong></button>' +
+                '<button data-command-name="italic"       type="button"><i>Aa</i></button>' +
+                '<button data-command-name="cnCreateLink" type="button"><i class="fa fa-link" aria-hidden="true"></i></button>' +
+                '</div>' +
+                '<div contenteditable="true" class="no-drag imageservice-scribe" >' + fieldValue + '</div>' +
+                '</div>' +
+                '</li>');
 
-            container.on('change', function (event) {
-                that.value = $(event.target).val();
+            container.find('.toolbar').hide();
+
+            window.document.addEventListener("selectionchange", function (event, data) {
+                var selection = window.getSelection();
+
+                if (selection.isCollapsed)
+                    container.find('.toolbar').hide();
+                else
+                    container.find('.toolbar').show();
+            });
+
+            container.on(Events.ATTRIBUTERENDERED, function (event, data) {
+
+                var scribe = new Scribe(data.container.find('.imageservice-scribe:first')[0]);
+                scribe.allowsBlockElements();
+                scribe.setContent(fieldValue);
+
+                // Use some plugins
+                var toolbarElement = data.container.find('.toolbar')[0];
+                scribe.use(ScribePluginToolbar(toolbarElement));
+                scribe.use(CnLinkCreate());
+                scribe.use(ScribePluginSanitizer(
+                    {
+                        tags: {
+                            p: {},
+                            b: {},
+                            i: {},
+                            br: {},
+                            a: {
+                                href: true,
+                                targer: '_blank',
+                                rel: true
+                            }
+                        }
+                    }));
+
+                // transfer the change to the attribute store
+                scribe.on('content-changed', function () {
+                    that.value = scribe.getHTML();
+                    container.trigger('change');
+                });
+
             });
 
             return container;

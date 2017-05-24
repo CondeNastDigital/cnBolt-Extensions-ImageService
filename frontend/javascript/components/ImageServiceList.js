@@ -93,7 +93,8 @@ define(function () {
             // Makes the list sortable
             if ($.fn.sortable) {
                 that.container.sortable({
-                    update: that.onListSorted
+                    update: that.onListSorted,
+                    cancel: '.no-drag'
                 });
             }
         };

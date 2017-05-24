@@ -1,6 +1,7 @@
+var CnImageServiceBolt = {};
 require(['ImageServiceConfig'], function (ImageServiceConfig) {
 
-    window.CnImageServiceBolt = new (function () {
+    CnImageServiceBolt = new (function () {
 
         var that = this;
         var instances = [];
@@ -47,6 +48,7 @@ require(['ImageServiceConfig'], function (ImageServiceConfig) {
             lastEvent = event;
             saved = instances.length;
             instances.forEach(function (instance) {
+                console.log(instance);
                 instance.save();
             });
         };
