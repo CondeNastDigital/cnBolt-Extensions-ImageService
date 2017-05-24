@@ -294,11 +294,12 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
 
             window.document.addEventListener("selectionchange", function (event, data) {
                 var selection = window.getSelection();
+                var element   = $(event.srcElement.activeElement);
 
                 if (selection.isCollapsed)
-                    container.find('.toolbar').hide();
+                    element.siblings('.toolbar').hide();
                 else
-                    container.find('.toolbar').show();
+                    element.siblings('.toolbar').show();
             });
 
             container.on(Events.ATTRIBUTERENDERED, function (event, data) {

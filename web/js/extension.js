@@ -6425,11 +6425,12 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
 
             window.document.addEventListener("selectionchange", function (event, data) {
                 var selection = window.getSelection();
+                var element   = $(event.srcElement.activeElement);
 
                 if (selection.isCollapsed)
-                    container.find('.toolbar').hide();
+                    element.siblings('.toolbar').hide();
                 else
-                    container.find('.toolbar').show();
+                    element.siblings('.toolbar').show();
             });
 
             container.on(Events.ATTRIBUTERENDERED, function (event, data) {
