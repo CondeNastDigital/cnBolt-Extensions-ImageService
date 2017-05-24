@@ -48,7 +48,6 @@ require(['ImageServiceConfig'], function (ImageServiceConfig) {
             lastEvent = event;
             saved = instances.length;
             instances.forEach(function (instance) {
-                console.log(instance);
                 instance.save();
             });
         };

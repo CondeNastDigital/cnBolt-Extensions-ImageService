@@ -235,8 +235,6 @@ require([
          * @returns {*}
          */
         that.save = function (event) {
-            console.log(that.list.dirty);
-            console.log(that.list);
             if (that.list.dirty) {
                 // Stop the initial save process - syncronious save
                 event = event || new Event(that.config.events.LISTSAVED);
@@ -254,7 +252,6 @@ require([
 
                     // Updates the JSON-holding element and recalls the save event
                     callback: function (newItems) {
-                        console.log(newItems);
                         var newData = {items: newItems, settings: that.settings.getData()};
                         // transforms the response to json for the backend-save
                         $(that.store).val(JSON.stringify(newData));
