@@ -53,8 +53,13 @@ pages:
                     type: text
                     label: Alternative Text
                 caption:
-                    type: textarea
+                    # Type textarea includes a simple HTML edit prugin called Scribe
+                    type: textarea 
                     label: Caption
+                chgeckbox:
+                    type: checkbox
+                    label: checkbox
+                    value: 1
                     
         # Image Service as a part of Bolt-Structured-Content (SirTrevor)
         structuredcontent:
