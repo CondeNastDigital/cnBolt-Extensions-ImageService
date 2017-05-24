@@ -3972,11 +3972,11 @@ define('ImageServicePreview',[],function () {
 
             if (item.info.source instanceof Promise && item.status != DataModel.statuses.NEW) {
                 item.info.source.then(function (url) {
-                    preview.attr('src', url);
+                    preview.attr('src', url.replace(/^http(s?):\/\//i,'//'));
                     item.info.source = url;
                 });
             } else if (!(item.info.source instanceof Promise)) {
-                preview.attr('src', item.info.source);
+                preview.attr('src', item.info.source.replace(/^http(s?):\/\//i,'//'));
             }
 
         };
