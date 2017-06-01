@@ -41,38 +41,41 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
 
         {% set value = context.content.get(contentkey)|default(field.default)|default({items:[]}) %}
 
-        <textarea{{ macro.attr(attributes.text) }}>{{ value|json_encode }}</textarea>
+        <textarea {{ macro.attr(attributes.text) }}>{{ value|json_encode }}</textarea>
 
         <div id="imageservice-{{ name }}-list"></div>
 
         <script>
 
             $(document).ready(
-                    function() {
+                function() {
 
-                        var defs = {
-                            urls: {
-                                {% for item in value.items|default([]) %}
-                                "{{ item.id }}": "{{ imageservice(item,150,100) }}"{{ loop.last ?"":","}}
-                                {% endfor %}
-                            }
-                        };
+                    // Disables the auto inline editor for conteneditable fields
+                    CKEDITOR.disableAutoInline = true;
 
-                        var imageService = new CnImageService({
-                            cache: defs,
-                            serviceUrl: '{{ paths.hosturl }}{{ paths.bolt }}image-service/image',
-                            serviceName: '{{ field.service ? field.service : config.defaultService }}',
-                            {% if field.maxFiles %}
-                            maxFiles: {{ field.maxFiles }},
-                            {% endif %}
-                            maxFileSize: {{ field.maxFileSize ? field.maxFileSize: config.security['max-size'] }},
-                            dataElement: '[name="{{ name }}"]',
-                            hostElement: '#imageservice-{{ name }}-list',
-                            attributes: {{ field.attributes|json_encode|raw }},
-                            globals: {{ field.globals|json_encode|raw }}
-                        });
+                    var defs = {
+                        urls: {
+                            {% for item in value.items|default([]) %}
+                            "{{ item.id }}": "{{ imageservice(item,150,100) }}"{{ loop.last ?"":"," }}
+                            {% endfor %}
+                        }
+                    };
 
-                    }
+                    var imageService = new CnImageService({
+                        cache: defs,
+                        serviceUrl: '{{ paths.hosturl }}{{ paths.bolt }}image-service/image',
+                        serviceName: '{{ field.service ? field.service : config.defaultService }}',
+                        {% if field.maxFiles %}
+                        maxFiles: {{ field.maxFiles }},
+                        {% endif %}
+                        maxFileSize: {{ field.maxFileSize ? field.maxFileSize: config.security['max-size'] }},
+                        dataElement: '[name="{{ name }}"]',
+                        hostElement: '#imageservice-{{ name }}-list',
+                        attributes: {{ field.attributes|json_encode|raw }},
+                        globals: {{ field.globals|json_encode|raw }}
+                    });
+
+                }
             )
 
 
