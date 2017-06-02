@@ -51,7 +51,9 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                 function() {
 
                     // Disables the auto inline editor for conteneditable fields
-                    CKEDITOR.disableAutoInline = true;
+                    if(typeof(CKEDITOR) !== 'undefined') {
+                        CKEDITOR.disableAutoInline = true;
+                    }
 
                     var defs = {
                         urls: {
