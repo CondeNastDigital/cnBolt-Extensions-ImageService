@@ -61,7 +61,7 @@ define(function() {
 
             defaults = defaults || {};
 
-            var result = Object.assign({}, model);
+            var result = JSON.parse(JSON.stringify(model));
             presetters.forEach(function (presetter) {
                 presetter.apply(result);
             });
