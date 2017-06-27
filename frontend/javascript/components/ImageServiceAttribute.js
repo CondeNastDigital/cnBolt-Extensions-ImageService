@@ -321,7 +321,7 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
                             br: {},
                             a: {
                                 href: true,
-                                targer: '_blank',
+                                target: '_blank',
                                 rel: true
                             }
                         }

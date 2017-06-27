@@ -6452,7 +6452,7 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
                             br: {},
                             a: {
                                 href: true,
-                                targer: '_blank',
+                                target: '_blank',
                                 rel: true
                             }
                         }
