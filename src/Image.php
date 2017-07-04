@@ -132,6 +132,17 @@ class Image implements JsonSerializable {
     }
 
     public static function create($input){
+        
+        $input = $input + [
+            "id"         => null,
+            "service"    => null,
+            "status"     => null,
+            "attributes" => [],
+            "tags"       => [],
+            "options"    => [],
+            "info"       => []
+        ];        
+        
         $image = new self($input["id"], $input["service"]);
 
         $image->__set("attributes", $input["attributes"]);
