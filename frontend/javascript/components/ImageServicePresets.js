@@ -22,7 +22,7 @@ define(['ImageServiceSettingsInterface'], function (ImageServiceSettingsInterfac
         // Where the UI resides
         that.container = null;
 
-        that.name = 'ImageServicePresets';
+        that.name = 'defaults';
 
         that.attributes = {};
 

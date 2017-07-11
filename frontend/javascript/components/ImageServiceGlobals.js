@@ -24,7 +24,7 @@ define(['ImageServiceSettingsInterface'], function (ImageServiceSettingsInterfac
 
         // Where the UI resides
         that.container = null;
-        that.name = 'ImageServiceGlobals';
+        that.name = 'globals';
 
         /**
          * Renders the frontend part

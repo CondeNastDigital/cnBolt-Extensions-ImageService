@@ -2918,7 +2918,7 @@ define('ImageServicePresets',['ImageServiceSettingsInterface'], function (ImageS
         // Where the UI resides
         that.container = null;
 
-        that.name = 'ImageServicePresets';
+        that.name = 'defaults';
 
         that.attributes = {};
 
@@ -3498,7 +3498,7 @@ define('ImageServiceGlobals',['ImageServiceSettingsInterface'], function (ImageS
 
         // Where the UI resides
         that.container = null;
-        that.name = 'ImageServiceGlobals';
+        that.name = 'globals';
 
         /**
          * Renders the frontend part
@@ -6853,7 +6853,7 @@ require([
                 events: that.config.events,
                 labels: that.config.labels.ImageServiceSettings
             },
-            data: that.storeJson.settings
+            data: that.storeJson
         });
 
         /**
@@ -6951,7 +6951,7 @@ require([
 
                     // Updates the JSON-holding element and recalls the save event
                     callback: function (newItems) {
-                        var newData = {items: newItems, settings: that.settings.getData()};
+                        var newData = Object.assign({}, that.settings.getData(), {items: newItems});
                         // transforms the response to json for the backend-save
                         $(that.store).val(JSON.stringify(newData));
                         // informs the host that the list has been saved
