@@ -2651,7 +2651,7 @@ define('ImageServiceSettings',['require'],function(options) {
         var host = options.host;
         var components = [];
         var container = null;
-        var store = options.data || {};
+        var store = options.data;
         var Events = options.config.events;
         var Labels = options.config.labels;
 
@@ -2685,11 +2685,13 @@ define('ImageServiceSettings',['require'],function(options) {
 
         this.getData = function () {
 
+            var result = [];
+
             components.forEach(function (el) {
-                store[el.getIdentifier()] = el.getValues();
+                result[el.getIdentifier()] = el.getValues();
             });
 
-            return store;
+            return result;
         };
 
         this.init();
@@ -6256,7 +6258,7 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
             var container = $('<li class="row"></li>');
             var label = $('<label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label>');
             var bootstrapContainer = $('<div class="col-xs-12 col-sm-9 col-md-9 no-drag" ></div>');
-            var select = $('<select name="' + fieldName + '" multiple ></select>');
+            var select = $('<selectdata-name="' + fieldName + '" multiple ></select>');
 
             (fieldValue || []).forEach(function (el) {
                 select.append($('<option value="' + el + '" selected>' + el + '</option>'));
@@ -6334,7 +6336,7 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
                     '<div class="col-xs-12 col-sm-9 col-md-9 field-container no-drag" ></div>' +
                 '</li>');
 
-            var select = $('<select name="' + fieldName + '"></select>');
+            var select = $('<selectdata-name="' + fieldName + '"></select>');
             for (x in options) {
                 var option = $('<option value="' + x + '">' + data.definition.options[x] + '</option>');
                 if (x == fieldValue)
@@ -6361,7 +6363,7 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
             var fieldLabel = that.generateLabel();
             var checkboxValue = that.definition.value || '';
 
-            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9 no-drag" ><input type="checkbox" name="' + fieldName + '" value=""></div></li>');
+            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9 no-drag" ><input type="checkbox"data-name="' + fieldName + '" value=""></div></li>');
 
             container.find('checkbox').val(fieldValue);
             container.find('checkbox').attr('value', fieldValue);
@@ -6387,7 +6389,7 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
             var fieldName = that.generateFieldName();
             var fieldLabel = that.generateLabel();
 
-            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9 no-drag" ><input type="text" name="' + fieldName + '" value=""></div></li>');
+            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9 no-drag" ><input type="text"data-name="' + fieldName + '" value=""></div></li>');
 
             container.find('input').val(fieldValue);
             container.find('input').attr('value', fieldValue);
@@ -6650,10 +6652,7 @@ define('ImageServiceSirTrevor',[],function(){
                 var listData = this.imageServiceInstance.list.getData();
                 var settingsData = this.imageServiceInstance.settings.getData();
 
-                this.setData({
-                    items: listData.items,
-                    settings: settingsData
-                });
+                this.setData(Object.assign({}, settingsData, {items: listData.items}));
 
             },
 
@@ -6926,6 +6925,22 @@ require([
             }
         });
 
+        that.updateStore = function(value) {
+
+            that.storeJson = value;
+            // transforms the response to json for the backend-save
+            var serialized = JSON.stringify(value);
+
+            $(that.store).val(serialized);
+
+            // Update a textarea
+            if( $(that.store).prop("tagName") == 'TEXTAREA' )
+                $(that.store).html(serialized)
+
+            // informs the host that the list has been saved
+            $(that.host).trigger(that.config.events.LISTSAVED, value);
+        };
+
         /**
          * Action that have to be executed on save. It modifies the event in order to
          * make sure that the ajax call has finished before the actual saving takes place.
@@ -6951,11 +6966,11 @@ require([
 
                     // Updates the JSON-holding element and recalls the save event
                     callback: function (newItems) {
-                        var newData = Object.assign({}, that.settings.getData(), {items: newItems});
-                        // transforms the response to json for the backend-save
-                        $(that.store).val(JSON.stringify(newData));
-                        // informs the host that the list has been saved
-                        $(that.host).trigger(that.config.events.LISTSAVED, newData);
+
+                        var settings = that.settings.getData();
+
+                        that.updateStore(Object.assign({}, settings, {items: newItems}));
+
                     },
 
                     // Warning handler, the saving process is not cancelled!
@@ -6976,7 +6991,7 @@ require([
                     }
                 });
             } else {
-                $(that.host).trigger(that.config.events.LISTSAVINGSKIPPED, that.store );
+                $(that.host).trigger(that.config.events.LISTSAVINGSKIPPED, that.storeJson );
             }
 
         };
@@ -7016,11 +7031,14 @@ require(['ImageServiceConfig'], function (ImageServiceConfig) {
         var instances = [];
         var saved = 0;
         var lastEvent = null;
+        var loader = '<div class="imageservice-saving">Saving Images</div>';
+
 
         // Listenes for saved events of the Instances, and when all are saved, fieres the save event of the original save button
         // The CnImageService Compoenent fires different events on list saved, or the list does not need saving
         $(document).on( ImageServiceConfig.events.LISTSAVED + ' ' + ImageServiceConfig.events.LISTSAVINGSKIPPED , function (event, data) {
             if (--saved == 0) {
+                $('.imageservice-saving').hide();
                 $(lastEvent.target).data('parentButton').trigger(lastEvent.type, {
                     imageserviceskip: true
                 });
@@ -7033,9 +7051,11 @@ require(['ImageServiceConfig'], function (ImageServiceConfig) {
         });
 
         // Clones the save button to makes sure that we save the imageservice fields first
-        $(document).ready(function(){
+        $(window).on('load', function(){
             $('#sidebarsavecontinuebutton, #savecontinuebutton').each(function(el){
+
                 var customButton = $($(this).prop('outerHTML'));
+
                 customButton.data('parentButton', $(this));
                 customButton.attr('id', customButton.attr('id') + '-imageservice');
                 customButton.insertBefore($(this));
@@ -7045,6 +7065,10 @@ require(['ImageServiceConfig'], function (ImageServiceConfig) {
                     that.save(event); //customButton.data('parentButton').trigger('click');
                 });
                 $(this).hide();
+
+                $(loader).insertBefore(customButton);
+                $('.imageservice-saving').hide();
+
             });
         });
 
@@ -7054,6 +7078,7 @@ require(['ImageServiceConfig'], function (ImageServiceConfig) {
          * @param data
          */
         that.save = function (event, data) {
+            $('.imageservice-saving').show();
             lastEvent = event;
             saved = instances.length;
             instances.forEach(function (instance) {

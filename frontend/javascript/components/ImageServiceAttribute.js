@@ -125,7 +125,7 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
             var container = $('<li class="row"></li>');
             var label = $('<label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label>');
             var bootstrapContainer = $('<div class="col-xs-12 col-sm-9 col-md-9 no-drag" ></div>');
-            var select = $('<select name="' + fieldName + '" multiple ></select>');
+            var select = $('<selectdata-name="' + fieldName + '" multiple ></select>');
 
             (fieldValue || []).forEach(function (el) {
                 select.append($('<option value="' + el + '" selected>' + el + '</option>'));
@@ -203,7 +203,7 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
                     '<div class="col-xs-12 col-sm-9 col-md-9 field-container no-drag" ></div>' +
                 '</li>');
 
-            var select = $('<select name="' + fieldName + '"></select>');
+            var select = $('<selectdata-name="' + fieldName + '"></select>');
             for (x in options) {
                 var option = $('<option value="' + x + '">' + data.definition.options[x] + '</option>');
                 if (x == fieldValue)
@@ -230,7 +230,7 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
             var fieldLabel = that.generateLabel();
             var checkboxValue = that.definition.value || '';
 
-            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9 no-drag" ><input type="checkbox" name="' + fieldName + '" value=""></div></li>');
+            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9 no-drag" ><input type="checkbox"data-name="' + fieldName + '" value=""></div></li>');
 
             container.find('checkbox').val(fieldValue);
             container.find('checkbox').attr('value', fieldValue);
@@ -256,7 +256,7 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
             var fieldName = that.generateFieldName();
             var fieldLabel = that.generateLabel();
 
-            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9 no-drag" ><input type="text" name="' + fieldName + '" value=""></div></li>');
+            var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9 no-drag" ><input type="text"data-name="' + fieldName + '" value=""></div></li>');
 
             container.find('input').val(fieldValue);
             container.find('input').attr('value', fieldValue);

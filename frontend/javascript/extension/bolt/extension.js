@@ -7,11 +7,14 @@ require(['ImageServiceConfig'], function (ImageServiceConfig) {
         var instances = [];
         var saved = 0;
         var lastEvent = null;
+        var loader = '<div class="imageservice-saving">Saving Images</div>';
+
 
         // Listenes for saved events of the Instances, and when all are saved, fieres the save event of the original save button
         // The CnImageService Compoenent fires different events on list saved, or the list does not need saving
         $(document).on( ImageServiceConfig.events.LISTSAVED + ' ' + ImageServiceConfig.events.LISTSAVINGSKIPPED , function (event, data) {
             if (--saved == 0) {
+                $('.imageservice-saving').hide();
                 $(lastEvent.target).data('parentButton').trigger(lastEvent.type, {
                     imageserviceskip: true
                 });
@@ -24,9 +27,11 @@ require(['ImageServiceConfig'], function (ImageServiceConfig) {
         });
 
         // Clones the save button to makes sure that we save the imageservice fields first
-        $(document).ready(function(){
+        $(window).on('load', function(){
             $('#sidebarsavecontinuebutton, #savecontinuebutton').each(function(el){
+
                 var customButton = $($(this).prop('outerHTML'));
+
                 customButton.data('parentButton', $(this));
                 customButton.attr('id', customButton.attr('id') + '-imageservice');
                 customButton.insertBefore($(this));
@@ -36,6 +41,10 @@ require(['ImageServiceConfig'], function (ImageServiceConfig) {
                     that.save(event); //customButton.data('parentButton').trigger('click');
                 });
                 $(this).hide();
+
+                $(loader).insertBefore(customButton);
+                $('.imageservice-saving').hide();
+
             });
         });
 
@@ -45,6 +54,7 @@ require(['ImageServiceConfig'], function (ImageServiceConfig) {
          * @param data
          */
         that.save = function (event, data) {
+            $('.imageservice-saving').show();
             lastEvent = event;
             saved = instances.length;
             instances.forEach(function (instance) {

@@ -38,10 +38,7 @@ define(function(){
                 var listData = this.imageServiceInstance.list.getData();
                 var settingsData = this.imageServiceInstance.settings.getData();
 
-                this.setData({
-                    items: listData.items,
-                    settings: settingsData
-                });
+                this.setData(Object.assign({}, settingsData, {items: listData.items}));
 
             },
 

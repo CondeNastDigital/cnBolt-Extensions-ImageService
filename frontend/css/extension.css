@@ -294,3 +294,20 @@ ImageService
 .imageservice-attributes .imageservice-scribe {
     border: 1px solid lightgrey !important;
 }
+
+.imageservice-saving {
+    display: block;
+    text-align: center;
+    position: absolute;
+    top: -20px;
+    width: 100px;
+    -webkit-animation:linear infinite alternate;
+    -webkit-animation-name: run;
+    -webkit-animation-duration: 5s;
+}
+
+@-webkit-keyframes run {
+    0% { left: 0; opacity: 0;}
+    50%{ left : calc(100% - 100px ); opacity: 1;}
+    100%{ left: 0; opacity: 0;}
+}

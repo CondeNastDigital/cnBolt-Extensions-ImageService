@@ -227,6 +227,22 @@ require([
             }
         });
 
+        that.updateStore = function(value) {
+
+            that.storeJson = value;
+            // transforms the response to json for the backend-save
+            var serialized = JSON.stringify(value);
+
+            $(that.store).val(serialized);
+
+            // Update a textarea
+            if( $(that.store).prop("tagName") == 'TEXTAREA' )
+                $(that.store).html(serialized)
+
+            // informs the host that the list has been saved
+            $(that.host).trigger(that.config.events.LISTSAVED, value);
+        };
+
         /**
          * Action that have to be executed on save. It modifies the event in order to
          * make sure that the ajax call has finished before the actual saving takes place.
@@ -252,11 +268,11 @@ require([
 
                     // Updates the JSON-holding element and recalls the save event
                     callback: function (newItems) {
-                        var newData = Object.assign({}, that.settings.getData(), {items: newItems});
-                        // transforms the response to json for the backend-save
-                        $(that.store).val(JSON.stringify(newData));
-                        // informs the host that the list has been saved
-                        $(that.host).trigger(that.config.events.LISTSAVED, newData);
+
+                        var settings = that.settings.getData();
+
+                        that.updateStore(Object.assign({}, settings, {items: newItems}));
+
                     },
 
                     // Warning handler, the saving process is not cancelled!
@@ -277,7 +293,7 @@ require([
                     }
                 });
             } else {
-                $(that.host).trigger(that.config.events.LISTSAVINGSKIPPED, that.store );
+                $(that.host).trigger(that.config.events.LISTSAVINGSKIPPED, that.storeJson );
             }
 
         };

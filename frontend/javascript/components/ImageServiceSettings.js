@@ -15,7 +15,7 @@ define(function(options) {
         var host = options.host;
         var components = [];
         var container = null;
-        var store = options.data || {};
+        var store = options.data;
         var Events = options.config.events;
         var Labels = options.config.labels;
 
@@ -49,11 +49,13 @@ define(function(options) {
 
         this.getData = function () {
 
+            var result = [];
+
             components.forEach(function (el) {
-                store[el.getIdentifier()] = el.getValues();
+                result[el.getIdentifier()] = el.getValues();
             });
 
-            return store;
+            return result;
         };
 
         this.init();
