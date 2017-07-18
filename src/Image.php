@@ -153,4 +153,9 @@ class Image implements JsonSerializable {
 
         return $image;
     }
+
+    public function __toString() {
+        return $this->id;
+    }
+
 }

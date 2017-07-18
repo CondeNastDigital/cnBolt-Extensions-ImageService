@@ -70,10 +70,20 @@ class Extension extends SimpleExtension
     protected function registerTwigFunctions(){
         return [
             'imageservice'       => "imageUrlFilter",
-            'imageserviceConfig' => "imageConfig"
+            'imageserviceConfig' => "imageConfig",
+            'thumbnail'          => "thumbnailOverride"
         ];
     }
-    
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function registerTwigFilters(){
+        return [
+            'thumbnail'          => "thumbnailOverride"
+        ];
+    }
+
     /**
      * Delivers the extensions config to the template
      * @return array
@@ -112,6 +122,14 @@ class Extension extends SimpleExtension
         }
 
         return $service->imageUrl( $image, $width, $height, $mode, $format, $quality, $options );
+    }
+
+    public function thumbnailOverride($input = null, $width = null, $height = null, $crop = null) {
+
+        if($input instanceof Image)
+            return $this->imageUrlFilter($input, $width, $height, $crop);
+
+        return $this->container['twig.handlers']['image']->thumbnail($input, $width, $height, $crop);
     }
 
     /**
