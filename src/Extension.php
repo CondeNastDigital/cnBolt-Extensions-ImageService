@@ -126,10 +126,12 @@ class Extension extends SimpleExtension
 
     public function thumbnailOverride($input = null, $width = null, $height = null, $crop = null) {
 
-        if($input instanceof Image)
-            return $this->imageUrlFilter($input, $width, $height, $crop);
+        $image = $this->imageUrlFilter($input, $width, $height, $crop);
 
-        return $this->container['twig.handlers']['image']->thumbnail($input, $width, $height, $crop);
+        if(!$image)
+            $image = $this->container['twig.handlers']['image']->thumbnail($input, $width, $height, $crop);
+
+        return $image;
     }
 
     /**
