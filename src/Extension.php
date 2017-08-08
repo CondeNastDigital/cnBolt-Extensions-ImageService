@@ -124,12 +124,20 @@ class Extension extends SimpleExtension
         return $service->imageUrl( $image, $width, $height, $mode, $format, $quality, $options );
     }
 
-    public function thumbnailOverride($input = null, $width = null, $height = null, $crop = null) {
+    public function thumbnailOverride($input = null, $width = null, $height = null, $crop = null, $format = false) {
 
-        $image = $this->imageUrlFilter($input, $width, $height, $crop);
+        $crop_map = [
+            'limit' => 'r',  # Resize (Scaling up is controlled for the "r" option in general in config.yml thumbnails/upscale)
+            'fit' => 'r',  # Resize
+            'scale' => 'f', # Fit (Bolt will not use "c" automatically if only one dimension is given)
+            'fill' => 'c', # Crop
+            'pad' => 'b' # Borders
+        ];
+
+        $image = $this->imageUrlFilter($input, $width, $height, $crop, $format);
 
         if(!$image)
-            $image = $this->container['twig.handlers']['image']->thumbnail($input, $width, $height, $crop);
+            $image = $this->container['twig.handlers']['image']->thumbnail($input, $width, $height, $crop_map[$crop]);
 
         return $image;
     }
