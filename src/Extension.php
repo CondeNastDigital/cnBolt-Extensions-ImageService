@@ -40,12 +40,12 @@ class Extension extends SimpleExtension
      * {@inheritdoc}
      */
     protected function registerAssets(){
-    
+
         $resources    = $this->container['resources'];
         $extensionUrl = $resources->getUrl('bolt').'image-service';
         $jsName       = $this->getContainer()["debug"] ? '/js/extension.js': '/js/extension.min.js';
         $config       = $this->imageConfig();
-    
+
         return [
             // js
             (new JavaScript($jsName))
@@ -63,7 +63,7 @@ class Extension extends SimpleExtension
     protected function registerTwigPaths(){
         return ['templates','templates/structured-content'];
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -89,9 +89,9 @@ class Extension extends SimpleExtension
      * @return array
      */
     public function imageConfig() {
-        
+
         $config = $this->getConfig();
-        
+
         return [
             "defaultService" => $config['defaults']['connector'],
             "image"          => $config['defaults']['image'],
@@ -127,17 +127,16 @@ class Extension extends SimpleExtension
     public function thumbnailOverride($input = null, $width = null, $height = null, $crop = null, $format = false) {
 
         $crop_map = [
-            'limit' => 'r',  # Resize (Scaling up is controlled for the "r" option in general in config.yml thumbnails/upscale)
-            'fit' => 'r',  # Resize
-            'scale' => 'f', # Fit (Bolt will not use "c" automatically if only one dimension is given)
-            'fill' => 'c', # Crop
-            'pad' => 'b' # Borders
+            'r' => 'limit',  # Resize (Scaling up is controlled for the "r" option in general in config.yml thumbnails/upscale)
+            'f' => 'scale', # Fit (Bolt will not use "c" automatically if only one dimension is given)
+            'c' => 'fill', # Crop
+            'b' => 'pad' # Borders
         ];
 
-        $image = $this->imageUrlFilter($input, $width, $height, $crop, $format);
+        $image = $this->imageUrlFilter($input, $width, $height, $crop_map[$crop], $format);
 
         if(!$image)
-            $image = $this->container['twig.handlers']['image']->thumbnail($input, $width, $height, $crop_map[$crop]);
+            $image = $this->container['twig.handlers']['image']->thumbnail($input, $width, $height, $crop);
 
         return $image;
     }
