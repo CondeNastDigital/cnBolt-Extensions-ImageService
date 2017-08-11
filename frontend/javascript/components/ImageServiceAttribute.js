@@ -125,7 +125,7 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
             var container = $('<li class="row"></li>');
             var label = $('<label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label>');
             var bootstrapContainer = $('<div class="col-xs-12 col-sm-9 col-md-9 no-drag" ></div>');
-            var select = $('<selectdata-name="' + fieldName + '" multiple ></select>');
+            var select = $('<select data-name="' + fieldName + '" multiple ></select>');
 
             (fieldValue || []).forEach(function (el) {
                 select.append($('<option value="' + el + '" selected>' + el + '</option>'));
