@@ -135,8 +135,22 @@ class Extension extends SimpleExtension
 
         $image = $this->imageUrlFilter($input, $width, $height, $crop_map[$crop], $format);
 
-        if(!$image)
-            $image = $this->container['twig.handlers']['image']->thumbnail($input, $width, $height, $crop);
+        // Fallback to Bolt's standard thumbnail generator
+        if(!$image){
+
+            // Bolt 3.3+
+            if(isset($this->container['twig.runtime.bolt_image']))
+                $thumbservice = $this->container['twig.runtime.bolt_image'];
+            // Bolt 3.0 - 3.2
+            elseif(isset($this->container['twig.handlers']['image']))
+                $thumbservice = ['twig.handlers']['image'];
+            // Not compatible
+            else
+                return false;
+
+
+            $image = $thumbservice->thumbnail($input, $width, $height, $crop);
+        }
 
         return $image;
     }
