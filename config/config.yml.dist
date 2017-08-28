@@ -1,33 +1,22 @@
 # A list of all active image services with their class names and config variables
 
 security: &security
-    allowed-extensions: [jpg,png,gif]
-    max-size: 500000
+    allowed-extensions: [jpeg, jpg, JPG, png, gif]
+    max-size: 5000000
 
 connectors:
 
-    cloudinary:
-
-        class: Bolt\Extension\CND\ImageService\Connector\CloudinaryConnector
-
-        cloud-name:           your-cloudinary-name
-        api-key:              your-cloudinary-key
-        api-secret:           your-cloudinary-secret
-        api-base-url:         https://api.cloudinary.com/v1_1/your-cloudinary-name
-        base-delivery-url:    http://res.cloudinary.com/your-cloudinary-name
-        secure-delivery-url:  https://api.cloudinary.com/your-cloudinary-name
+    content:
+        class: Bolt\Extension\CND\ImageService\Connector\ContentConnector
+        contentype: images
+        cache: 1     # number of seconds or false for never cached
+        delete: true # if true, content object of the image will be deleted. If not, status will only be changed to "held"
+        path: "imageservice/%year%/%month%" # Taregt folder for uploaded files. Defaults to "%year%/%month%". Allowed placeholders are %year%, %month%
         security: *security
-        upload-defaults:
-            unique_filename: true
-            overwrite: false
-            folder: false
-            type: upload
-            image_metadata: false
-            colors: false
-            invalidate: false
+        tagtype: tags
 
 defaults:
-    connector: cloudinary
+    connector: content
     image:
         mode:     limit
         format:   jpg
