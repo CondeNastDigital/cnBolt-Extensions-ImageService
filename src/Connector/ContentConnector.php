@@ -47,6 +47,9 @@ class ContentConnector implements IConnector
      * @inheritdoc
      */
     public function imageUrl(Image $image, $width, $height, $mode, $format, $quality, $options) {
+        if($width && !$height)
+            return $this->imageUrlAlias($image, $width);        
+        
         $mode_map = [
             self::MODE_SCALE => "f",      # Bolt Fit (Bolt will not use "c" automatically if only one dimension is given)
             self::MODE_FILL => "c",       # Bolt Crop
@@ -76,6 +79,18 @@ class ContentConnector implements IConnector
                 'height' => $modifiers["height"],
                 'action' => $modifiers["crop"],
                 'file'   => $image->info[Image::INFO_CUSTOM],
+            ]
+        );
+    }
+
+    public function imageUrlAlias(Image $image, $alias){
+        $this->updateImageData($image);
+
+        return $this->container['url_generator']->generate(
+            'thumb_alias',
+            [
+                'alias' => $alias,
+                'file'  => $image->info[Image::INFO_CUSTOM],
             ]
         );
     }
