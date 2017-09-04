@@ -50,7 +50,7 @@ class CloudinaryConnector implements IConnector
      * @inheritdoc
      */
     public function imageUrl(Image $image, $width, $height, $mode, $format, $quality, $options) {
-        if($width && !$height)
+        if($width && !is_numeric($width) && !$height)
             return $this->imageUrlAlias($image, $width);
 
         $mode_map = [
