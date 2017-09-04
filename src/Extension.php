@@ -143,7 +143,7 @@ class Extension extends SimpleExtension
                 $thumbservice = $this->container['twig.runtime.bolt_image'];
             // Bolt 3.0 - 3.2
             elseif(isset($this->container['twig.handlers']['image']))
-                $thumbservice = ['twig.handlers']['image'];
+                $thumbservice = $this->container['twig.handlers']['image'];
             // Not compatible
             else
                 return false;
