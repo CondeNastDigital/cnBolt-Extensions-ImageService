@@ -50,6 +50,9 @@ class CloudinaryConnector implements IConnector
      * @inheritdoc
      */
     public function imageUrl(Image $image, $width, $height, $mode, $format, $quality, $options) {
+        if($width && !$height)
+            return $this->imageUrlAlias($image, $width);
+
         $mode_map = [
             self::MODE_SCALE => "scale",
             self::MODE_FILL => "fill",
@@ -76,7 +79,17 @@ class CloudinaryConnector implements IConnector
         
         return Cloudinary::cloudinary_url($image->id, $modifiers);
     }
-    
+
+    public function imageUrlAlias(Image $image, $alias){
+
+        $modifiers = [
+            "transformation" => $alias,
+            "format" => "jpg" // Cloudinary aliases (named transactions) must have a specified format. Since we dont have one in our case, we hard code to "jpg".
+        ];
+
+        return Cloudinary::cloudinary_url($image->id, $modifiers);
+    }
+
     /**
      * @inheritdoc
      */
