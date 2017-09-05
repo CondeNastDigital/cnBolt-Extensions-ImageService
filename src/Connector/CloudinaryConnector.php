@@ -50,6 +50,8 @@ class CloudinaryConnector implements IConnector
      * @inheritdoc
      */
     public function imageUrl(Image $image, $width, $height, $mode, $format, $quality, $options) {
+
+        // Redirect to imageUrlAlias if we did not get dimensions but a string alias in $width
         if($width && !is_numeric($width) && !$height)
             return $this->imageUrlAlias($image, $width);
 

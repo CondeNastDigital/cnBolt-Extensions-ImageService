@@ -99,8 +99,18 @@ class Extension extends SimpleExtension
         ];
     }
 
-
-    public function imageUrlFilter($image, $width, $height, $mode = false, $format = false, $quality = false, $options = array()) {
+    /**
+     * return an url to the image with specified sizes and formats
+     * @param Image $image
+     * @param int|string $width    Depending on variable type, the call is either with specific sizes or with an alias string
+     * @param bool|int $height
+     * @param bool|string $mode
+     * @param bool|string $format
+     * @param bool|int $quality
+     * @param array $options
+     * @return null|string
+     */
+    public function imageUrlFilter($image, $width, $height = false, $mode = false, $format = false, $quality = false, $options = array()) {
 
         /* @var \Bolt\Application $app */
         $app = $this->getContainer();
@@ -124,6 +134,16 @@ class Extension extends SimpleExtension
         return $service->imageUrl( $image, $width, $height, $mode, $format, $quality, $options );
     }
 
+    /**
+     * This twig filter overrides Bolt's built-in filter. It calls this services
+     * imageUrl method or relays back to Bolt's own thumbnail filter if not applicable.
+     * @param null $input
+     * @param null $width
+     * @param null $height
+     * @param null $crop
+     * @param bool $format
+     * @return bool|null|string
+     */
     public function thumbnailOverride($input = null, $width = null, $height = null, $crop = null, $format = false) {
 
         $crop_map = [

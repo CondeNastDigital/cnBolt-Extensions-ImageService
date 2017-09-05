@@ -47,6 +47,8 @@ class ContentConnector implements IConnector
      * @inheritdoc
      */
     public function imageUrl(Image $image, $width, $height, $mode, $format, $quality, $options) {
+
+        // Redirect to imageUrlAlias if we did not get dimensions but an alias in $width
         if($width && !$height)
             return $this->imageUrlAlias($image, $width);        
         
@@ -83,6 +85,12 @@ class ContentConnector implements IConnector
         );
     }
 
+    /**
+     * Return image url for goven alias. (See theme.yml for available aliases)
+     * @param Image $image
+     * @param string $alias
+     * @return string
+     */
     public function imageUrlAlias(Image $image, $alias){
         $this->updateImageData($image);
 
