@@ -46,6 +46,7 @@ define({
      */
     events: {
         LISTSAVED: 'imageservice-listsaved',
+        LISTSAVEFAILED: 'imageservice-listsavefailed',
         LISTCHANGED: 'imageservice-listchanged',
         LISTREADY: 'imageservice-listready',
         LISTSAVINGSKIPPED: 'imageservice-listsavingskipped',
