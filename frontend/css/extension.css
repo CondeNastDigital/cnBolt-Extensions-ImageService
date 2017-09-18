@@ -311,3 +311,70 @@ ImageService
     50%{ left : calc(100% - 100px ); opacity: 1;}
     100%{ left: 0; opacity: 0;}
 }
+
+@-webkit-keyframes fadeInOut {
+    0% { opacity: 0.3;}
+    50%{ opacity: 1;}
+    100%{ opacity: 0.3;}
+}
+
+.modal-body {
+    display: inline-block;
+    width: 100%;
+}
+
+.imageservice-progress {
+}
+
+.imageservice-progress h2 {
+    margin: 0;
+}
+
+.imageservice-progress .imageservice-message {
+    position: relative;
+    height: auto;
+    top: 0;
+    max-height: 300px;
+    overflow: auto;
+}
+
+.imageservice-progress .modal-body {
+    min-height: 0;
+    display: inline-block;
+}
+
+.imageservice-progress .modal-body .alert {
+    margin-bottom: 5px;
+}
+
+.imageservice-progress .modal-body .imageservice-preview {
+    width: 80px !important;
+    height: 80px !important;
+    float: left;
+    overflow: hidden;
+    position: relative;
+    padding: 0;
+    background: #eaeaea;
+    margin: 1px;
+}
+
+.imageservice-progress .modal-body .imageservice-preview img {
+    width: 100%;
+    height: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.imageservice-progress .modal-body .imageservice-preview img.saving {
+    -webkit-animation:linear infinite alternate;
+    -webkit-animation-name: fadeInOut;
+    -webkit-animation-duration: 5s;
+}
+
+.imageservice-progress .modal-body .imageservice-preview img.error {
+    -webkit-animation: none;
+}
+
+.imageservice-progress .error {
+    color: #a94442;
+}

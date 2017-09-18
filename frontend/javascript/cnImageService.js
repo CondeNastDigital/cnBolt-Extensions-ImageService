@@ -229,18 +229,25 @@ require([
 
         that.updateStore = function(value) {
 
-            that.storeJson = value;
-            // transforms the response to json for the backend-save
-            var serialized = JSON.stringify(value);
+            try{
 
-            $(that.store).val(serialized);
+                that.storeJson = value;
+                // transforms the response to json for the backend-save
+                var serialized = JSON.stringify(value);
 
-            // Update a textarea
-            if( $(that.store).prop("tagName") == 'TEXTAREA' )
-                $(that.store).html(serialized)
+                $(that.store).val(serialized);
 
-            // informs the host that the list has been saved
-            $(that.host).trigger(that.config.events.LISTSAVED, value);
+                // Update a textarea
+                if( $(that.store).prop("tagName") == 'TEXTAREA' )
+                    $(that.store).html(serialized)
+
+                // informs the host that the list has been saved
+                $(that.host).trigger(that.config.events.LISTSAVED, value);
+
+            } catch (error) {
+                $(that.host).trigger(that.config.events.LISTSAVEFAILED, {error: error});
+            }
+
         };
 
         /**
@@ -288,11 +295,13 @@ require([
 
                     // Error handler, the saving process is cancelled
                     error: function (error) {
-                        console.error(error);
+                        console.warn(error);
                         that.host.trigger(that.config.events.MESSAGEERROR, error);
+                        $(that.host).trigger(that.config.events.LISTSAVEFAILED, {error: error, data: data});
                     }
                 });
             } else {
+                console.log("SKIPPED JSON:", that.storeJson);
                 $(that.host).trigger(that.config.events.LISTSAVINGSKIPPED, that.storeJson );
             }
 

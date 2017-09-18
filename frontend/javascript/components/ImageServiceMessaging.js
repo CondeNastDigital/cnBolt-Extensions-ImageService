@@ -36,9 +36,9 @@ define(function () {
          * @type {{ERROR: string, INFO: string, WARNING: string}}
          */
         that.events = {
-            error: data.events.error,
-            warning: data.events.warning,
-            info: data.events.info
+            error: data.events.error || 'imageservice-error',
+            warning: data.events.warning || 'imageservice-warning',
+            info: data.events.info || 'imageservice-info'
         };
 
         /**
@@ -46,7 +46,7 @@ define(function () {
          */
         that.init = function () {
 
-            that.host.append(that.container);
+            that.host.prepend(that.container);
 
             that.host.on(that.events.error, function (event, data) {
                 that.error(data);

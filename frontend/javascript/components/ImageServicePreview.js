@@ -23,8 +23,8 @@ define(function () {
          */
         that.init = function () {
 
-            container = $('<div class="col-xs-12 col-sm-3 col-md-3 imageservice-preview"></div>');
-            preview = $('<img/>');
+            container = $('<div class="imageservice-preview"></div>');
+            preview = $('<img id="'+ item.id.replace(/[^a-z0-9\_\-\.]+/i,'') +'"/>');
 
             that.update(item);
 

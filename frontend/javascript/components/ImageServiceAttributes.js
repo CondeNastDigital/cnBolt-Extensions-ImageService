@@ -123,7 +123,7 @@ define(function () {
          */
         that.render = function (imageData, fieldDefinitions) {
 
-            that.container = $('<ul class="col-xs-12 col-sm-8 col-md-8 imageservice-attributes"></ul>');
+            that.container = $('<ul class="imageservice-attributes"></ul>');
 
             that.attributes.forEach(function (el, index) {
                 that.container.append(el.render());

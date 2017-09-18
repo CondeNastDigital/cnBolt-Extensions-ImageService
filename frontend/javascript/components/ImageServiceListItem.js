@@ -313,8 +313,11 @@ define(function () {
          */
         that.render = function () {
 
-            container.append(preview.render());
-            container.append(attributes.render());
+            var previewContainer = $('<div class="col-xs-12 col-sm-3 col-md-3"></div>').append(preview.render());
+            var attributesContainer = $('<div class="col-xs-12 col-sm-8 col-md-8"></div>').append(attributes.render());
+
+            container.append(previewContainer);
+            container.append(attributesContainer);
             container.append(actions.render());
 
             return container;
