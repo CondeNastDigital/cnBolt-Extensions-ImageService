@@ -212,13 +212,13 @@ define(function () {
 
             // exclude
             $(window).on(Events.MESSAGEERROR, function (event, error) {
-                if(that.generateId(error.data.id) === that.getId()) {
+                if(that.generateId(error.data.id || '') === that.getId()) {
                     container.addClass('error');
                 }
             });
 
             $(window).on(Events.MESSAGEWARNING, function (event, warning) {
-                if(that.generateId(warning.data.id) === that.getId()) {
+                if(that.generateId(warning.data.id || '') === that.getId()) {
                     container.addClass('warning');
                 }
             });

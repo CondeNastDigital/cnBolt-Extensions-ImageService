@@ -77,7 +77,7 @@ require(['ImageServiceConfig',
 
             // Clones the save button to makes sure that we save the imageservice fields first
             $(window).on('load', function(){
-                $('#sidebarsavecontinuebutton, #savecontinuebutton').each(function(el){
+                $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton').each(function(el){
 
                     var customButton = $($(this).prop('outerHTML'));
 
@@ -104,7 +104,7 @@ require(['ImageServiceConfig',
              */
             that.save = function (event, data) {
 
-                $('.imageservice-saving').show();
+                $(event.target).parent().find('.imageservice-saving').show();
                 $('.imageservice-saving-progress-modal').html('');
                 collections = [];
 
