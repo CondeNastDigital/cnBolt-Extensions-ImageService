@@ -2382,7 +2382,8 @@ define('ImageServiceConnector',[],function () {
                 success: function (response) {
 
                     if (response.success === true && response.messages && response.messages.length)
-                        warningCallback(response.messages);
+                        if(!warningCallback(response.messages, response.items))
+                            return;
 
                     if (response.success === false && response.messages && response.messages.length)
                         return errorCallback(Errors.create(response.messages[0].code));
@@ -3029,15 +3030,34 @@ define('ImageServiceMessaging',[],function () {
             that.host.prepend(that.container);
 
             that.host.on(that.events.error, function (event, data) {
-                that.error(data);
+                var message = data;
+
+                if(data instanceof Object)
+                    message = data.error;
+
+                that.error(message);
+
             });
 
             that.host.on(that.events.info, function (event, data) {
-                that.info(data);
+
+                var message = data;
+
+                if(data instanceof Object)
+                    message = data.error;
+
+                that.info(message);
+
             });
 
             that.host.on(that.events.warning, function (event, data) {
-                that.warning(data);
+                var message = data;
+
+                if(data instanceof Object)
+                    message = data.error;
+
+                that.warning(message);
+
             });
 
         };
@@ -3449,7 +3469,7 @@ define('ImageServiceErrors',[],function(){
          * @type {{fileexists: string, filesize: string, nofile: string, fileext: string, status: string, unknown: string, fileinvalid: string, accessdenied: string}}
          */
         var errors = {
-            fileexists:  'The file already exists. Please add it via the search field',
+            fileexists:  'The image alsready exists. The existing copy has been taken. ',
             filesize:    'The uploaded file is too big. Please choose a smaller one',
             nofile:      'No file has been fount, for the new image',
             fileext:     'The files extension is unknown',
@@ -3555,6 +3575,7 @@ define('ImageServiceListItem',[],function () {
         var Preview = data.model.preview;
         var Attributes = data.factory.attributes;
         var DataModel = data.factory.dataModel;
+        var EventsArena = data.eventsArena;
 
         /**
          * Has the info been changed flag
@@ -3622,7 +3643,7 @@ define('ImageServiceListItem',[],function () {
         that.init = function () {
 
             // creates an unique id of the entity
-            id = data.prefix + '_' + item.id.replace(/[^a-z0-9\_\-]+/ig, '_');
+            id = that.generateId(item.id);//data.prefix + '_' + item.id.replace(/[^a-z0-9\_\-]+/ig, '_');
 
             // Prepares the attributes
             var attrValues = jQuery.extend({}, item.attributes, {tags: item.tags});
@@ -3667,6 +3688,10 @@ define('ImageServiceListItem',[],function () {
          */
         that.getId = function () {
             return id;
+        };
+
+        that.generateId = function(itemId) {
+            return data.prefix + '_' + itemId.replace(/[^a-z0-9\_\-]+/ig, '');
         };
 
         /**
@@ -3734,6 +3759,19 @@ define('ImageServiceListItem',[],function () {
             // exclude
             $(window).on(Events.ITEMEXCLUDED, function (event, item) {
                 that.onItemExcluded(item);
+            });
+
+            // exclude
+            $(window).on(Events.MESSAGEERROR, function (event, error) {
+                if(that.generateId(error.data.id) === that.getId()) {
+                    container.addClass('error');
+                }
+            });
+
+            $(window).on(Events.MESSAGEWARNING, function (event, warning) {
+                if(that.generateId(warning.data.id) === that.getId()) {
+                    container.addClass('warning');
+                }
             });
 
         };
@@ -6806,6 +6844,7 @@ require([
         that.listItemFactory = new ImageServiceListItemFactory({
             model: ImageServiceListItem,
             events: that.config.events,
+            eventsArena: that.host,
             actions: ImageServiceEntityAction,
             preview: ImageServicePreview,
             attributes: that.attributesFactory,
@@ -6985,21 +7024,17 @@ require([
                     },
 
                     // Warning handler, the saving process is not cancelled!
-                    warning: function (messages) {
+                    warning: function (messages, items) {
+                        var result = true;
                         messages.forEach(function (message) {
-                            console.warn(message);
-                            that.host.trigger(
-                                that.config.events.MESSAGEWARNING,
-                                that.errors.create(message.code) + ' - ' + message.id
-                            );
+                            result = result && that.processWarning(message, {items: items});
                         });
+                        return result;
                     },
 
                     // Error handler, the saving process is cancelled
                     error: function (error) {
-                        console.warn(error);
-                        that.host.trigger(that.config.events.MESSAGEERROR, error);
-                        $(that.host).trigger(that.config.events.LISTSAVEFAILED, {error: error, data: data});
+                        that.processError(error, data)
                     }
                 });
             } else {
@@ -7007,6 +7042,43 @@ require([
                 $(that.host).trigger(that.config.events.LISTSAVINGSKIPPED, that.storeJson );
             }
 
+        };
+
+        /**
+         *
+         * @param warning
+         * @param data
+         * @returns {boolean}
+         */
+        that.processWarning = function(warning, data) {
+            console.warn(warning);
+            var result = true;
+            var message = that.errors.create(warning.code) + ' - ' + warning.id;
+
+            if (warning.type === "warn")
+                that.host.trigger(
+                    that.config.events.MESSAGEWARNING,
+                    {error: message,  data: warning }
+                );
+            else if(warning.type==="error")
+                result = that.processError(message,  warning );
+
+            return result;
+        };
+
+        /**
+         *
+         * @param error
+         * @param data
+         * @returns {boolean}
+         */
+        that.processError = function(error, data) {
+            console.warn(error);
+
+            that.host.trigger(that.config.events.MESSAGEERROR, {error: error, data: data});
+            $(that.host).trigger(that.config.events.LISTSAVEFAILED, {error: error, data: data});
+
+            return false;
         };
 
         that.init();
@@ -7066,7 +7138,12 @@ require(['ImageServiceConfig',
 
             // Listenes for saved events of the Instances, and when all are saved, fieres the save event of the original save button
             // The CnImageService Compoenent fires different events on list saved, or the list does not need saving
-            $(document).on( ImageServiceConfig.events.LISTSAVED + ' ' + ImageServiceConfig.events.LISTSAVINGSKIPPED + ' ' + ImageServiceConfig.events.LISTSAVEFAILED , function (event, data) {
+            $(document).on( ImageServiceConfig.events.LISTSAVED + ' '
+                          + ImageServiceConfig.events.LISTSAVINGSKIPPED + ' '
+                          //+ ImageServiceConfig.events.MESSAGEWARNING + ' '
+                          + ImageServiceConfig.events.LISTSAVEFAILED ,
+
+                function (event, data) {
 
                 if(event.type === ImageServiceConfig.events.LISTSAVEFAILED) {
 
@@ -7075,7 +7152,7 @@ require(['ImageServiceConfig',
                     messaging.error(data.error || 'Unknown error occurred');
 
                     // Process unsaved images
-                    if(data.hasOwnProperty('data') && data.data instanceof Array) {
+                    if (data.hasOwnProperty('data') && data.data instanceof Array) {
                         that.savedError(data.data);
                     }
 

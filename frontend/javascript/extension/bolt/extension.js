@@ -29,7 +29,12 @@ require(['ImageServiceConfig',
 
             // Listenes for saved events of the Instances, and when all are saved, fieres the save event of the original save button
             // The CnImageService Compoenent fires different events on list saved, or the list does not need saving
-            $(document).on( ImageServiceConfig.events.LISTSAVED + ' ' + ImageServiceConfig.events.LISTSAVINGSKIPPED + ' ' + ImageServiceConfig.events.LISTSAVEFAILED , function (event, data) {
+            $(document).on( ImageServiceConfig.events.LISTSAVED + ' '
+                          + ImageServiceConfig.events.LISTSAVINGSKIPPED + ' '
+                          //+ ImageServiceConfig.events.MESSAGEWARNING + ' '
+                          + ImageServiceConfig.events.LISTSAVEFAILED ,
+
+                function (event, data) {
 
                 if(event.type === ImageServiceConfig.events.LISTSAVEFAILED) {
 
@@ -38,7 +43,7 @@ require(['ImageServiceConfig',
                     messaging.error(data.error || 'Unknown error occurred');
 
                     // Process unsaved images
-                    if(data.hasOwnProperty('data') && data.data instanceof Array) {
+                    if (data.hasOwnProperty('data') && data.data instanceof Array) {
                         that.savedError(data.data);
                     }
 

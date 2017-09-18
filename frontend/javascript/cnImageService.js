@@ -104,6 +104,7 @@ require([
         that.listItemFactory = new ImageServiceListItemFactory({
             model: ImageServiceListItem,
             events: that.config.events,
+            eventsArena: that.host,
             actions: ImageServiceEntityAction,
             preview: ImageServicePreview,
             attributes: that.attributesFactory,
@@ -283,21 +284,17 @@ require([
                     },
 
                     // Warning handler, the saving process is not cancelled!
-                    warning: function (messages) {
+                    warning: function (messages, items) {
+                        var result = true;
                         messages.forEach(function (message) {
-                            console.warn(message);
-                            that.host.trigger(
-                                that.config.events.MESSAGEWARNING,
-                                that.errors.create(message.code) + ' - ' + message.id
-                            );
+                            result = result && that.processWarning(message, {items: items});
                         });
+                        return result;
                     },
 
                     // Error handler, the saving process is cancelled
                     error: function (error) {
-                        console.warn(error);
-                        that.host.trigger(that.config.events.MESSAGEERROR, error);
-                        $(that.host).trigger(that.config.events.LISTSAVEFAILED, {error: error, data: data});
+                        that.processError(error, data)
                     }
                 });
             } else {
@@ -305,6 +302,43 @@ require([
                 $(that.host).trigger(that.config.events.LISTSAVINGSKIPPED, that.storeJson );
             }
 
+        };
+
+        /**
+         *
+         * @param warning
+         * @param data
+         * @returns {boolean}
+         */
+        that.processWarning = function(warning, data) {
+            console.warn(warning);
+            var result = true;
+            var message = that.errors.create(warning.code) + ' - ' + warning.id;
+
+            if (warning.type === "warn")
+                that.host.trigger(
+                    that.config.events.MESSAGEWARNING,
+                    {error: message,  data: warning }
+                );
+            else if(warning.type==="error")
+                result = that.processError(message,  warning );
+
+            return result;
+        };
+
+        /**
+         *
+         * @param error
+         * @param data
+         * @returns {boolean}
+         */
+        that.processError = function(error, data) {
+            console.warn(error);
+
+            that.host.trigger(that.config.events.MESSAGEERROR, {error: error, data: data});
+            $(that.host).trigger(that.config.events.LISTSAVEFAILED, {error: error, data: data});
+
+            return false;
         };
 
         that.init();

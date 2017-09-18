@@ -24,6 +24,7 @@ define(function () {
         var Preview = data.model.preview;
         var Attributes = data.factory.attributes;
         var DataModel = data.factory.dataModel;
+        var EventsArena = data.eventsArena;
 
         /**
          * Has the info been changed flag
@@ -91,7 +92,7 @@ define(function () {
         that.init = function () {
 
             // creates an unique id of the entity
-            id = data.prefix + '_' + item.id.replace(/[^a-z0-9\_\-]+/ig, '_');
+            id = that.generateId(item.id);//data.prefix + '_' + item.id.replace(/[^a-z0-9\_\-]+/ig, '_');
 
             // Prepares the attributes
             var attrValues = jQuery.extend({}, item.attributes, {tags: item.tags});
@@ -136,6 +137,10 @@ define(function () {
          */
         that.getId = function () {
             return id;
+        };
+
+        that.generateId = function(itemId) {
+            return data.prefix + '_' + itemId.replace(/[^a-z0-9\_\-]+/ig, '');
         };
 
         /**
@@ -203,6 +208,19 @@ define(function () {
             // exclude
             $(window).on(Events.ITEMEXCLUDED, function (event, item) {
                 that.onItemExcluded(item);
+            });
+
+            // exclude
+            $(window).on(Events.MESSAGEERROR, function (event, error) {
+                if(that.generateId(error.data.id) === that.getId()) {
+                    container.addClass('error');
+                }
+            });
+
+            $(window).on(Events.MESSAGEWARNING, function (event, warning) {
+                if(that.generateId(warning.data.id) === that.getId()) {
+                    container.addClass('warning');
+                }
             });
 
         };

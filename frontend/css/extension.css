@@ -108,6 +108,14 @@ ImageService
     box-sizing: border-box;
 }
 
+.imageservice-entity.error {
+    background-color: #ffaaaa;
+}
+
+.imageservice-entity.warning {
+    background-color: #ffffaa;
+}
+
 .imageservice-entity:nth-child(odd) {
     background-color: #eeeeee;
 }

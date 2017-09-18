@@ -49,15 +49,34 @@ define(function () {
             that.host.prepend(that.container);
 
             that.host.on(that.events.error, function (event, data) {
-                that.error(data);
+                var message = data;
+
+                if(data instanceof Object)
+                    message = data.error;
+
+                that.error(message);
+
             });
 
             that.host.on(that.events.info, function (event, data) {
-                that.info(data);
+
+                var message = data;
+
+                if(data instanceof Object)
+                    message = data.error;
+
+                that.info(message);
+
             });
 
             that.host.on(that.events.warning, function (event, data) {
-                that.warning(data);
+                var message = data;
+
+                if(data instanceof Object)
+                    message = data.error;
+
+                that.warning(message);
+
             });
 
         };

@@ -81,7 +81,8 @@ define(function () {
                 success: function (response) {
 
                     if (response.success === true && response.messages && response.messages.length)
-                        warningCallback(response.messages);
+                        if(!warningCallback(response.messages, response.items))
+                            return;
 
                     if (response.success === false && response.messages && response.messages.length)
                         return errorCallback(Errors.create(response.messages[0].code));
