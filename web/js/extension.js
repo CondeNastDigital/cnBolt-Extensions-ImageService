@@ -3763,13 +3763,13 @@ define('ImageServiceListItem',[],function () {
 
             // exclude
             $(window).on(Events.MESSAGEERROR, function (event, error) {
-                if(that.generateId(error.data.id) === that.getId()) {
+                if(that.generateId(error.data.id || '') === that.getId()) {
                     container.addClass('error');
                 }
             });
 
             $(window).on(Events.MESSAGEWARNING, function (event, warning) {
-                if(that.generateId(warning.data.id) === that.getId()) {
+                if(that.generateId(warning.data.id || '') === that.getId()) {
                     container.addClass('warning');
                 }
             });
@@ -7186,7 +7186,7 @@ require(['ImageServiceConfig',
 
             // Clones the save button to makes sure that we save the imageservice fields first
             $(window).on('load', function(){
-                $('#sidebarsavecontinuebutton, #savecontinuebutton').each(function(el){
+                $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton, #previewbutton').each(function(el){
 
                     var customButton = $($(this).prop('outerHTML'));
 
@@ -7213,7 +7213,7 @@ require(['ImageServiceConfig',
              */
             that.save = function (event, data) {
 
-                $('.imageservice-saving').show();
+                $(event.target).parent().find('.imageservice-saving').show();
                 $('.imageservice-saving-progress-modal').html('');
                 collections = [];
 
