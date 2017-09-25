@@ -59,6 +59,12 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
         that.dataService = data.dataService;
 
         /**
+         * The Field is ready and initialized
+         * @type {boolean}
+         */
+        that.initialized = false;
+
+        /**
          * Triggers an event on the attribute
          * @param event
          * @param data
@@ -184,6 +190,8 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
             bootstrapContainer.append(select);
             container.append(bootstrapContainer);
 
+            that.initialized = true;
+
             return container;
         };
 
@@ -216,6 +224,7 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
                 that.value = $(event.target).val();
             });
 
+            that.initialized = true;
             return container;
         };
 
@@ -243,6 +252,7 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
                 container.find('input').attr('checked', 'checked').prop('checked', true);
             }
 
+            that.initialized = true;
             return container;
         };
 
@@ -265,6 +275,7 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
                 that.value = $(event.target).val();
             });
 
+            that.initialized = true;
             return container;
         };
 
@@ -329,8 +340,14 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
 
                 // transfer the change to the attribute store
                 scribe.on('content-changed', function () {
-                    that.value = scribe.getHTML();
-                    container.trigger('change');
+
+                    if(that.initialized) {
+                        that.value = scribe.getHTML();
+                        container.trigger('change');
+                    }
+
+                    that.initialized = true;
+
                 });
 
             });

@@ -2,8 +2,10 @@ var CnImageServiceBolt = {};
 require(['ImageServiceConfig',
         'ImageServicePreview',
         'ImageServiceImageModelFactory',
-        'ImageServiceMessaging'],
-    function (ImageServiceConfig, ImageServicePreview, ImageServiceImageModelFactory, ImageServiceMessaging) {
+        'ImageServiceMessaging',
+        'ImageServiceUniqueId'
+    ],
+    function (ImageServiceConfig, ImageServicePreview, ImageServiceImageModelFactory, ImageServiceMessaging, ImageServiceUniqueId) {
 
         CnImageServiceBolt = new (function () {
 
@@ -15,12 +17,19 @@ require(['ImageServiceConfig',
             var loader = '<div class="imageservice-saving">Saving Images</div>';
             var collections = [];
             var messaging = null;
+
+            console.log(ImageServiceUniqueId);
+
+            var idGenerator = new ImageServiceUniqueId('');
             var modal = $('<div class="buic-modal modal fade imageservice-progress" tabindex="-1" role="dialog" aria-labelledby="imageservice-progress">\n' +
                 '  <div class="modal-dialog modal-lg" role="document">\n' +
                 '     <div class="modal-content">' +
                 '         <div class="modal-header"><h2 class="hide-on-error">Saving Images</h2><h2 class="show-on-error error">Saving Cancelled</h2></div>' +
                 '         <div class="modal-body"></div>\n' +
-                '         <div class="modal-footer show-on-error"><button type="button" class="btn btn-default" data-dismiss="modal">Close</button></div>\n' +
+                '         <div class="modal-footer show-on-error">' +
+                '             <div class=\"error col-xs-12 col-md-8\">An error occured. Please remove or change the images marked with red and try again.</div>' +
+                '             <div class=\"col-xs-12 col-md-4\"><button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button></div>' +
+                '         </div>\n' +
                 '     </div>'+
                 '  </div>\n' +
                 '</div>\n');
@@ -33,51 +42,53 @@ require(['ImageServiceConfig',
                           + ImageServiceConfig.events.LISTSAVINGSKIPPED + ' '
                           //+ ImageServiceConfig.events.MESSAGEWARNING + ' '
                           + ImageServiceConfig.events.LISTSAVEFAILED ,
-
                 function (event, data) {
 
-                if(event.type === ImageServiceConfig.events.LISTSAVEFAILED) {
+                    if(event.type === ImageServiceConfig.events.LISTSAVEFAILED) {
 
-                    failed++;
+                        failed++;
 
-                    messaging.error(data.error || 'Unknown error occurred');
+                        //messaging.error(data.error || 'Unknown error occurred');
 
-                    // Process unsaved images
-                    if (data.hasOwnProperty('data') && data.data instanceof Array) {
-                        that.savedError(data.data);
+                        // Process unsaved images
+                        if (data.hasOwnProperty('data') && data.data instanceof Array) {
+                            that.savedError(data.data);
+                        }
+
+                    } else {
+                        saved--;
+                        that.savedHide(data.items);
                     }
 
-                } else {
-                    saved--;
-                    that.savedHide(data.items);
+                    if (saved === 0)
+                        that.finishSaving(true);
+                    else if (saved - failed === 0 )
+                        that.finishSaving(false);
+
                 }
+            );
 
-                if (saved === 0) {
+            $(document).on( ImageServiceConfig.events.MESSAGEWARNING + ' ' +  ImageServiceConfig.events.MESSAGEERROR,
+                function (event, warning) {
 
-                    modal.modal('hide');
-                    $('.imageservice-saving').hide();
+                console.log('ID WARNING: ', warning.data.id);
+                debugger;
 
-                    $(lastEvent.target).data('parentButton').trigger(lastEvent.type, {
-                        imageserviceskip: true
-                    });
+                console.log(modal.find('img[id="'+warning.data.id+'"]'));
+                console.log(modal.find('img[id="'+warning.data.id+'"]').parent());
 
-                } else if (saved - failed === 0 ) {
-                    $('.imageservice-saving').hide();
-                    that.savedError([]);
-                    modal.find('.show-on-error').show();
-                    modal.find('.hide-on-error').hide();
-                }
+                modal.find('img[id="'+warning.data.id+'"]').parent().addClass('error');
 
             });
 
-            // Listens for new ImageServiceFields
+            // Listens for new ImageServiceFields register
             $(document).on(ImageServiceConfig.events.LISTREADY, function (event, data) {
                 instances.push(data.instance);
             });
 
             // Clones the save button to makes sure that we save the imageservice fields first
             $(window).on('load', function(){
-                $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton, #previewbutton').each(function(el){
+                $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton').each(function(el){
 
                     var customButton = $($(this).prop('outerHTML'));
 
@@ -98,14 +109,37 @@ require(['ImageServiceConfig',
             });
 
             /**
+             *
+             */
+            that.finishSaving = function(successfull) {
+
+                if(successfull) {
+                    modal.modal('hide');
+                    $(lastEvent.target).data('parentButton').trigger(lastEvent.type, {
+                        imageserviceskip: true
+                    });
+                } else {
+                    that.savedError([]);
+                    modal.find('.show-on-error').show();
+                    modal.find('.hide-on-error').hide();
+                }
+
+                $('.imageservice-saving').hide();
+            };
+
+
+
+            /**
              * Calls all the instances and saves the data to the wished store
              * @param event
              * @param data
              */
             that.save = function (event, data) {
 
-                $(event.target).parent().find('.imageservice-saving').show();
+                $('.imageservice-saving').show();
                 $('.imageservice-saving-progress-modal').html('');
+
+                var needsSaving = false;
                 collections = [];
 
                 lastEvent = event;
@@ -114,41 +148,59 @@ require(['ImageServiceConfig',
 
                 // Gets the Data to save
                 instances.forEach(function (instance) {
-                    collections.push(instance.list.getData().items);
+                    if(instance.needsSaving()){
+                        collections.push(instance.list.getData().items);
+                        needsSaving = true;
+                    }
                 });
 
-                // Shows the Progress Modal
-                that.showProgress();
+                if(needsSaving) {
+                    // Shows the Progress Modal
+                    that.showProgress();
 
-                // Trigger Saving
-                instances.forEach(function (instance) {
-                    instance.save();
-                });
+                    // Trigger Saving
+                    instances.forEach(function (instance) {
+                        instance.save();
+                    });
+                } else {
+                    that.finishSaving(true);
+                }
 
             };
 
+            /**
+             * Hide the saved images
+             * @param list
+             */
             that.savedHide = function(list) {
                 list.forEach(function(item){
-                    $('.modal-body').find('img[id="'+item.id.replace(/[^a-z0-9\_\-\.]+/i,'')+'"]').parent().hide();
+                    $('.modal-body').find('img[id="'+idGenerator.generate(item.id)+'"]').parent().hide();
                 })
             };
 
+            /**
+             * Do things on error on saving
+             * @param list
+             */
             that.savedError = function(list) {
 
                 if(!list.length) {
                     $('.modal-body img').removeClass('saving');
-                    $('.modal-body img').addClass('error');
+                    //$('.modal-body img').addClass('error');
                     return;
                 }
 
                 list.forEach(function(item){
-                    $('.imageservice-saving-progress-modal').find('img[id="'+item.id.replace(/[^a-z0-9\_\-\.]+/i,'')+'"]').each(function(){
+                    $('.imageservice-saving-progress-modal').find('img[id="'+idGenerator.generate(item.id)+'"]').each(function(){
                         $(this).removeClass('saving');
                         $(this).addClass('error');
                     });
                 })
             };
 
+            /**
+             * Shows the Modal windows for the Progress
+             */
             that.showProgress = function() {
 
                 modal.find('.modal-body').html('');
@@ -179,10 +231,10 @@ require(['ImageServiceConfig',
                     show: true
                 });
 
-                messaging = new ImageServiceMessaging({
+                /*messaging = new ImageServiceMessaging({
                     host: modal.find('.modal-body'),
                     events: ImageServiceConfig.events
-                });
+                });*/
 
             }
 

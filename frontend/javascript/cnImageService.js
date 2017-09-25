@@ -84,6 +84,7 @@ require([
         that.init = function () {
             that.host.addClass('imageservice-container');
             that.store.hide();
+            console.debug("Instance init: ",that.list);
             $(document).trigger(ImageServiceConfig.events.LISTREADY, { instance: that });
         };
 
@@ -228,6 +229,8 @@ require([
             }
         });
 
+        console.log(that.list);
+
         that.updateStore = function(value) {
 
             try{
@@ -252,6 +255,13 @@ require([
         };
 
         /**
+         * Checks of the list has changed
+         */
+        that.needsSaving = function() {
+            return that.list.dirty;
+        };
+
+        /**
          * Action that have to be executed on save. It modifies the event in order to
          * make sure that the ajax call has finished before the actual saving takes place.
          * This set of actions have to happen first.
@@ -259,6 +269,10 @@ require([
          * @returns {*}
          */
         that.save = function (event) {
+
+            console.trace();
+            console.log(that.list.dirty !== false, that.list);
+
             if (that.list.dirty) {
                 // Stop the initial save process - syncronious save
                 event = event || new Event(that.config.events.LISTSAVED);

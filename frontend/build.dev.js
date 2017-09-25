@@ -17,6 +17,7 @@
         "scribe-plugin-sanitizer": "../bower_components/scribe-plugin-sanitizer/scribe-plugin-sanitizer",
         "requirejs": "../node_modules/requirejs/require",
         "ImageServiceSettingsInterface": "interfaces/ImageServiceSettingsInterface",
+        "ImageServiceUniqueId":"factories/ImageServiceUniqueId",
         "ImageServiceAttributesFactory": "factories/ImageServiceAttributes",
         "ImageServiceImageModelFactory": "factories/ImageServiceImageModel",
         "ImageServiceListItemFactory": "factories/ImageServiceListItem",

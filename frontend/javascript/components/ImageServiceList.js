@@ -97,6 +97,8 @@ define(function () {
                     cancel: '.no-drag'
                 });
             }
+
+            that.dirty = false;
         };
 
         /**
@@ -106,12 +108,11 @@ define(function () {
 
             // On list saved
             $(that.host).on(Events.LISTSAVED, function (event, newItems) {
-                that.dirty = false;
                 that.reset(newItems.items);
             });
 
             // On element change
-            $(that.host).on('change', function () {
+            $(that.host).on('change', function (event) {
                 that.dirty = true;
             });
 
@@ -173,6 +174,8 @@ define(function () {
 
             var items = [];
             var files = [];
+
+            console.debug("Get Data Dirty: ",that.dirty);
 
             that.imageEntities.forEach(function (entity) {
                 items.push(entity.getData());

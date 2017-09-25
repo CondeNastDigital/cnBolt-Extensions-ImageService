@@ -1,4 +1,4 @@
-define(function () {
+define(["ImageServiceUniqueId"], function (ImageServiceUniqueId) {
 
     /**
      * Preview Component, shows a Thumbnail for an ListItem Component.
@@ -17,6 +17,7 @@ define(function () {
         var container = null;
         var Events = data.config.events;
         var DataModel = data.factory.dataModel;
+        var IdGenerator = new ImageServiceUniqueId('');
 
         /**
          * Tries to get the item path form the
@@ -24,7 +25,7 @@ define(function () {
         that.init = function () {
 
             container = $('<div class="imageservice-preview"></div>');
-            preview = $('<img id="'+ item.id.replace(/[^a-z0-9\_\-\.]+/i,'') +'"/>');
+            preview = $('<img id="'+ IdGenerator.generate(item.id) +'"/>');
 
             that.update(item);
 

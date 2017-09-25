@@ -25,6 +25,7 @@ define(function () {
         var Attributes = data.factory.attributes;
         var DataModel = data.factory.dataModel;
         var EventsArena = data.eventsArena;
+        var IdGenerator = data.factory.idGenerator;
 
         /**
          * Has the info been changed flag
@@ -140,7 +141,7 @@ define(function () {
         };
 
         that.generateId = function(itemId) {
-            return data.prefix + '_' + itemId.replace(/[^a-z0-9\_\-]+/ig, '');
+            return IdGenerator.generate(itemId);
         };
 
         /**
@@ -212,13 +213,15 @@ define(function () {
 
             // exclude
             $(window).on(Events.MESSAGEERROR, function (event, error) {
-                if(that.generateId(error.data.id || '') === that.getId()) {
+                debugger;
+                if(that.generateId(error.data.id) === that.getId()) {
                     container.addClass('error');
                 }
             });
 
             $(window).on(Events.MESSAGEWARNING, function (event, warning) {
-                if(that.generateId(warning.data.id || '') === that.getId()) {
+                debugger;
+                if(that.generateId(warning.data.id) === that.getId()) {
                     container.addClass('warning');
                 }
             });

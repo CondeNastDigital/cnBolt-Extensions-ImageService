@@ -1,4 +1,4 @@
-define(function () {
+define(["ImageServiceUniqueId"],function (ImageServiceUniqueId) {
 
     /**
      * Factory for creating a List Items (List Rows)
@@ -27,6 +27,9 @@ define(function () {
         var service = data.service;
 
         that.create = function (options) {
+
+            var idGenerator = new ImageServiceUniqueId(options.prefix);
+
             return new Model(
                 Object.assign({
                         config: {
@@ -34,7 +37,8 @@ define(function () {
                         },
                         factory: {
                             dataModel: DataModel,
-                            attributes: Attributes
+                            attributes: Attributes,
+                            idGenerator: idGenerator
                         },
                         model: {
                             actions: Actions,

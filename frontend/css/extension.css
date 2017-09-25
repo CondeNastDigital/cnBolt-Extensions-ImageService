@@ -367,6 +367,10 @@ ImageService
     margin: 1px;
 }
 
+.imageservice-progress .modal-body .imageservice-preview.error {
+    border: 2px solid #ffaaaa;
+}
+
 .imageservice-progress .modal-body .imageservice-preview img {
     width: 100%;
     height: auto;
@@ -386,4 +390,9 @@ ImageService
 
 .imageservice-progress .error {
     color: #a94442;
+}
+
+.imageservice-progress .modal-footer .error {
+    padding: 6px;
+    font-weight: bold;
 }
