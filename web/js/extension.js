@@ -3789,14 +3789,12 @@ define('ImageServiceListItem',[],function () {
 
             // exclude
             $(window).on(Events.MESSAGEERROR, function (event, error) {
-                debugger;
                 if(that.generateId(error.data.id) === that.getId()) {
                     container.addClass('error');
                 }
             });
 
             $(window).on(Events.MESSAGEWARNING, function (event, warning) {
-                debugger;
                 if(that.generateId(warning.data.id) === that.getId()) {
                     container.addClass('warning');
                 }
@@ -7239,15 +7237,7 @@ require(['ImageServiceConfig',
 
             $(document).on( ImageServiceConfig.events.MESSAGEWARNING + ' ' +  ImageServiceConfig.events.MESSAGEERROR,
                 function (event, warning) {
-
-                console.log('ID WARNING: ', warning.data.id);
-                debugger;
-
-                console.log(modal.find('img[id="'+warning.data.id+'"]'));
-                console.log(modal.find('img[id="'+warning.data.id+'"]').parent());
-
-                modal.find('img[id="'+warning.data.id+'"]').parent().addClass('error');
-
+                    modal.find('img[id="'+warning.data.id+'"]').parent().addClass('error');
             });
 
             // Listens for new ImageServiceFields register

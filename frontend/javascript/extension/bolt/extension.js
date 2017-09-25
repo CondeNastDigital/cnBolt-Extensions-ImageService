@@ -70,15 +70,7 @@ require(['ImageServiceConfig',
 
             $(document).on( ImageServiceConfig.events.MESSAGEWARNING + ' ' +  ImageServiceConfig.events.MESSAGEERROR,
                 function (event, warning) {
-
-                console.log('ID WARNING: ', warning.data.id);
-                debugger;
-
-                console.log(modal.find('img[id="'+warning.data.id+'"]'));
-                console.log(modal.find('img[id="'+warning.data.id+'"]').parent());
-
-                modal.find('img[id="'+warning.data.id+'"]').parent().addClass('error');
-
+                    modal.find('img[id="'+warning.data.id+'"]').parent().addClass('error');
             });
 
             // Listens for new ImageServiceFields register
