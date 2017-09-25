@@ -1,6 +1,6 @@
 (function() {
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 2.3.3 Copyright jQuery Foundation and other contributors.
+ * @license RequireJS 2.3.5 Copyright jQuery Foundation and other contributors.
  * Released under MIT license, https://github.com/requirejs/requirejs/blob/master/LICENSE
  */
 //Not using strict: uneven strict support in browsers, #392, and causes
@@ -12,7 +12,7 @@ var requirejs, require, define;
 (function (global, setTimeout) {
     var req, s, head, baseElement, dataMain, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath,
-        version = '2.3.3',
+        version = '2.3.5',
         commentRegExp = /\/\*[\s\S]*?\*\/|([^:"'=]|^)\/\/.*$/mg,
         cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
@@ -2248,7 +2248,25 @@ define('ImageServiceImageModelFactory',[],function() {
         that.init();
     }
 });
-define('ImageServiceListItemFactory',[],function () {
+define( 'ImageServiceUniqueId',[],function () {
+
+    return function(prefix) {
+
+        var that = this;
+
+        that.prefix = prefix;
+
+        that.generate =  function(input) {
+            var result = (that.prefix? that.prefix + '_': '');
+            return  result + input.replace(/[^a-z0-9\_\-]+/ig, '');
+        };
+
+        return that;
+
+    }
+
+});
+define('ImageServiceListItemFactory',["ImageServiceUniqueId"],function (ImageServiceUniqueId) {
 
     /**
      * Factory for creating a List Items (List Rows)
@@ -2277,6 +2295,9 @@ define('ImageServiceListItemFactory',[],function () {
         var service = data.service;
 
         that.create = function (options) {
+
+            var idGenerator = new ImageServiceUniqueId(options.prefix);
+
             return new Model(
                 Object.assign({
                         config: {
@@ -2284,7 +2305,8 @@ define('ImageServiceListItemFactory',[],function () {
                         },
                         factory: {
                             dataModel: DataModel,
-                            attributes: Attributes
+                            attributes: Attributes,
+                            idGenerator: idGenerator
                         },
                         model: {
                             actions: Actions,
@@ -3227,6 +3249,8 @@ define('ImageServiceList',[],function () {
                     cancel: '.no-drag'
                 });
             }
+
+            that.dirty = false;
         };
 
         /**
@@ -3236,12 +3260,11 @@ define('ImageServiceList',[],function () {
 
             // On list saved
             $(that.host).on(Events.LISTSAVED, function (event, newItems) {
-                that.dirty = false;
                 that.reset(newItems.items);
             });
 
             // On element change
-            $(that.host).on('change', function () {
+            $(that.host).on('change', function (event) {
                 that.dirty = true;
             });
 
@@ -3303,6 +3326,8 @@ define('ImageServiceList',[],function () {
 
             var items = [];
             var files = [];
+
+            console.debug("Get Data Dirty: ",that.dirty);
 
             that.imageEntities.forEach(function (entity) {
                 items.push(entity.getData());
@@ -3576,6 +3601,7 @@ define('ImageServiceListItem',[],function () {
         var Attributes = data.factory.attributes;
         var DataModel = data.factory.dataModel;
         var EventsArena = data.eventsArena;
+        var IdGenerator = data.factory.idGenerator;
 
         /**
          * Has the info been changed flag
@@ -3691,7 +3717,7 @@ define('ImageServiceListItem',[],function () {
         };
 
         that.generateId = function(itemId) {
-            return data.prefix + '_' + itemId.replace(/[^a-z0-9\_\-]+/ig, '');
+            return IdGenerator.generate(itemId);
         };
 
         /**
@@ -3763,13 +3789,15 @@ define('ImageServiceListItem',[],function () {
 
             // exclude
             $(window).on(Events.MESSAGEERROR, function (event, error) {
-                if(that.generateId(error.data.id || '') === that.getId()) {
+                debugger;
+                if(that.generateId(error.data.id) === that.getId()) {
                     container.addClass('error');
                 }
             });
 
             $(window).on(Events.MESSAGEWARNING, function (event, warning) {
-                if(that.generateId(warning.data.id || '') === that.getId()) {
+                debugger;
+                if(that.generateId(warning.data.id) === that.getId()) {
                     container.addClass('warning');
                 }
             });
@@ -3968,7 +3996,7 @@ define('ImageServiceEntityAction',[],function () {
         }
     }
 });
-define('ImageServicePreview',[],function () {
+define('ImageServicePreview',["ImageServiceUniqueId"], function (ImageServiceUniqueId) {
 
     /**
      * Preview Component, shows a Thumbnail for an ListItem Component.
@@ -3987,6 +4015,7 @@ define('ImageServicePreview',[],function () {
         var container = null;
         var Events = data.config.events;
         var DataModel = data.factory.dataModel;
+        var IdGenerator = new ImageServiceUniqueId('');
 
         /**
          * Tries to get the item path form the
@@ -3994,7 +4023,7 @@ define('ImageServicePreview',[],function () {
         that.init = function () {
 
             container = $('<div class="imageservice-preview"></div>');
-            preview = $('<img id="'+ item.id.replace(/[^a-z0-9\_\-\.]+/i,'') +'"/>');
+            preview = $('<img id="'+ IdGenerator.generate(item.id) +'"/>');
 
             that.update(item);
 
@@ -6234,6 +6263,12 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
         that.dataService = data.dataService;
 
         /**
+         * The Field is ready and initialized
+         * @type {boolean}
+         */
+        that.initialized = false;
+
+        /**
          * Triggers an event on the attribute
          * @param event
          * @param data
@@ -6359,6 +6394,8 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
             bootstrapContainer.append(select);
             container.append(bootstrapContainer);
 
+            that.initialized = true;
+
             return container;
         };
 
@@ -6391,6 +6428,7 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
                 that.value = $(event.target).val();
             });
 
+            that.initialized = true;
             return container;
         };
 
@@ -6418,6 +6456,7 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
                 container.find('input').attr('checked', 'checked').prop('checked', true);
             }
 
+            that.initialized = true;
             return container;
         };
 
@@ -6440,6 +6479,7 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
                 that.value = $(event.target).val();
             });
 
+            that.initialized = true;
             return container;
         };
 
@@ -6504,8 +6544,14 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
 
                 // transfer the change to the attribute store
                 scribe.on('content-changed', function () {
-                    that.value = scribe.getHTML();
-                    container.trigger('change');
+
+                    if(that.initialized) {
+                        that.value = scribe.getHTML();
+                        container.trigger('change');
+                    }
+
+                    that.initialized = true;
+
                 });
 
             });
@@ -6824,6 +6870,7 @@ require([
         that.init = function () {
             that.host.addClass('imageservice-container');
             that.store.hide();
+            console.debug("Instance init: ",that.list);
             $(document).trigger(ImageServiceConfig.events.LISTREADY, { instance: that });
         };
 
@@ -6968,6 +7015,8 @@ require([
             }
         });
 
+        console.log(that.list);
+
         that.updateStore = function(value) {
 
             try{
@@ -6992,6 +7041,13 @@ require([
         };
 
         /**
+         * Checks of the list has changed
+         */
+        that.needsSaving = function() {
+            return that.list.dirty;
+        };
+
+        /**
          * Action that have to be executed on save. It modifies the event in order to
          * make sure that the ajax call has finished before the actual saving takes place.
          * This set of actions have to happen first.
@@ -6999,6 +7055,10 @@ require([
          * @returns {*}
          */
         that.save = function (event) {
+
+            console.trace();
+            console.log(that.list.dirty !== false, that.list);
+
             if (that.list.dirty) {
                 // Stop the initial save process - syncronious save
                 event = event || new Event(that.config.events.LISTSAVED);
@@ -7111,8 +7171,10 @@ var CnImageServiceBolt = {};
 require(['ImageServiceConfig',
         'ImageServicePreview',
         'ImageServiceImageModelFactory',
-        'ImageServiceMessaging'],
-    function (ImageServiceConfig, ImageServicePreview, ImageServiceImageModelFactory, ImageServiceMessaging) {
+        'ImageServiceMessaging',
+        'ImageServiceUniqueId'
+    ],
+    function (ImageServiceConfig, ImageServicePreview, ImageServiceImageModelFactory, ImageServiceMessaging, ImageServiceUniqueId) {
 
         CnImageServiceBolt = new (function () {
 
@@ -7124,12 +7186,19 @@ require(['ImageServiceConfig',
             var loader = '<div class="imageservice-saving">Saving Images</div>';
             var collections = [];
             var messaging = null;
+
+            console.log(ImageServiceUniqueId);
+
+            var idGenerator = new ImageServiceUniqueId('');
             var modal = $('<div class="buic-modal modal fade imageservice-progress" tabindex="-1" role="dialog" aria-labelledby="imageservice-progress">\n' +
                 '  <div class="modal-dialog modal-lg" role="document">\n' +
                 '     <div class="modal-content">' +
                 '         <div class="modal-header"><h2 class="hide-on-error">Saving Images</h2><h2 class="show-on-error error">Saving Cancelled</h2></div>' +
                 '         <div class="modal-body"></div>\n' +
-                '         <div class="modal-footer show-on-error"><button type="button" class="btn btn-default" data-dismiss="modal">Close</button></div>\n' +
+                '         <div class="modal-footer show-on-error">' +
+                '             <div class=\"error col-xs-12 col-md-8\">An error occured. Please remove or change the images marked with red and try again.</div>' +
+                '             <div class=\"col-xs-12 col-md-4\"><button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button></div>' +
+                '         </div>\n' +
                 '     </div>'+
                 '  </div>\n' +
                 '</div>\n');
@@ -7142,51 +7211,53 @@ require(['ImageServiceConfig',
                           + ImageServiceConfig.events.LISTSAVINGSKIPPED + ' '
                           //+ ImageServiceConfig.events.MESSAGEWARNING + ' '
                           + ImageServiceConfig.events.LISTSAVEFAILED ,
-
                 function (event, data) {
 
-                if(event.type === ImageServiceConfig.events.LISTSAVEFAILED) {
+                    if(event.type === ImageServiceConfig.events.LISTSAVEFAILED) {
 
-                    failed++;
+                        failed++;
 
-                    messaging.error(data.error || 'Unknown error occurred');
+                        //messaging.error(data.error || 'Unknown error occurred');
 
-                    // Process unsaved images
-                    if (data.hasOwnProperty('data') && data.data instanceof Array) {
-                        that.savedError(data.data);
+                        // Process unsaved images
+                        if (data.hasOwnProperty('data') && data.data instanceof Array) {
+                            that.savedError(data.data);
+                        }
+
+                    } else {
+                        saved--;
+                        that.savedHide(data.items);
                     }
 
-                } else {
-                    saved--;
-                    that.savedHide(data.items);
+                    if (saved === 0)
+                        that.finishSaving(true);
+                    else if (saved - failed === 0 )
+                        that.finishSaving(false);
+
                 }
+            );
 
-                if (saved === 0) {
+            $(document).on( ImageServiceConfig.events.MESSAGEWARNING + ' ' +  ImageServiceConfig.events.MESSAGEERROR,
+                function (event, warning) {
 
-                    modal.modal('hide');
-                    $('.imageservice-saving').hide();
+                console.log('ID WARNING: ', warning.data.id);
+                debugger;
 
-                    $(lastEvent.target).data('parentButton').trigger(lastEvent.type, {
-                        imageserviceskip: true
-                    });
+                console.log(modal.find('img[id="'+warning.data.id+'"]'));
+                console.log(modal.find('img[id="'+warning.data.id+'"]').parent());
 
-                } else if (saved - failed === 0 ) {
-                    $('.imageservice-saving').hide();
-                    that.savedError([]);
-                    modal.find('.show-on-error').show();
-                    modal.find('.hide-on-error').hide();
-                }
+                modal.find('img[id="'+warning.data.id+'"]').parent().addClass('error');
 
             });
 
-            // Listens for new ImageServiceFields
+            // Listens for new ImageServiceFields register
             $(document).on(ImageServiceConfig.events.LISTREADY, function (event, data) {
                 instances.push(data.instance);
             });
 
             // Clones the save button to makes sure that we save the imageservice fields first
             $(window).on('load', function(){
-                $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton, #previewbutton').each(function(el){
+                $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton').each(function(el){
 
                     var customButton = $($(this).prop('outerHTML'));
 
@@ -7207,14 +7278,37 @@ require(['ImageServiceConfig',
             });
 
             /**
+             *
+             */
+            that.finishSaving = function(successfull) {
+
+                if(successfull) {
+                    modal.modal('hide');
+                    $(lastEvent.target).data('parentButton').trigger(lastEvent.type, {
+                        imageserviceskip: true
+                    });
+                } else {
+                    that.savedError([]);
+                    modal.find('.show-on-error').show();
+                    modal.find('.hide-on-error').hide();
+                }
+
+                $('.imageservice-saving').hide();
+            };
+
+
+
+            /**
              * Calls all the instances and saves the data to the wished store
              * @param event
              * @param data
              */
             that.save = function (event, data) {
 
-                $(event.target).parent().find('.imageservice-saving').show();
+                $('.imageservice-saving').show();
                 $('.imageservice-saving-progress-modal').html('');
+
+                var needsSaving = false;
                 collections = [];
 
                 lastEvent = event;
@@ -7223,41 +7317,59 @@ require(['ImageServiceConfig',
 
                 // Gets the Data to save
                 instances.forEach(function (instance) {
-                    collections.push(instance.list.getData().items);
+                    if(instance.needsSaving()){
+                        collections.push(instance.list.getData().items);
+                        needsSaving = true;
+                    }
                 });
 
-                // Shows the Progress Modal
-                that.showProgress();
+                if(needsSaving) {
+                    // Shows the Progress Modal
+                    that.showProgress();
 
-                // Trigger Saving
-                instances.forEach(function (instance) {
-                    instance.save();
-                });
+                    // Trigger Saving
+                    instances.forEach(function (instance) {
+                        instance.save();
+                    });
+                } else {
+                    that.finishSaving(true);
+                }
 
             };
 
+            /**
+             * Hide the saved images
+             * @param list
+             */
             that.savedHide = function(list) {
                 list.forEach(function(item){
-                    $('.modal-body').find('img[id="'+item.id.replace(/[^a-z0-9\_\-\.]+/i,'')+'"]').parent().hide();
+                    $('.modal-body').find('img[id="'+idGenerator.generate(item.id)+'"]').parent().hide();
                 })
             };
 
+            /**
+             * Do things on error on saving
+             * @param list
+             */
             that.savedError = function(list) {
 
                 if(!list.length) {
                     $('.modal-body img').removeClass('saving');
-                    $('.modal-body img').addClass('error');
+                    //$('.modal-body img').addClass('error');
                     return;
                 }
 
                 list.forEach(function(item){
-                    $('.imageservice-saving-progress-modal').find('img[id="'+item.id.replace(/[^a-z0-9\_\-\.]+/i,'')+'"]').each(function(){
+                    $('.imageservice-saving-progress-modal').find('img[id="'+idGenerator.generate(item.id)+'"]').each(function(){
                         $(this).removeClass('saving');
                         $(this).addClass('error');
                     });
                 })
             };
 
+            /**
+             * Shows the Modal windows for the Progress
+             */
             that.showProgress = function() {
 
                 modal.find('.modal-body').html('');
@@ -7288,10 +7400,10 @@ require(['ImageServiceConfig',
                     show: true
                 });
 
-                messaging = new ImageServiceMessaging({
+                /*messaging = new ImageServiceMessaging({
                     host: modal.find('.modal-body'),
                     events: ImageServiceConfig.events
-                });
+                });*/
 
             }
 
