@@ -80,7 +80,7 @@ require(['ImageServiceConfig',
 
             // Clones the save button to makes sure that we save the imageservice fields first
             $(window).on('load', function(){
-                $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton').each(function(el){
+                $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton, #previewbutton').each(function(el){
 
                     var customButton = $($(this).prop('outerHTML'));
 
