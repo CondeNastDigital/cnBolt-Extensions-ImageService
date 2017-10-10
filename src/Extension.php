@@ -142,9 +142,11 @@ class Extension extends SimpleExtension
      * @param null $height
      * @param null $crop
      * @param bool $format
+     * @param bool $quality
+     * @param array $options
      * @return bool|null|string
      */
-    public function thumbnailOverride($input = null, $width = null, $height = null, $crop = null, $format = false) {
+    public function thumbnailOverride($input = null, $width = null, $height = null, $crop = null, $format = null, $quality = null, $options = array()) {
 
         $crop_map = [
             'r' => 'limit',  # Resize (Scaling up is controlled for the "r" option in general in config.yml thumbnails/upscale)
@@ -153,7 +155,7 @@ class Extension extends SimpleExtension
             'b' => 'pad' # Borders
         ];
 
-        $image = $this->imageUrlFilter($input, $width, $height, $crop ? $crop_map[$crop] : null, $format);
+        $image = $this->imageUrlFilter($input, $width, $height, $crop ? $crop_map[$crop] : null, $format, $quality, $options);
 
         // Fallback to Bolt's standard thumbnail generator
         if(!$image){
