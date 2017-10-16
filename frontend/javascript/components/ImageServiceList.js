@@ -175,8 +175,6 @@ define(function () {
             var items = [];
             var files = [];
 
-            console.debug("Get Data Dirty: ",that.dirty);
-
             that.imageEntities.forEach(function (entity) {
                 items.push(entity.getData());
                 files.push(entity.getFile() || null);

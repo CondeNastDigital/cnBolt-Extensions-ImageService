@@ -315,12 +315,15 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
 
             container.on(Events.ATTRIBUTERENDERED, function (event, data) {
 
-                var scribe = new Scribe(data.container.find('.imageservice-scribe:first')[0]);
+                // Use some plugins
+                var toolbarElement = data.container.find('.toolbar')[0];
+                var editorElement = data.container.find('.imageservice-scribe:first')[0];
+
+                var scribe = new Scribe(editorElement);
+
                 scribe.allowsBlockElements();
                 scribe.setContent(fieldValue);
 
-                // Use some plugins
-                var toolbarElement = data.container.find('.toolbar')[0];
                 scribe.use(ScribePluginToolbar(toolbarElement));
                 scribe.use(CnLinkCreate());
                 scribe.use(ScribePluginSanitizer(
@@ -341,14 +344,15 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
                 // transfer the change to the attribute store
                 scribe.on('content-changed', function () {
 
-                    if(that.initialized) {
-                        that.value = scribe.getHTML();
-                        container.trigger('change');
-                    }
+                    var oldValue = that.value;
+                    that.value = scribe.getHTML();
 
-                    that.initialized = true;
+                    if(oldValue != scribe.getHTML())
+                        container.trigger('change');
 
                 });
+
+                that.initialized = true;
 
             });
 

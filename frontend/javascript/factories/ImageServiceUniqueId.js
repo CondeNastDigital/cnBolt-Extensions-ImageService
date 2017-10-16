@@ -8,7 +8,7 @@ define( function () {
 
         that.generate =  function(input) {
             var result = (that.prefix? that.prefix + '_': '');
-            return  result + input.replace(/[^a-z0-9\_\-]+/ig, '');
+            return  result + String(input).replace(/[^a-z0-9\_\-]+/ig, '');
         };
 
         return that;

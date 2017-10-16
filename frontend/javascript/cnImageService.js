@@ -84,7 +84,6 @@ require([
         that.init = function () {
             that.host.addClass('imageservice-container');
             that.store.hide();
-            console.debug("Instance init: ",that.list);
             $(document).trigger(ImageServiceConfig.events.LISTREADY, { instance: that });
         };
 
@@ -229,8 +228,6 @@ require([
             }
         });
 
-        console.log(that.list);
-
         that.updateStore = function(value) {
 
             try{
@@ -269,9 +266,6 @@ require([
          * @returns {*}
          */
         that.save = function (event) {
-
-            console.trace();
-            console.log(that.list.dirty !== false, that.list);
 
             if (that.list.dirty) {
                 // Stop the initial save process - syncronious save
@@ -312,7 +306,6 @@ require([
                     }
                 });
             } else {
-                console.log("SKIPPED JSON:", that.storeJson);
                 $(that.host).trigger(that.config.events.LISTSAVINGSKIPPED, that.storeJson );
             }
 

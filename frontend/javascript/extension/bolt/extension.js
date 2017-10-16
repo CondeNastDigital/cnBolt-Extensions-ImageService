@@ -18,8 +18,6 @@ require(['ImageServiceConfig',
             var collections = [];
             var messaging = null;
 
-            console.log(ImageServiceUniqueId);
-
             var idGenerator = new ImageServiceUniqueId('');
             var modal = $('<div class="buic-modal modal fade imageservice-progress" tabindex="-1" role="dialog" aria-labelledby="imageservice-progress">\n' +
                 '  <div class="modal-dialog modal-lg" role="document">\n' +
@@ -78,6 +76,14 @@ require(['ImageServiceConfig',
                 instances.push(data.instance);
             });
 
+            // Listens for new ImageServiceFields remove
+            $(document).on(ImageServiceConfig.events.LISTREMOVED, function (event, data) {
+                var index = instances.indexOf(data.instance);
+                console.log(instances.indexOf(data.instance));
+                if(index>-1)
+                    instances.splice(index,1);
+            });
+
             // Clones the save button to makes sure that we save the imageservice fields first
             $(window).on('load', function(){
                 $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton, #previewbutton').each(function(el){
@@ -107,9 +113,10 @@ require(['ImageServiceConfig',
 
                 if(successfull) {
                     modal.modal('hide');
-                    $(lastEvent.target).data('parentButton').trigger(lastEvent.type, {
-                        imageserviceskip: true
-                    });
+                    if(typeof($(lastEvent.target).data('parentButton')) !== 'undefined')
+                        $(lastEvent.target).data('parentButton').trigger(lastEvent.type, {
+                            imageserviceskip: true
+                        });
                 } else {
                     that.savedError([]);
                     modal.find('.show-on-error').show();

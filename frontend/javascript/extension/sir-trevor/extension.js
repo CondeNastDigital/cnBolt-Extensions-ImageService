@@ -1,4 +1,4 @@
-define(function(){
+define(['ImageServiceConfig'],function(ImageServiceConfig){
 
     return  function(options) {
         var that = this;
@@ -63,8 +63,18 @@ define(function(){
                 var customInstance = new ImageServiceModel(Object.assign(config, defaults ));
 
                 this.imageServiceInstance = customInstance;
+            },
 
+            /**
+             * Remove the ImageService Block from saving
+             * @param e
+             */
+            onDeleteConfirm: function(e) {
+                e.preventDefault();
+                $(document).trigger( ImageServiceConfig.events.LISTREMOVED, { instance: this.imageServiceInstance });
+                this.mediator.trigger('block:remove', this.blockID, {focusOnPrevious: true});
             }
+
         };
 
         that.init = function(blockOptions) {
