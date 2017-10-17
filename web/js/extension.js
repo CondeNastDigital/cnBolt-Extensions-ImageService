@@ -2258,7 +2258,7 @@ define( 'ImageServiceUniqueId',[],function () {
 
         that.generate =  function(input) {
             var result = (that.prefix? that.prefix + '_': '');
-            return  result + input.replace(/[^a-z0-9\_\-]+/ig, '');
+            return  result + String(input).replace(/[^a-z0-9\_\-]+/ig, '');
         };
 
         return that;
@@ -3326,8 +3326,6 @@ define('ImageServiceList',[],function () {
 
             var items = [];
             var files = [];
-
-            console.debug("Get Data Dirty: ",that.dirty);
 
             that.imageEntities.forEach(function (entity) {
                 items.push(entity.getData());
@@ -6517,12 +6515,15 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
 
             container.on(Events.ATTRIBUTERENDERED, function (event, data) {
 
-                var scribe = new Scribe(data.container.find('.imageservice-scribe:first')[0]);
+                // Use some plugins
+                var toolbarElement = data.container.find('.toolbar')[0];
+                var editorElement = data.container.find('.imageservice-scribe:first')[0];
+
+                var scribe = new Scribe(editorElement);
+
                 scribe.allowsBlockElements();
                 scribe.setContent(fieldValue);
 
-                // Use some plugins
-                var toolbarElement = data.container.find('.toolbar')[0];
                 scribe.use(ScribePluginToolbar(toolbarElement));
                 scribe.use(CnLinkCreate());
                 scribe.use(ScribePluginSanitizer(
@@ -6543,14 +6544,15 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
                 // transfer the change to the attribute store
                 scribe.on('content-changed', function () {
 
-                    if(that.initialized) {
-                        that.value = scribe.getHTML();
-                        container.trigger('change');
-                    }
+                    var oldValue = that.value;
+                    that.value = scribe.getHTML();
 
-                    that.initialized = true;
+                    if(oldValue != scribe.getHTML())
+                        container.trigger('change');
 
                 });
+
+                that.initialized = true;
 
             });
 
@@ -6698,7 +6700,7 @@ define('ImageServiceAttributes',[],function () {
         that.init();
     }
 });
-define('ImageServiceSirTrevor',[],function(){
+define('ImageServiceSirTrevor',['ImageServiceConfig'],function(ImageServiceConfig){
 
     return  function(options) {
         var that = this;
@@ -6763,8 +6765,18 @@ define('ImageServiceSirTrevor',[],function(){
                 var customInstance = new ImageServiceModel(Object.assign(config, defaults ));
 
                 this.imageServiceInstance = customInstance;
+            },
 
+            /**
+             * Remove the ImageService Block from saving
+             * @param e
+             */
+            onDeleteConfirm: function(e) {
+                e.preventDefault();
+                $(document).trigger( ImageServiceConfig.events.LISTREMOVED, { instance: this.imageServiceInstance });
+                this.mediator.trigger('block:remove', this.blockID, {focusOnPrevious: true});
             }
+
         };
 
         that.init = function(blockOptions) {
@@ -6868,7 +6880,6 @@ require([
         that.init = function () {
             that.host.addClass('imageservice-container');
             that.store.hide();
-            console.debug("Instance init: ",that.list);
             $(document).trigger(ImageServiceConfig.events.LISTREADY, { instance: that });
         };
 
@@ -7013,8 +7024,6 @@ require([
             }
         });
 
-        console.log(that.list);
-
         that.updateStore = function(value) {
 
             try{
@@ -7053,9 +7062,6 @@ require([
          * @returns {*}
          */
         that.save = function (event) {
-
-            console.trace();
-            console.log(that.list.dirty !== false, that.list);
 
             if (that.list.dirty) {
                 // Stop the initial save process - syncronious save
@@ -7096,7 +7102,6 @@ require([
                     }
                 });
             } else {
-                console.log("SKIPPED JSON:", that.storeJson);
                 $(that.host).trigger(that.config.events.LISTSAVINGSKIPPED, that.storeJson );
             }
 
@@ -7185,8 +7190,6 @@ require(['ImageServiceConfig',
             var collections = [];
             var messaging = null;
 
-            console.log(ImageServiceUniqueId);
-
             var idGenerator = new ImageServiceUniqueId('');
             var modal = $('<div class="buic-modal modal fade imageservice-progress" tabindex="-1" role="dialog" aria-labelledby="imageservice-progress">\n' +
                 '  <div class="modal-dialog modal-lg" role="document">\n' +
@@ -7245,6 +7248,14 @@ require(['ImageServiceConfig',
                 instances.push(data.instance);
             });
 
+            // Listens for new ImageServiceFields remove
+            $(document).on(ImageServiceConfig.events.LISTREMOVED, function (event, data) {
+                var index = instances.indexOf(data.instance);
+                console.log(instances.indexOf(data.instance));
+                if(index>-1)
+                    instances.splice(index,1);
+            });
+
             // Clones the save button to makes sure that we save the imageservice fields first
             $(window).on('load', function(){
                 $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton, #previewbutton').each(function(el){
@@ -7274,9 +7285,10 @@ require(['ImageServiceConfig',
 
                 if(successfull) {
                     modal.modal('hide');
-                    $(lastEvent.target).data('parentButton').trigger(lastEvent.type, {
-                        imageserviceskip: true
-                    });
+                    if(typeof($(lastEvent.target).data('parentButton')) !== 'undefined')
+                        $(lastEvent.target).data('parentButton').trigger(lastEvent.type, {
+                            imageserviceskip: true
+                        });
                 } else {
                     that.savedError([]);
                     modal.find('.show-on-error').show();
