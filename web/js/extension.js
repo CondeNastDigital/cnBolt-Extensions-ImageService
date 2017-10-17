@@ -6725,7 +6725,7 @@ define('ImageServiceSirTrevor',['ImageServiceConfig'],function(ImageServiceConfi
              */
             loadData: function(data){
                 data = data || { items:[] };
-                $(this.$('.data-target')).html(JSON.stringify(data));
+                $(this.$('.data-target')).text(JSON.stringify(data));
 
             },
 

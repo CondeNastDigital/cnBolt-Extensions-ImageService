@@ -23,7 +23,7 @@ define(['ImageServiceConfig'],function(ImageServiceConfig){
              */
             loadData: function(data){
                 data = data || { items:[] };
-                $(this.$('.data-target')).html(JSON.stringify(data));
+                $(this.$('.data-target')).text(JSON.stringify(data));
 
             },
 
