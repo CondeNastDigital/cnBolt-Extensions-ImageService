@@ -3454,6 +3454,7 @@ define('ImageServiceConfig',{
         LISTSAVEFAILED: 'imageservice-listsavefailed',
         LISTCHANGED: 'imageservice-listchanged',
         LISTREADY: 'imageservice-listready',
+        LISTREMOVED: 'imageservice-listremoved',
         LISTSAVINGSKIPPED: 'imageservice-listsavingskipped',
         ITEMUPLOADED: 'imageservice-itemuploaded',
         ITEMCHANGED: 'imageservice-itemchanged',
