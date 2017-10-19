@@ -138,11 +138,11 @@ class ImageController implements ControllerProviderInterface
         ]);
 
     }
-
+    
     /**
      * @param Request $request
-     * @param string $type
      * @return Response
+     * @internal param string $type
      */
     public function imageSearch(Request $request)
     {
