@@ -155,7 +155,11 @@ class Extension extends SimpleExtension
             'b' => 'pad' # Borders
         ];
 
-        $image = $this->imageUrlFilter($input, $width, $height, $crop ? $crop_map[$crop] : null, $format, $quality, $options);
+        try {
+            $image = $this->imageUrlFilter($input, $width, $height, $crop ? $crop_map[$crop] : null, $format, $quality, $options);
+        } catch (\Exception $e) {
+            $image = false;
+        }
 
         // Fallback to Bolt's standard thumbnail generator
         if(!$image){

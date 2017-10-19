@@ -72,7 +72,9 @@ class ContentConnector implements IConnector
         if(is_array($options))
             $modifiers = $modifiers + $options;
 
-        $this->updateImageData($image);
+        $result =  $this->updateImageData($image);
+        if ($result == false)
+            return false;
 
         return $this->container['url_generator']->generate(
             'thumb',
@@ -530,7 +532,7 @@ class ContentConnector implements IConnector
         // Fill image info
         $imageField = $content->get("image");
 
-        if(!isset($imageField))
+        if(!isset($imageField) || !file_exists("files/".$imageField["file"]))
             return;
 
         /* @var Info $info */
