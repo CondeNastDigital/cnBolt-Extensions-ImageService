@@ -85,8 +85,10 @@ require(['ImageServiceConfig',
             });
 
             // Clones the save button to makes sure that we save the imageservice fields first
+            // FIXME: The buttons id's change from time to time and need to be added here. In the future, bolt wants to provide events for this
             $(window).on('load', function(){
-                $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton, #previewbutton').each(function(el){
+                $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton, #previewbutton, '         // Button IDs for Bolt 3.0-3.2
+                + '#sidebar_save, #content_edit_save, #sidebar_preview, #content_edit_preview').each(function(el){   // Button IDs for Bolt 3.3+
 
                     var customButton = $($(this).prop('outerHTML'));
 

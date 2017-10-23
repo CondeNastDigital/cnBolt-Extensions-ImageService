@@ -1,6 +1,6 @@
 (function() {
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 2.3.5 Copyright jQuery Foundation and other contributors.
+ * @license RequireJS 2.3.3 Copyright jQuery Foundation and other contributors.
  * Released under MIT license, https://github.com/requirejs/requirejs/blob/master/LICENSE
  */
 //Not using strict: uneven strict support in browsers, #392, and causes
@@ -12,7 +12,7 @@ var requirejs, require, define;
 (function (global, setTimeout) {
     var req, s, head, baseElement, dataMain, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath,
-        version = '2.3.5',
+        version = '2.3.3',
         commentRegExp = /\/\*[\s\S]*?\*\/|([^:"'=]|^)\/\/.*$/mg,
         cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
@@ -7258,8 +7258,10 @@ require(['ImageServiceConfig',
             });
 
             // Clones the save button to makes sure that we save the imageservice fields first
+            // FIXME: The buttons id's change from time to time and need to be added here. In the future, bolt wants to provide events for this
             $(window).on('load', function(){
-                $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton, #previewbutton').each(function(el){
+                $('#sidebarsavecontinuebutton, #savecontinuebutton, #sidebarpreviewbutton, #previewbutton, '         // Button IDs for Bolt 3.0-3.2
+                + '#sidebar_save, #content_edit_save, #sidebar_preview, #content_edit_preview').each(function(el){   // Button IDs for Bolt 3.3+
 
                     var customButton = $($(this).prop('outerHTML'));
 
