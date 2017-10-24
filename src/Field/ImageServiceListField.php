@@ -58,7 +58,7 @@ class ImageServiceListField extends FieldTypeBase
 
         if(isset($value["items"]) && is_array($value["items"]))
             foreach($value["items"] as &$item)
-                $item = Image::create($item);
+                $item = $item instanceof Image ? $item : Image::create($item);
 
         $this->set($entity, $value);
     }
