@@ -211,7 +211,7 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
                     '<div class="col-xs-12 col-sm-9 col-md-9 field-container no-drag" ></div>' +
                 '</li>');
 
-            var select = $('<selectdata-name="' + fieldName + '"></select>');
+            var select = $('<select data-name="' + fieldName + '"></select>');
             for (x in options) {
                 var option = $('<option value="' + x + '">' + data.definition.options[x] + '</option>');
                 if (x == fieldValue)

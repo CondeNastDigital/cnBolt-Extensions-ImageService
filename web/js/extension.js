@@ -1,6 +1,6 @@
 (function() {
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 2.3.3 Copyright jQuery Foundation and other contributors.
+ * @license RequireJS 2.3.5 Copyright jQuery Foundation and other contributors.
  * Released under MIT license, https://github.com/requirejs/requirejs/blob/master/LICENSE
  */
 //Not using strict: uneven strict support in browsers, #392, and causes
@@ -12,7 +12,7 @@ var requirejs, require, define;
 (function (global, setTimeout) {
     var req, s, head, baseElement, dataMain, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath,
-        version = '2.3.3',
+        version = '2.3.5',
         commentRegExp = /\/\*[\s\S]*?\*\/|([^:"'=]|^)\/\/.*$/mg,
         cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
@@ -6412,7 +6412,7 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
                     '<div class="col-xs-12 col-sm-9 col-md-9 field-container no-drag" ></div>' +
                 '</li>');
 
-            var select = $('<selectdata-name="' + fieldName + '"></select>');
+            var select = $('<select data-name="' + fieldName + '"></select>');
             for (x in options) {
                 var option = $('<option value="' + x + '">' + data.definition.options[x] + '</option>');
                 if (x == fieldValue)
