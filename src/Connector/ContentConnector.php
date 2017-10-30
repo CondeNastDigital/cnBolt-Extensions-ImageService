@@ -73,7 +73,7 @@ class ContentConnector implements IConnector
             $modifiers = $modifiers + $options;
 
         $result =  $this->updateImageData($image);
-        if ($result == false)
+        if (!$result)
             return false;
 
         return $this->container['url_generator']->generate(
@@ -550,7 +550,7 @@ class ContentConnector implements IConnector
             Image::INFO_CUSTOM => $imageField["file"],
         ];
 
-        return;
+        return true;
     }
 
     /**
