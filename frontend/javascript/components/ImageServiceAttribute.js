@@ -305,7 +305,9 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
 
             window.document.addEventListener("selectionchange", function (event, data) {
                 var selection = window.getSelection();
-                var element   = $(event.srcElement.activeElement);
+                // Chrome - srcElement, Firefox originalTarget
+                var srcElement = event.srcElement || event.originalTarget;
+                var element   = $(srcElement.activeElement);
 
                 if (selection.isCollapsed)
                     element.siblings('.toolbar').hide();
