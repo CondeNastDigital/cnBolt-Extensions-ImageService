@@ -115,7 +115,7 @@ class Extension extends SimpleExtension
         /* @var \Bolt\Application $app */
         $app = $this->getContainer();
         /* @var ImageService $service */
-        $service = $app[self::APP_EXTENSION_KEY.".service"];
+        $service = $app[self::APP_EXTENSION_KEY.".image"];
 
         if(is_object($image)) {
             $image = Image::create([
@@ -189,7 +189,7 @@ class Extension extends SimpleExtension
         /* @var \Bolt\Application $app */
         $app = $this->getContainer();
         /* @var ImageService $service */
-        $service = $app[self::APP_EXTENSION_KEY.".service"];
+        $service = $app[self::APP_EXTENSION_KEY.".image"];
 
         return $service->getServiceMenu();
     }

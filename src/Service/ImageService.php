@@ -1,7 +1,7 @@
 <?php
 namespace Bolt\Extension\CND\ImageService\Service;
 use Bolt;
-use Bolt\Application;
+use Silex\Application;
 use Bolt\Extension\CND\ImageService\IConnector;
 use Bolt\Extension\CND\ImageService\Image;
 

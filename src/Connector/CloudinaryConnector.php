@@ -2,11 +2,12 @@
 namespace Bolt\Extension\CND\ImageService\Connector;
 
 use Bolt\Application;
+use Bolt\Extension\CND\ImageService\Extension;
 use Bolt\Extension\CND\ImageService\Image;
 use Bolt\Extension\CND\ImageService\IConnector;
+use Bolt\Filesystem\Filesystem;
+use Bolt\Filesystem\Handler\File;
 use Bolt\Menu\MenuEntry;
-use Sirius\Upload\Handler as UploadHandler;
-use Sirius\Upload\Result\File;
 
 require_once __DIR__."/../../vendor/cloudinary/Cloudinary.php";
 require_once __DIR__."/../../vendor/cloudinary/Api.php";
@@ -211,10 +212,14 @@ class CloudinaryConnector implements IConnector
     protected function processCreate(array $images, &$messages = []){
         
         $existing = [];
-        
+
+        $FileService = $this->container[Extension::APP_EXTENSION_KEY.".file"];
+
         foreach($images as $idx => &$image){
             // Check if a file was posted
-            if(!isset($_FILES[$image->id])){
+            /* @var File $file */
+            $file = $FileService->getFile($image->id);
+            if(!$file){
                 $messages[] = [
                     "type" => IConnector::RESULT_TYPE_ERROR,
                     "code" => IConnector::RESULT_CODE_ERRNOFILE,
@@ -223,19 +228,19 @@ class CloudinaryConnector implements IConnector
                 unset($images[$idx]);
                 continue;
             }
-            
-            $filesource = $_FILES[$image->id]["tmp_name"];
-            $filename   = $_FILES[$image->id]["name"];
-            $size       = $_FILES[$image->id]["size"];
-            $fileinfo   = pathinfo($filename);
-            $ext        = $fileinfo["extension"];
-            
+
+            $filename   = $file->getFilename();
+            $size       = $file->getSize();
+            $ext        = $file->getExtension();
+
+            $filename = $this->container["slugify"]->slugify($filename).".".$ext;
+
             // Validation Config
             $allowedExtensions = $this->config['security']['allowed-extensions'];
             $allowedMaxSize    = $this->config['security']['max-size'];
             
             // Simple Validation of the uploaded images
-            if(!is_readable($filesource)) {               // file doesnt exist or permissions wrong
+            if(!$file->exists()) {               // file doesnt exist or permissions wrong
                 $messages[] = [
                     "type" => IConnector::RESULT_TYPE_ERROR,
                     "code" => IConnector::RESULT_CODE_ERRFILEINVALID,
@@ -267,7 +272,12 @@ class CloudinaryConnector implements IConnector
             }
             
             $defaults = is_array($this->config["upload-defaults"]) ? $this->config["upload-defaults"] : [];
-            
+
+            /* @var Filesystem $filemount */
+            $filemount = $this->container["filesystem"]->getFilesystem($file->getMountPoint());
+            $filesource = $filemount->getAdapter()->getPathPrefix()
+                        . $file->getPath();
+
             $result = Uploader::upload($filesource, $defaults + [
                     "use_filename" => true,
                     "public_id" => $image->id,
