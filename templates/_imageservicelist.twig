@@ -65,15 +65,15 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                     var imageService = new CnImageService({
                         cache: defs,
                         serviceUrl: '{{ paths.bolt }}image-service/image',
-                        serviceName: '{{ field.service ? field.service : config.defaultService }}',
+                        serviceName: '{{ field.service|default(config.defaultService) }}',
                         {% if field.maxFiles %}
                         maxFiles: {{ field.maxFiles }},
                         {% endif %}
-                        maxFileSize: {{ field.maxFileSize ? field.maxFileSize: config.security['max-size'] }},
+                        maxFileSize: {{ field.maxFileSize|default(config.security['max-size']) }},
                         dataElement: '[name="{{ name }}"]',
                         hostElement: '#imageservice-{{ name }}-list',
-                        attributes: {{ field.attributes|json_encode|raw }},
-                        globals: {{ field.globals|json_encode|raw }}
+                        attributes: {{ field.attributes|default([])|json_encode|raw }},
+                        globals: {{ field.globals|default([])|json_encode|raw }}
                     });
 
                 });
