@@ -155,26 +155,24 @@ class Extension extends SimpleExtension
             'b' => 'pad' # Borders
         ];
 
+        // Bolt 3.3+
+        if(isset($this->container['twig.runtime.bolt_image']))
+            $thumbservice = $this->container['twig.runtime.bolt_image'];
+        // Bolt 3.0 - 3.2
+        elseif(isset($this->container['twig.handlers']['image']))
+            $thumbservice = $this->container['twig.handlers']['image'];
+        // Not compatible
+        else
+            return false;
+
         try {
             $image = $this->imageUrlFilter($input, $width, $height, $crop ? $crop_map[$crop] : null, $format, $quality, $options);
         } catch (\Exception $e) {
-            $image = false;
+            return $thumbservice->thumbnail('unknown', $width, $height, $crop);
         }
 
         // Fallback to Bolt's standard thumbnail generator
         if(!$image){
-
-            // Bolt 3.3+
-            if(isset($this->container['twig.runtime.bolt_image']))
-                $thumbservice = $this->container['twig.runtime.bolt_image'];
-            // Bolt 3.0 - 3.2
-            elseif(isset($this->container['twig.handlers']['image']))
-                $thumbservice = $this->container['twig.handlers']['image'];
-            // Not compatible
-            else
-                return false;
-
-
             $image = $thumbservice->thumbnail($input, $width, $height, $crop);
         }
 
