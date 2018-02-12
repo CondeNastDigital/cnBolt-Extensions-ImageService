@@ -306,7 +306,7 @@ require([
                     }
                 });
             } else {
-                $(that.host).trigger(that.config.events.LISTSAVINGSKIPPED, that.storeJson );
+                $(that.host).trigger(that.config.events.LISTSAVINGSKIPPED, that.storeJson || [] );
             }
 
         };

@@ -115,7 +115,7 @@ class Image implements JsonSerializable {
 
     /**
      * Return the string (json) encoded value
-     * @return string
+     * @return array
      */
     public function jsonSerialize() {
         $output = [

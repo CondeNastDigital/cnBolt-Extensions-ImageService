@@ -3,6 +3,7 @@ namespace Bolt\Extension\CND\ImageService\Controller;
 
 use Bolt\Extension\CND\ImageService\Extension;
 use Bolt\Extension\CND\ImageService\Image;
+use Bolt\Extension\CND\ImageService\Service\FileService;
 use Bolt\Extension\CND\ImageService\Service\ImageService;
 use Bolt\Users;
 use Silex\Application;
@@ -82,9 +83,9 @@ class ImageController implements ControllerProviderInterface
         ]);
 
         /* @var ImageService $service */
-        $service = $this->container[Extension::APP_EXTENSION_KEY.".service"];
+        $ImageService = $this->container[Extension::APP_EXTENSION_KEY.".image"];
 
-        $result = $service->imageUrl($image, $width, $height);
+        $result = $ImageService->imageUrl($image, $width, $height);
 
         return new JsonResponse([
             "url" => $result,
@@ -118,7 +119,9 @@ class ImageController implements ControllerProviderInterface
         $items = json_decode($items, true);
 
         /* @var ImageService $service */
-        $service = $this->container[Extension::APP_EXTENSION_KEY.".service"];
+        $ImageService = $this->container[Extension::APP_EXTENSION_KEY.".image"];
+        /* @var FileService $service */
+        $FileService = $this->container[Extension::APP_EXTENSION_KEY.".file"];
 
         if(!is_array($items))
             return new JsonResponse([
@@ -129,7 +132,8 @@ class ImageController implements ControllerProviderInterface
         foreach($items as $item)
             $images[] = Image::create($item);
 
-        $images = $service->imageProcess($images, $messages);
+        $FileService->setFilesRequest($request);
+        $images = $ImageService->imageProcess($images, $messages);
 
         return new JsonResponse([
             "items" => $images,
@@ -166,9 +170,9 @@ class ImageController implements ControllerProviderInterface
 
         if(trim($text)) {
             /* @var ImageService $service */
-            $service = $this->container[Extension::APP_EXTENSION_KEY.".service"];
+            $ImageService = $this->container[Extension::APP_EXTENSION_KEY.".image"];
 
-            $images = $service->imageSearch($text);
+            $images = $ImageService->imageSearch($text);
         }
 
         return new JsonResponse([
@@ -190,9 +194,9 @@ class ImageController implements ControllerProviderInterface
         $text = strip_tags(urldecode($text));
 
         /* @var ImageService $service */
-        $service = $this->container[Extension::APP_EXTENSION_KEY.".service"];
+        $ImageService = $this->container[Extension::APP_EXTENSION_KEY.".image"];
 
-        $images = $service->tagSearch($text);
+        $images = $ImageService->tagSearch($text);
 
         return new JsonResponse([
             "search" => $text,

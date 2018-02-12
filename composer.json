@@ -10,14 +10,17 @@
     "require": {
         "bolt/bolt": "^3.0"
     },
+    "license": "",
     "authors": [
         {
-            "name": "Tobias Bulla - Condé-Nast Verlag GmbH",
-            "email": "tobias.bulla@condenast.de"
+            "name": "Condé Nast Verlag GmbH",
+            "email": "tobias.bulla@condenast.de",
+            "homepage": "https://techblog.condenast.de"
         },
         {
-          "name": "Rosen Ralev - Condé-Nast Verlag GmbH",
-          "email": "rosen.ralev@condenast.de"
+            "name": "Condé Nast Verlag GmbH",
+            "email": "rosen.ralev@condenast.de",
+            "homepage": "https://techblog.condenast.de"
         }
     ],
     "minimum-stability": "dev",
@@ -29,6 +32,10 @@
     },
     "extra": {
         "bolt-assets": "web",
-        "bolt-class": "Bolt\\Extension\\CND\\ImageService\\Extension"
+        "bolt-class": "Bolt\\Extension\\CND\\ImageService\\Extension",
+        "bolt-icon": "icon_marketplace.png",
+        "bolt-screenshots": [
+            "screen_marketplace.png"
+        ]
     }
 }

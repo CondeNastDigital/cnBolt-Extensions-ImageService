@@ -2,6 +2,9 @@
 namespace Bolt\Extension\CND\ImageService\Connector;
 
 use Bolt\Application;
+use Bolt\Extension\CND\ImageService\Extension;
+use Bolt\Filesystem\Filesystem;
+use Bolt\Filesystem\Handler\File;
 use Bolt\Filesystem\Handler\Image\Info;
 use Bolt\Storage\Entity\Content;
 use Bolt\Extension\CND\ImageService\Image;
@@ -262,13 +265,13 @@ class ContentConnector implements IConnector
         $targetfolder = str_replace("%year%", date("Y"), $targetfolder);
         $targetfolder = str_replace("%month%", date("m"), $targetfolder);
 
-        /* @var UploadedFile[] $files */
-        $request = Request::createFromGlobals();
-        $files = $request->files->all();
+        $FileService = $this->container[Extension::APP_EXTENSION_KEY.".file"];
 
         foreach($images as $idx => &$image){
             // Check if a file was posted
-            if(!isset($files[$image->id])){
+            /* @var File $file */
+            $file = $FileService->getFile($image->id);
+            if(!$file){
                 $messages[] = [
                     "type" => IConnector::RESULT_TYPE_ERROR,
                     "code" => IConnector::RESULT_CODE_ERRNOFILE,
@@ -277,14 +280,12 @@ class ContentConnector implements IConnector
                 unset($images[$idx]);
                 continue;
             }
-            
-            $filesource = $files[$image->id]->getPathName();
-            $filename   = $files[$image->id]->getClientOriginalName();
-            $size       = $files[$image->id]->getSize();
-            $ext        = $files[$image->id]->getClientOriginalExtension();
 
-            $parts = pathinfo($filename);
-            $filename = $this->container["slugify"]->slugify($parts["filename"]).".".$ext;
+            $filename   = $file->getFilename();
+            $size       = $file->getSize();
+            $ext        = $file->getExtension();
+
+            $filename = $this->container["slugify"]->slugify($filename).".".$ext;
 
             // Validation Config
             $allowedExtensions = $this->config['security']['allowed-extensions'];
@@ -305,6 +306,7 @@ class ContentConnector implements IConnector
                 $messages[] = [
                     "type" => IConnector::RESULT_TYPE_ERROR,
                     "code" => IConnector::RESULT_CODE_ERRFILESIZE,
+                    "size" => $size,
                     "id" => $image->id
                 ];
                 unset($images[$idx]);
@@ -322,23 +324,24 @@ class ContentConnector implements IConnector
                 continue;
             }
 
-            $job = [
-                "name" => $filename,
-                "tmp_name" => $filesource
-            ];
-
-            $finalfilename = $this->processUpload($targetfolder, $job);
+            $finalfilename = $this->processUpload($targetfolder, $file);
 
             // On success a content object is created
             if($finalfilename) {
 
-                $slug = $this->config["contentype"];
+                $contenttypeslug = $this->config["contentype"];
+                $slug = $this->container["slugify"]->slugify($targetfolder."-".$filename);
 
                 /* @var Repository $repo */
-                $repo = $this->container['storage']->getRepository($slug);
-                /* @var Content $content */
-                $content = $repo->create(['contenttype' => $slug, 'status' => 'published']);
-                $content->setSlug($this->container["slugify"]->slugify($targetfolder."-".$filename));
+                $repo = $this->container['storage']->getRepository($contenttypeslug);
+
+                $content = $repo->findOneBy(["slug" => $slug]);
+                if(!$content){
+                    /* @var Content $content */
+                    $content = $repo->create(['contenttype' => $contenttypeslug, 'status' => 'published']);
+                    $content->setSlug($this->container["slugify"]->slugify($targetfolder."-".$filename));
+                }
+
                 $content->setValues($image->attributes);
                 $content->set("image", ["file" => $finalfilename]);
 
@@ -495,7 +498,7 @@ class ContentConnector implements IConnector
      * @param Image $image
      * @param bool $purge
      * @param Content|boolean $content     ypu may provide the content object to use. If not, the correct one will be fetched automatically
-     * @return void
+     * @return boolean
      */
     protected function updateImageData(Image $image, $purge = false, $content = false){
 
@@ -503,13 +506,13 @@ class ContentConnector implements IConnector
 
         // Check if we have a file already and it's cache has not run out
         if(!$purge && $info[Image::INFO_CUSTOM] && $info[Image::INFO_CACHED] + $this->config["cache"] > time())
-           return;
+           return false;
 
         // Select Content for our image object
         if(!$content)
             $content = $this->getContent($image);
         if(!$content)
-            return;
+            return false;
 
         // Since Bolt's refactoring of the Content object in 3.1+, there is no longer any clean solution to access a
         // content objects values (the old $content->getValues method)
@@ -532,12 +535,15 @@ class ContentConnector implements IConnector
         // Fill image info
         $imageField = $content->get("image");
 
-        if(!isset($imageField) || !file_exists("files/".$imageField["file"]))
-            return;
+        /* @var Filesystem $filesystem */
+        $filesystem = $this->container["filesystem"];
+
+        if(!isset($imageField) || !$filesystem->has("files://".$imageField["file"]))
+            return false;
 
         /* @var Info $info */
-        $info = $this->container["filesystem"]->getImageInfo("files://".$imageField["file"]);
-        $size = $this->container["filesystem"]->getSize("files://".$imageField["file"]);
+        $info = $filesystem->getImageInfo("files://".$imageField["file"]);
+        $size = $filesystem->getSize("files://".$imageField["file"]);
 
         $image->info = [
             Image::INFO_HEIGHT => $info->getHeight(),
@@ -573,31 +579,19 @@ class ContentConnector implements IConnector
      * Copied from \Bolt\Controller\Backend\FileManager::processUpload()
      *
      * @param string $path
-     * @param array  $fileToProcess
+     * @param File  $fileToProcess
      *
      * @return bool
      */
-    protected function processUpload($path, $fileToProcess)
-    {
-        $this->container['upload.namespace'] = "files";
+    protected function processUpload($path, $fileToProcess) {
+        $origin = $fileToProcess->getFullPath();
+        $target = "files://".$path."/".$fileToProcess->getFilename();
 
-        /* @var UploadHandler $handler */
-        $handler = $this->container['upload'];
-        $handler->setPrefix($path . '/');
-        try {
-            $result = $handler->process($fileToProcess);
-        } catch (IOException $e) {
-            return false;
-        }
+        /* @var Filesystem $filesystem */
+        $filesystem = $this->container["filesystem"];
+        $filesystem->copy($origin, $target);
 
-        if (!$result->isValid()) {
-            return false;
-        }
-
-        $name = $result->name;
-        $result->confirm();
-
-        return $name;
+        return $path."/".$fileToProcess->getFilename();
     }
 
     /**
