@@ -66,7 +66,7 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                         cache: defs,
                         serviceUrl: '{{ paths.bolt }}image-service/image',
                         serviceName: '{{ field.service|default(config.defaultService) }}',
-                        {% if field.maxFiles %}
+                        {% if field.maxFiles|default %}
                         maxFiles: {{ field.maxFiles }},
                         {% endif %}
                         maxFileSize: {{ field.maxFileSize|default(config.security['max-size']) }},
