@@ -16,6 +16,11 @@ class ImageServiceField extends FieldTypeBase
         return 'text';
     }
 
+    public function getStorageOptions()
+    {
+        return ['notnull' => false];
+    }    
+    
     public function getTemplate(){
         return '_' . $this->getName() . '.twig';
     }
