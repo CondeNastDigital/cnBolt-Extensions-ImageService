@@ -67,7 +67,9 @@ class ImageService {
         $mode    = $mode    ? $mode    : $defaults["mode"];
         $format  = $format  ? $format  : $defaults["format"];
         $quality = $quality ? $quality : $defaults["quality"];
-        $options = $options ? $options : $defaults["options"];
+        $options = $options ? $options : [];
+    
+        $options = $options + $defaults["options"];
 
         if(!$image->service || !$image->id || !isset($this->connectors[$image->service]))
             return null;
