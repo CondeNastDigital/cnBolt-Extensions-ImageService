@@ -435,9 +435,9 @@ class CloudinaryConnector implements IConnector
     public function cleanModifiers( &$modifiers) {
     
         // Clean Gravity Parameter
-        $mode_whitelist = ["fill"];
+        $mode_whitelist = [self::MODE_FILL];
         
-        if(isset($modifiers['gravity']) && !in_array($modifiers['mode'], $mode_whitelist))
+        if(isset($modifiers['gravity']) && !in_array($modifiers['crop'], $mode_whitelist))
             unset($modifiers['gravity']);
         
         // Add  Other clean functions here
