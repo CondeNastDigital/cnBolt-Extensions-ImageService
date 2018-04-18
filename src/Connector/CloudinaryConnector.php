@@ -75,7 +75,7 @@ class CloudinaryConnector implements IConnector
         if(in_array($format, $this->supportedFormats()))
             $modifiers["format"] = $format;
         if($quality)
-            $modifiers["quality"] = $quality;
+            $modifiers["quality"] = (int)$quality;
         
         if(is_array($options))
             $modifiers = $modifiers + $options;
