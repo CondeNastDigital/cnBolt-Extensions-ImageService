@@ -74,11 +74,16 @@ class CloudinaryConnector implements IConnector
             $modifiers["height"] = (int)$height;
         if(in_array($format, $this->supportedFormats()))
             $modifiers["format"] = $format;
+        if(isset($options['gravity']))
+            $modifiers["quality"] = (int)$quality;
         if($quality)
             $modifiers["quality"] = (int)$quality;
         
         if(is_array($options))
             $modifiers = $modifiers + $options;
+        
+        // Changes or removes worng configurations
+        $this->cleanModifiers($modifiers);
         
         return Cloudinary::cloudinary_url($image->id, $modifiers);
     }
@@ -420,6 +425,25 @@ class CloudinaryConnector implements IConnector
         ];
         
         return $image;
+    }
+    
+    /**
+     * TODO: Make an advanced check if more of those rules come
+     * Cleans the modiers array from the known combinations of parameter
+     * which are not competible with eachother
+     */
+    public function cleanModifiers( &$modifiers) {
+    
+        // Clean Gravity Parameter
+        $mode_whitelist = ["fill"];
+        
+        if(isset($modifiers['gravity']) && !in_array($modifiers['mode'], $mode_whitelist))
+            unset($modifiers['gravity']);
+        
+        // Add  Other clean functions here
+        
+        // Return the changed set of modifiers
+        return $modifiers;
     }
     
     /**
