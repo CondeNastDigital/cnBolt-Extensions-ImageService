@@ -74,8 +74,6 @@ class CloudinaryConnector implements IConnector
             $modifiers["height"] = (int)$height;
         if(in_array($format, $this->supportedFormats()))
             $modifiers["format"] = $format;
-        if(isset($options['gravity']))
-            $modifiers["quality"] = (int)$quality;
         if($quality)
             $modifiers["quality"] = (int)$quality;
         
