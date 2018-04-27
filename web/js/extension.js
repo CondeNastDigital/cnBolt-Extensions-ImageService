@@ -3705,6 +3705,11 @@ define('ImageServiceListItem',[],function () {
                     dataModel: DataModel
                 }
             });
+
+            for(var attr in data.definitions)
+                if(systemAttributes.hasOwnProperty(attr))
+                    delete data.definitions[attr];
+
             attributes = Attributes.create({
                 prefix: id,
                 values: attrValues,
