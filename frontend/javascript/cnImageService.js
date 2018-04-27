@@ -221,7 +221,8 @@ require([
             items: JSON.parse(that.store.val()),
             maxItems: data.maxFiles || null,
             config: {
-                events: that.config.events
+                events: that.config.events,
+                systemAttributes: that.config.systemAttributes
             },
             factory: {
                 listItem: that.listItemFactory,
@@ -287,7 +288,6 @@ require([
                     callback: function (newItems) {
 
                         var settings = that.settings.getData();
-
                         that.updateStore(Object.assign({}, settings, {items: newItems}));
 
                     },

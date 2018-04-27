@@ -22,6 +22,7 @@ define(["ImageServiceUniqueId"],function (ImageServiceUniqueId) {
         var Preview = data.preview;
         var Attributes = data.attributes;
         var DataModel = data.dataModel;
+        var Config = data.config;
 
         var attributeDefinition = data.definitions.attributes;
         var service = data.service;
@@ -33,7 +34,8 @@ define(["ImageServiceUniqueId"],function (ImageServiceUniqueId) {
             return new Model(
                 Object.assign({
                         config: {
-                            events: Events
+                            events: Events,
+                            systemAttributes: Config.systemAttributes
                         },
                         factory: {
                             dataModel: DataModel,

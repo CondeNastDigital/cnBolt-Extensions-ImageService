@@ -124,10 +124,6 @@ define(function () {
                 }
             });
 
-            for(var attr in data.definitions)
-                if(systemAttributes.hasOwnProperty(attr))
-                    delete data.definitions[attr];
-
             attributes = Attributes.create({
                 prefix: id,
                 values: attrValues,
@@ -164,10 +160,12 @@ define(function () {
             var attrValues = attributes.getValues();
 
             for (var i in definitions){
-                if(systemAttributes.hasOwnProperty(i))
+                if(systemAttributes.hasOwnProperty(i)) {
                     item[i] = attrValues[i];
-                else
+                    delete item.attributes[i];
+                } else {
                     item.attributes[i] = attrValues[i];
+                }
             }
 
             return item;
