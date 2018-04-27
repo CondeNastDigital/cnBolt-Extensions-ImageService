@@ -26,6 +26,7 @@ define(function () {
         var DataModel = data.factory.dataModel;
         var EventsArena = data.eventsArena;
         var IdGenerator = data.factory.idGenerator;
+        var systemAttributes = data.config.systemAttributes || {};
 
         /**
          * Has the info been changed flag
@@ -96,7 +97,12 @@ define(function () {
             id = that.generateId(item.id);//data.prefix + '_' + item.id.replace(/[^a-z0-9\_\-]+/ig, '_');
 
             // Prepares the attributes
-            var attrValues = jQuery.extend({}, item.attributes, {tags: item.tags});
+            var attrValues = jQuery.extend({}, item.attributes);
+
+            // Set the system attribute values
+            for(var attr in systemAttributes)
+                if(item.hasOwnProperty(attr))
+                    attrValues[attr] = item[attr];
 
             // tries to retrieve the item url
             that.presetImage();
@@ -152,16 +158,15 @@ define(function () {
 
             var attrValues = attributes.getValues();
 
-            // Gets the internal values
-            item.tags = attrValues.tags;
-
-            for (var i in definitions)
-                item.attributes[i] = attrValues[i];
+            for (var i in definitions){
+                if(systemAttributes.hasOwnProperty(i))
+                    item[i] = attrValues[i];
+                else
+                    item.attributes[i] = attrValues[i];
+            }
 
             return item;
         };
-
-
 
         /**
          * Returns the loaded file. Needed when saving the new entities

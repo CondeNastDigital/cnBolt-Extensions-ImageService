@@ -2939,6 +2939,7 @@ define('ImageServicePresets',['ImageServiceSettingsInterface'], function (ImageS
         ImageServiceSettingsInterface.call(this, data);
 
         var Labels = data.config.labels;
+        var systemAttributes = data.config.systemAttributes;
 
         // Where the UI resides
         that.container = null;
@@ -2958,10 +2959,16 @@ define('ImageServicePresets',['ImageServiceSettingsInterface'], function (ImageS
                 return model;
 
             var values = that.attributes.getValues();
-            model.tags = values.tags;
-            delete values['tags'];
 
-            return Object.assign(model.attributes, values);
+            for(var attr in values) {
+                if(systemAttributes.hasOwnProperty((attr)))
+                    model[attr] = values[attr];
+                else
+                    model.attributes[attr] = values[attr];
+
+            }
+
+            return model.attributes;
         };
 
         /**
@@ -3601,6 +3608,7 @@ define('ImageServiceListItem',[],function () {
         var DataModel = data.factory.dataModel;
         var EventsArena = data.eventsArena;
         var IdGenerator = data.factory.idGenerator;
+        var systemAttributes = data.config.systemAttributes || {};
 
         /**
          * Has the info been changed flag
@@ -3671,7 +3679,12 @@ define('ImageServiceListItem',[],function () {
             id = that.generateId(item.id);//data.prefix + '_' + item.id.replace(/[^a-z0-9\_\-]+/ig, '_');
 
             // Prepares the attributes
-            var attrValues = jQuery.extend({}, item.attributes, {tags: item.tags});
+            var attrValues = jQuery.extend({}, item.attributes);
+
+            // Set the system attribute values
+            for(var attr in systemAttributes)
+                if(item.hasOwnProperty(attr))
+                    attrValues[attr] = item[attr];
 
             // tries to retrieve the item url
             that.presetImage();
@@ -3727,16 +3740,15 @@ define('ImageServiceListItem',[],function () {
 
             var attrValues = attributes.getValues();
 
-            // Gets the internal values
-            item.tags = attrValues.tags;
-
-            for (var i in definitions)
-                item.attributes[i] = attrValues[i];
+            for (var i in definitions){
+                if(systemAttributes.hasOwnProperty(i))
+                    item[i] = attrValues[i];
+                else
+                    item.attributes[i] = attrValues[i];
+            }
 
             return item;
         };
-
-
 
         /**
          * Returns the loaded file. Needed when saving the new entities
@@ -6989,7 +7001,8 @@ require([
                 prefix: 'presets',
                 config: {
                     events: that.config.events,
-                    labels: that.config.labels.ImageServicePresets
+                    labels: that.config.labels.ImageServicePresets,
+                    systemAttributes: that.config.systemAttributes
                 },
                 values: {},
                 factory: {

@@ -18,6 +18,7 @@ define(['ImageServiceSettingsInterface'], function (ImageServiceSettingsInterfac
         ImageServiceSettingsInterface.call(this, data);
 
         var Labels = data.config.labels;
+        var systemAttributes = data.config.systemAttributes;
 
         // Where the UI resides
         that.container = null;
@@ -37,10 +38,16 @@ define(['ImageServiceSettingsInterface'], function (ImageServiceSettingsInterfac
                 return model;
 
             var values = that.attributes.getValues();
-            model.tags = values.tags;
-            delete values['tags'];
 
-            return Object.assign(model.attributes, values);
+            for(var attr in values) {
+                if(systemAttributes.hasOwnProperty((attr)))
+                    model[attr] = values[attr];
+                else
+                    model.attributes[attr] = values[attr];
+
+            }
+
+            return model.attributes;
         };
 
         /**

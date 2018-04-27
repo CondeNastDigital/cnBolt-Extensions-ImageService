@@ -190,7 +190,8 @@ require([
                 prefix: 'presets',
                 config: {
                     events: that.config.events,
-                    labels: that.config.labels.ImageServicePresets
+                    labels: that.config.labels.ImageServicePresets,
+                    systemAttributes: that.config.systemAttributes
                 },
                 values: {},
                 factory: {
