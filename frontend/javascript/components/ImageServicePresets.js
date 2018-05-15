@@ -41,10 +41,9 @@ define(['ImageServiceSettingsInterface'], function (ImageServiceSettingsInterfac
 
             for(var attr in values) {
                 if(systemAttributes.hasOwnProperty((attr)))
-                    model[attr] = values[attr];
+                    model[attr] = values[attr] ? values[attr] : systemAttributes[attr].default;
                 else
                     model.attributes[attr] = values[attr];
-
             }
 
             return model.attributes;

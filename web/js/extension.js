@@ -2237,10 +2237,14 @@ define('ImageServiceImageModelFactory',[],function() {
 
             defaults = defaults || {};
 
-            var result = JSON.parse(JSON.stringify(model));
+            var result = Object.assign( {}, model );
+
             presetters.forEach(function (presetter) {
                 presetter.apply(result);
             });
+
+            if(result.hasOwnProperty('tags') && !result.tags instanceof Array)
+                result.tags = [];
 
             return Object.assign(result, defaults);
         };
@@ -2290,6 +2294,7 @@ define('ImageServiceListItemFactory',["ImageServiceUniqueId"],function (ImageSer
         var Preview = data.preview;
         var Attributes = data.attributes;
         var DataModel = data.dataModel;
+        var Config = data.config;
 
         var attributeDefinition = data.definitions.attributes;
         var service = data.service;
@@ -2301,7 +2306,8 @@ define('ImageServiceListItemFactory',["ImageServiceUniqueId"],function (ImageSer
             return new Model(
                 Object.assign({
                         config: {
-                            events: Events
+                            events: Events,
+                            systemAttributes: Config.systemAttributes
                         },
                         factory: {
                             dataModel: DataModel,
@@ -2962,10 +2968,9 @@ define('ImageServicePresets',['ImageServiceSettingsInterface'], function (ImageS
 
             for(var attr in values) {
                 if(systemAttributes.hasOwnProperty((attr)))
-                    model[attr] = values[attr];
+                    model[attr] = values[attr] ? values[attr] : systemAttributes[attr].default;
                 else
                     model.attributes[attr] = values[attr];
-
             }
 
             return model.attributes;
@@ -3422,7 +3427,8 @@ define('ImageServiceConfig',{
     systemAttributes: {
         tags: {
             type: 'tag',
-            label: 'Tags'
+            label: 'Tags',
+            default: []
         }
     },
 
@@ -3706,10 +3712,6 @@ define('ImageServiceListItem',[],function () {
                 }
             });
 
-            for(var attr in data.definitions)
-                if(systemAttributes.hasOwnProperty(attr))
-                    delete data.definitions[attr];
-
             attributes = Attributes.create({
                 prefix: id,
                 values: attrValues,
@@ -3746,10 +3748,12 @@ define('ImageServiceListItem',[],function () {
             var attrValues = attributes.getValues();
 
             for (var i in definitions){
-                if(systemAttributes.hasOwnProperty(i))
+                if(systemAttributes.hasOwnProperty(i)) {
                     item[i] = attrValues[i];
-                else
+                    delete item.attributes[i];
+                } else {
                     item.attributes[i] = attrValues[i];
+                }
             }
 
             return item;
@@ -7037,7 +7041,8 @@ require([
             items: JSON.parse(that.store.val()),
             maxItems: data.maxFiles || null,
             config: {
-                events: that.config.events
+                events: that.config.events,
+                systemAttributes: that.config.systemAttributes
             },
             factory: {
                 listItem: that.listItemFactory,
@@ -7103,7 +7108,6 @@ require([
                     callback: function (newItems) {
 
                         var settings = that.settings.getData();
-
                         that.updateStore(Object.assign({}, settings, {items: newItems}));
 
                     },

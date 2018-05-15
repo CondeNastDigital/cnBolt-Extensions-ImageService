@@ -61,10 +61,14 @@ define(function() {
 
             defaults = defaults || {};
 
-            var result = JSON.parse(JSON.stringify(model));
+            var result = Object.assign( {}, model );
+
             presetters.forEach(function (presetter) {
                 presetter.apply(result);
             });
+
+            if(result.hasOwnProperty('tags') && !result.tags instanceof Array)
+                result.tags = [];
 
             return Object.assign(result, defaults);
         };

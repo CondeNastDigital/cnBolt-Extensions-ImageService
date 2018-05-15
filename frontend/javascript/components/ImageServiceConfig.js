@@ -10,7 +10,8 @@ define({
     systemAttributes: {
         tags: {
             type: 'tag',
-            label: 'Tags'
+            label: 'Tags',
+            default: []
         }
     },
 
