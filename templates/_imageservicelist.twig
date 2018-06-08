@@ -71,7 +71,7 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                         {% endif %}
                         maxFileSize: {{ field.maxFileSize|default(config.security['max-size']) }},
                         dataElement: '[name="{{ name }}"]',
-                        hostElement: '#imageservice-{{ name }}-list',
+                        hostElement: '[id="imageservice-{{ name }}-list"]',
                         attributes: {{ field.attributes|default([])|json_encode|raw }},
                         globals: {{ field.globals|default([])|json_encode|raw }}
                     });
