@@ -241,8 +241,8 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
 
             var container = $('<li class="row"><label class="col-xs-12 col-sm-3 col-md-3" for="' + fieldName + '">' + fieldLabel + '</label><div class="col-xs-12 col-sm-9 col-md-9 no-drag" ><input type="checkbox"data-name="' + fieldName + '" value=""></div></li>');
 
-            container.find('checkbox').val(fieldValue);
-            container.find('checkbox').attr('value', fieldValue);
+            container.find('checkbox').val(checkboxValue);
+            container.find('checkbox').attr('value', checkboxValue);
             
             container.on('click', function (event) {
                 that.value = event.target.checked ? checkboxValue : '';
