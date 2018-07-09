@@ -168,7 +168,9 @@ define(function () {
                 }
             }
 
-            return item;
+            // Breaks the Pointers of the JS Object
+            var ret = JSON.stringify(item);
+            return JSON.parse(ret);
         };
 
         /**
