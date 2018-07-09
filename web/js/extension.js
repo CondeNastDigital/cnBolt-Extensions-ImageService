@@ -3756,7 +3756,9 @@ define('ImageServiceListItem',[],function () {
                 }
             }
 
-            return item;
+            // Breaks the Pointers of the JS Object
+            var ret = JSON.stringify(item);
+            return JSON.parse(ret);
         };
 
         /**
@@ -6652,14 +6654,6 @@ define('ImageServiceAttributes',[],function () {
         that.container = null;
 
         /**
-         * Gets the set of attribute values
-         * @returns {Array|*}
-         */
-        that.getValues = function () {
-            return that.values;
-        };
-
-        /**
          * Sets the attribute values
          * @param values
          */
@@ -6700,7 +6694,9 @@ define('ImageServiceAttributes',[],function () {
                 that.values[attribute.name] = attribute.getValue();
             });
 
-            return that.values;
+            // Breaks the pointer relations
+            var newValues = JSON.stringify(that.values);
+            return JSON.parse(newValues);
         };
 
         /**
