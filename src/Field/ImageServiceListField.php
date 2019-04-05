@@ -15,7 +15,7 @@ class ImageServiceListField extends FieldTypeBase
     }
 
     public function getStorageType(){
-        return 'text';
+        return Type::getType('text');
     }
     
     public function getTemplate(){
