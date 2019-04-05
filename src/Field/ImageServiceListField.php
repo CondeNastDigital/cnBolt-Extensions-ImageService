@@ -5,7 +5,7 @@ use Bolt\Extension\CND\ImageService\Image;
 use Bolt\Storage\EntityManager;
 use Bolt\Storage\Field\Type\FieldTypeBase;
 use Bolt\Storage\QuerySet;
-use Doctrine\DBAL\Types\Type;
+use MongoDB\BSON\Type;
 
 class ImageServiceListField extends FieldTypeBase
 {
