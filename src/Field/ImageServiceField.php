@@ -5,6 +5,7 @@ use Bolt\Extension\CND\ImageService\Image;
 use Bolt\Storage\EntityManager;
 use Bolt\Storage\Field\Type\FieldTypeBase;
 use Bolt\Storage\QuerySet;
+use Doctrine\DBAL\Types\Type;
 
 class ImageServiceField extends FieldTypeBase
 {
@@ -13,7 +14,7 @@ class ImageServiceField extends FieldTypeBase
     }
 
     public function getStorageType(){
-        return 'text';
+    	return Type::getType('text');
     }
 
     public function getStorageOptions()
