@@ -2756,7 +2756,8 @@ define('ImageServiceFinder',['require'],function (data) {
         that.rowTemplate = function (state) {
             if (state.hasOwnProperty('id')) {
                 var row = $('<div class="imageservice-finder-result col-xs-12"></div>');
-                var preview = $('<div class="col-xs-3 preview" style="background-image: url(\'' + state.info.source + '\');"></div>');
+                var image = '\''+ state.info.source+ '\'';
+                var preview = $('<div class="col-xs-3 preview" style="background-image: url(' + image + ');"></div>');
                 var text = $('<ul class="col-xs-9" ></ul>');
 
                 for (var x in state.attributes) {
