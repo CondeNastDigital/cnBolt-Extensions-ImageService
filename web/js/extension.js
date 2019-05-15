@@ -1,6 +1,6 @@
 (function() {
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 2.3.5 Copyright jQuery Foundation and other contributors.
+ * @license RequireJS 2.3.6 Copyright jQuery Foundation and other contributors.
  * Released under MIT license, https://github.com/requirejs/requirejs/blob/master/LICENSE
  */
 //Not using strict: uneven strict support in browsers, #392, and causes
@@ -12,7 +12,7 @@ var requirejs, require, define;
 (function (global, setTimeout) {
     var req, s, head, baseElement, dataMain, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath,
-        version = '2.3.5',
+        version = '2.3.6',
         commentRegExp = /\/\*[\s\S]*?\*\/|([^:"'=]|^)\/\/.*$/mg,
         cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
@@ -166,7 +166,7 @@ var requirejs, require, define;
      * @returns {Error}
      */
     function makeError(id, msg, err, requireModules) {
-        var e = new Error(msg + '\nhttp://requirejs.org/docs/errors.html#' + id);
+        var e = new Error(msg + '\nhttps://requirejs.org/docs/errors.html#' + id);
         e.requireType = id;
         e.requireModules = requireModules;
         if (err) {
@@ -2756,7 +2756,7 @@ define('ImageServiceFinder',['require'],function (data) {
         that.rowTemplate = function (state) {
             if (state.hasOwnProperty('id')) {
                 var row = $('<div class="imageservice-finder-result col-xs-12"></div>');
-                var preview = $('<div class="col-xs-3 preview" style="background-image: url(' + state.info.source + ');"></div>');
+                var preview = $('<div class="col-xs-3 preview" style="background-image: url(\'' + state.info.source + '\');"></div>');
                 var text = $('<ul class="col-xs-9" ></ul>');
 
                 for (var x in state.attributes) {
