@@ -2,22 +2,27 @@
 Use image services as replacement for Bolt's image fields.
 The service uses different connectors to local or cloud services.
 
-A connector for Cloudinary is already included.
-
-There are no other connectors available at the moment.
+The service contains connectors for
+ - **Cloudinary** stores images and their attributes on http://cloudinary.com
+ - **Content** stores images and their attributes inside a configurable contentype in Bolt
 
 ## Installation
 
 1.) Install via composer or bolt's marketplace.
 ```
 php app/nut extensions:install
+```
 
 If the nut command is not located in the app folder, you could also find it in vendor/bin/nut.
 
-```
 Installing or updating via the Bolt admin interface is also possible but would require the web-server's user to have proper access to the GitHup repository. This is usually not the case.
 
 ## Configuration
+
+A new field type `imageservicelist` is available and takes the following configuration parameters:
+
+- **attributes** contains an array of fields similar to Bolt's own fields. Each image will have these fields. (These fields try to mimic the basic bolt fields, but they are custom for this extension!). Availble types are `text`, `textarea`, `checkbox`, `select`.
+- **globals** contains an array of fields for the imageservicelist itself. If you use the field as a gallery, this property could store the galleries title or layout.
 
 Add the following field to your content type, where you want to add the extension. E.g. in pages:
 
@@ -31,6 +36,16 @@ pages:
         imageservice:
             type: imageservicelist
             label: CouldImage
+            globals: &ImageServiceGlobals 
+                title:
+                    type: text
+                    label: Gallery Title
+                layout:
+                    type: select
+                    label: Gallery Layout
+					options:
+					    sm: Small
+						lg: Large
             attributes: &ImageServiceAttributes
                 title:
                     type: text
@@ -46,7 +61,16 @@ pages:
                     type: checkbox
                     label: checkbox
                     value: 1
-                    
+```
+
+Another example on how to configure the imageservicelist as a section inside the structured-content field. (See that extension)
+
+```
+pages:
+    name: Pages
+    singular_name: Page
+    fields:
+      
         # Image Service as a part of Bolt-Structured-Content (SirTrevor)
         structuredcontent:
             type: structuredcontentfield
@@ -56,42 +80,39 @@ pages:
                 imageService:
                     maxFiles: 1
                     maxFileSize: 20000
-                    attributes: 
-                        <<: *ImageServiceAttributes
+					globals: *ImageServiceGlobals
+                    attributes: *ImageServiceAttributes
 ```
 
-Change the configuration file for this extension (created after instalation and first call to bolt) 
+Change the configuration file for this extension according to your needs (created after instalation and first call to bolt) 
 in app/config/extensions/imageservice.cnd.yml
 
 ```
 # A list of all active image services with their class names and config variables
-
-security: &security
-    allowed-extensions: [jpeg, jpg, JPG, png, gif]
-    max-size: 5000000
-
 connectors:
 
     # A sample config for a local content connector that stores images in a bolt contenttype
     content:
-        class: Bolt\Extension\CND\ImageService\Connector\ContentConnector
         contentype: images
-        cache: 1        # number of seconds or false for never cached
+        cache: 60       # number of seconds or false for never cached
         delete: true    # if true, content object of the image will be deleted. If not, status will only be changed to "held"
         path: "imageservice/%year%/%month%" # Taregt folder for uploaded files. Defaults to "%year%/%month%". Allowed placeholders are %year%, %month%
-        security: *security
-        tagtype: tags   # Use this taxonomy for tags
+        security:
+			allowed-extensions: [jpeg, jpg, JPG, png, gif]
+			max-size: 5000000
+        tagtype: tags   # tags on an image will be stored in this taxonomy of bolt
         
     # a sample config for cloudinary that stores all images in cloudinary    
     cloudinary:
-        class: Bolt\Extension\CND\ImageService\Connector\CloudinaryConnector
         cloud-name:           my-cloud
         api-key:              12345678901234567890
         api-secret:           myapisecretinmyfabulouscloud
         api-base-url:         https://api.cloudinary.com/v1_1/my-cloud
         base-delivery-url:    https://res.cloudinary.com/my-cloud
         secure-delivery-url:  https://res.cloudinary.com/my-cloud
-        security: *security
+        security:
+			allowed-extensions: [jpeg, jpg, JPG, png, gif]
+			max-size: 5000000
         upload-defaults:
             unique_filename: true
             overwrite: false
