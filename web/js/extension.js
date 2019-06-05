@@ -6781,7 +6781,7 @@ define('ImageServiceSirTrevor',['ImageServiceConfig'],function(ImageServiceConfi
                 if(this.custom.label)
                     $(this.$('.prefix')).append($('<div class="block-title">'+ this.custom.label +'</div>'));
 
-                var config = SirTrevor.getInstance(this.instanceID).options.options.Imageservice || {};
+                var config = this.custom;
                 // Merges the Field config with the defaults
                 var defaults = {
                     dataElement: this.$('.data-target'),
@@ -6822,11 +6822,12 @@ define('ImageServiceSirTrevor',['ImageServiceConfig'],function(ImageServiceConfi
                     if(!(options[block] instanceof Object))
                         return;
 
-                    if(!options[block].hasOwnProperty('type') && block!=='Imageservice' )
+                    if(!(options[block].hasOwnProperty('type') || block=='Imageservice') )
                         return;
 
                     if(block!=='Imageservice' && options[block].type !== 'imageservice')
                         return;
+
 
                     var newBlock = {
                         type: block,
@@ -6846,10 +6847,6 @@ define('ImageServiceSirTrevor',['ImageServiceConfig'],function(ImageServiceConfi
     };
 
 });
-
-
-
-
 
 
 var CnImageServiceBackendConfig = {
