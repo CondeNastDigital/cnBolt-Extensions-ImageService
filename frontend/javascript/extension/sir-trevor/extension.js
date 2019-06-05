@@ -99,11 +99,12 @@ define(['ImageServiceConfig'],function(ImageServiceConfig){
                     if(!(options[block] instanceof Object))
                         return;
 
-                    if(!options[block].hasOwnProperty('type') && block!=='Imageservice' )
+                    if(!(options[block].hasOwnProperty('type') || block=='Imageservice') )
                         return;
 
                     if(block!=='Imageservice' && options[block].type !== 'imageservice')
                         return;
+
 
                     var newBlock = {
                         type: block,
@@ -123,7 +124,3 @@ define(['ImageServiceConfig'],function(ImageServiceConfig){
     };
 
 });
-
-
-
-
