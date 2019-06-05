@@ -9,13 +9,18 @@ define(['ImageServiceConfig'],function(ImageServiceConfig){
 
             imageServiceInstance: null,
 
+            custom: {
+                type: 'imageservice',
+                label: 'Image'
+            },
+
             type: 'imageservice',
-            title: function() { return 'Image'; },
+            title: function() { return this.custom.label ? this.custom.label : 'Image'; },
             icon_name: 'default',
             toolbarEnabled: true,
             // Custom html that is shown when a block is being edited.
             textable: true,
-            editorHTML: '<div class="frontend-target"></div><textarea type="text" class="data-target">{"items":[]}</textarea>',
+            editorHTML: '<div class="prefix"></div><div class="frontend-target"></div><textarea type="text" class="data-target">{"items":[]}</textarea>',
 
             /**
              * Loads the json data in to the field
@@ -50,6 +55,9 @@ define(['ImageServiceConfig'],function(ImageServiceConfig){
                 // Gives the container an unique id
                 $(this.$('.frontend-target')).attr('id', 'ImageService' + String(new Date().valueOf()));
 
+                if(this.custom.label)
+                    $(this.$('.prefix')).append($('<div class="block-title">'+ this.custom.label +'</div>'));
+
                 var config = SirTrevor.getInstance(this.instanceID).options.options.Imageservice || {};
                 // Merges the Field config with the defaults
                 var defaults = {
@@ -77,10 +85,38 @@ define(['ImageServiceConfig'],function(ImageServiceConfig){
 
         };
 
-        that.init = function(blockOptions) {
+        /*that.init = function(blockOptions) {
             if( typeof(SirTrevor) == "object" ) {
                 SirTrevor.Blocks.Imageservice = SirTrevor.Block.extend(protoBlock);
             }
+        };*/
+
+        that.init = function(options) {
+
+            if(typeof(SirTrevor)) {
+                Object.keys(options).forEach(function (block) {
+
+                    if(!(options[block] instanceof Object))
+                        return;
+
+                    if(!options[block].hasOwnProperty('type') && block!=='Imageservice' )
+                        return;
+
+                    if(block!=='Imageservice' && options[block].type !== 'imageservice')
+                        return;
+
+                    var newBlock = {
+                        type: block,
+                        custom: options[block]
+                    };
+
+                    if (typeof(SirTrevor.Blocks[block]) === 'undefined') {
+                        newBlock = jQuery.extend({}, protoBlock, newBlock);
+                        SirTrevor.Blocks[block] = SirTrevor.Block.extend(newBlock);
+                    }
+                });
+            }
+
         };
 
         return that;

@@ -1,6 +1,6 @@
 (function() {
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 2.3.6 Copyright jQuery Foundation and other contributors.
+ * @license RequireJS 2.3.5 Copyright jQuery Foundation and other contributors.
  * Released under MIT license, https://github.com/requirejs/requirejs/blob/master/LICENSE
  */
 //Not using strict: uneven strict support in browsers, #392, and causes
@@ -12,7 +12,7 @@ var requirejs, require, define;
 (function (global, setTimeout) {
     var req, s, head, baseElement, dataMain, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath,
-        version = '2.3.6',
+        version = '2.3.5',
         commentRegExp = /\/\*[\s\S]*?\*\/|([^:"'=]|^)\/\/.*$/mg,
         cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
@@ -166,7 +166,7 @@ var requirejs, require, define;
      * @returns {Error}
      */
     function makeError(id, msg, err, requireModules) {
-        var e = new Error(msg + '\nhttps://requirejs.org/docs/errors.html#' + id);
+        var e = new Error(msg + '\nhttp://requirejs.org/docs/errors.html#' + id);
         e.requireType = id;
         e.requireModules = requireModules;
         if (err) {
@@ -6732,13 +6732,18 @@ define('ImageServiceSirTrevor',['ImageServiceConfig'],function(ImageServiceConfi
 
             imageServiceInstance: null,
 
+            custom: {
+                type: 'imageservice',
+                label: 'Image'
+            },
+
             type: 'imageservice',
-            title: function() { return 'Image'; },
+            title: function() { return this.custom.label ? this.custom.label : 'Image'; },
             icon_name: 'default',
             toolbarEnabled: true,
             // Custom html that is shown when a block is being edited.
             textable: true,
-            editorHTML: '<div class="frontend-target"></div><textarea type="text" class="data-target">{"items":[]}</textarea>',
+            editorHTML: '<div class="prefix"></div><div class="frontend-target"></div><textarea type="text" class="data-target">{"items":[]}</textarea>',
 
             /**
              * Loads the json data in to the field
@@ -6773,6 +6778,9 @@ define('ImageServiceSirTrevor',['ImageServiceConfig'],function(ImageServiceConfi
                 // Gives the container an unique id
                 $(this.$('.frontend-target')).attr('id', 'ImageService' + String(new Date().valueOf()));
 
+                if(this.custom.label)
+                    $(this.$('.prefix')).append($('<div class="block-title">'+ this.custom.label +'</div>'));
+
                 var config = SirTrevor.getInstance(this.instanceID).options.options.Imageservice || {};
                 // Merges the Field config with the defaults
                 var defaults = {
@@ -6800,10 +6808,38 @@ define('ImageServiceSirTrevor',['ImageServiceConfig'],function(ImageServiceConfi
 
         };
 
-        that.init = function(blockOptions) {
+        /*that.init = function(blockOptions) {
             if( typeof(SirTrevor) == "object" ) {
                 SirTrevor.Blocks.Imageservice = SirTrevor.Block.extend(protoBlock);
             }
+        };*/
+
+        that.init = function(options) {
+
+            if(typeof(SirTrevor)) {
+                Object.keys(options).forEach(function (block) {
+
+                    if(!(options[block] instanceof Object))
+                        return;
+
+                    if(!options[block].hasOwnProperty('type') && block!=='Imageservice' )
+                        return;
+
+                    if(block!=='Imageservice' && options[block].type !== 'imageservice')
+                        return;
+
+                    var newBlock = {
+                        type: block,
+                        custom: options[block]
+                    };
+
+                    if (typeof(SirTrevor.Blocks[block]) === 'undefined') {
+                        newBlock = jQuery.extend({}, protoBlock, newBlock);
+                        SirTrevor.Blocks[block] = SirTrevor.Block.extend(newBlock);
+                    }
+                });
+            }
+
         };
 
         return that;
