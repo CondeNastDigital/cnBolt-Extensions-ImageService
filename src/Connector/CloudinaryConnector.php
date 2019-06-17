@@ -236,8 +236,6 @@ class CloudinaryConnector implements IConnector
             $size       = $file->getSize();
             $ext        = $file->getExtension();
 
-            $filename = $this->container["slugify"]->slugify($filename).".".$ext;
-
             // Validation Config
             $allowedExtensions = $this->config['security']['allowed-extensions'];
             $allowedMaxSize    = $this->config['security']['max-size'];
@@ -263,8 +261,8 @@ class CloudinaryConnector implements IConnector
                 continue;
             }
             
-            if(!in_array(strtolower($ext), $allowedExtensions) ||        // extension is not allowed
-                !in_array(strtolower($ext), self::supportedFormats())) {  // extension is not supported
+            if(!in_array($ext, $allowedExtensions, true) ||        // extension is not allowed
+                !in_array($ext, self::supportedFormats(), true)) {  // extension is not supported
                 $messages[] = [
                     "type" => IConnector::RESULT_TYPE_ERROR,
                     "code" => IConnector::RESULT_CODE_ERRFILEEXT,

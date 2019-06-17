@@ -29,7 +29,7 @@ class ServiceProvider implements ServiceProviderInterface
 
         $app[Extension::APP_EXTENSION_KEY.".file"] = $app->share(
             function ($app) {
-                return new FileService($app, $this->config);
+                return new FileService($app);
             }
         );
 

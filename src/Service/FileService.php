@@ -60,6 +60,7 @@ class FileService {
      * @param $id
      * @param $filename
      * @param $url
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function setFileUrl($id, $filename, $url){
         if($this->storage->has(self::TMP_PREFIX.$filename))
@@ -79,7 +80,8 @@ class FileService {
 
         /* @var UploadedFile $file */
         foreach($request->files->all() as $id => $file) {
-            $this->setFilePath($id, $file->getClientOriginalName(), $file->getRealPath());
+            $filename = $this->sanitizeFilename($file->getClientOriginalName());
+            $this->setFilePath($id, $filename, $file->getRealPath());
         }
     }
 
@@ -89,6 +91,15 @@ class FileService {
      */
     public function getFile($id){
         return isset($this->files[$id]) ? $this->files[$id] : false;
+    }
+
+    protected function sanitizeFilename($filename){
+        $parts = pathinfo($filename);
+
+        $parts['filename'] = $this->container["slugify"]->slugify($parts['filename']);
+        $parts['extension'] = strtolower($parts['extension']);
+
+        return $parts['filename'].'.'.$parts['extension'];
     }
 
 }
