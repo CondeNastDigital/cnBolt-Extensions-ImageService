@@ -45,6 +45,9 @@ define(["ImageServiceUniqueId"], function (ImageServiceUniqueId) {
 
             item = newImage;
 
+            if (item.info.source === null)
+                return;
+
             if (item.info.source instanceof Promise && item.status != DataModel.statuses.NEW) {
                 item.info.source.then(function (url) {
                     preview.attr('src', String(url).replace(/^http(s?):\/\//i,'//'));
