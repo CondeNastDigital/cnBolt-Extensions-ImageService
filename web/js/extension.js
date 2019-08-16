@@ -6223,9 +6223,6 @@ define('scribe-plugin-sanitizer',[
   };
 
 });
-
-
-//# sourceMappingURL=scribe-plugin-sanitizer.js.map;
 define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scribe-plugin-sanitizer'], function (Scribe, ScribePluginToolbar, CnLinkCreate, ScribePluginSanitizer) {
 
     /**

@@ -1850,6 +1850,3 @@ define('scribe-plugin-sanitizer',[
   };
 
 });
-
-
-//# sourceMappingURL=scribe-plugin-sanitizer.js.map

@@ -14,7 +14,7 @@
         "scribe-plugin-toolbar": "../bower_components/scribe-plugin-toolbar/scribe-plugin-toolbar.min",
         //"scribe-plugin-link-prompt-command": "../bower_components/scribe-plugin-link-prompt-command/scribe-plugin-link-prompt-command.min",
         "scribe-plugin-cn-link-create": "extension/scribe/cn-link-create/cn-link-create",
-        "scribe-plugin-sanitizer": "../bower_components/scribe-plugin-sanitizer/scribe-plugin-sanitizer",
+        "scribe-plugin-sanitizer": "../bower_components/scribe-plugin-sanitizer/scribe-plugin-sanitizer.min",
         "requirejs": "../node_modules/requirejs/require",
         "ImageServiceSettingsInterface": "interfaces/ImageServiceSettingsInterface",
         "ImageServiceUniqueId":"factories/ImageServiceUniqueId",
