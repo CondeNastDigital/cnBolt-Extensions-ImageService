@@ -39,5 +39,12 @@
         "ImageServiceSirTrevor": "extension/sir-trevor/extension",
         "CnImageServiceBolt": "extension/bolt/extension"
     },
-    include: ['requirejs','CnImageServiceBolt']
+    include: ['requirejs','CnImageServiceBolt'],
+    "optimize": "uglify2",
+    "uglify2": {
+        "compress":{
+            "pure_funcs": ["sourceMappingURL"]
+        }
+
+    }
 })
