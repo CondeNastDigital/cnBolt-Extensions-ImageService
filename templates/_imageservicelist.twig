@@ -62,15 +62,12 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                         }
                     };
 
-
+                    // Racing condition in FireFox have been fixed with this time delay
                     var max = 10;
                     var period = null;
                     var imageService = null;
 
                     period = setInterval(function(){
-
-                        console.log(max);
-                        console.log(CnImageService);
 
                         if(max-- < 1)
                             clearInterval(period);
