@@ -6896,7 +6896,6 @@ require([
 
     window.CnImageService = function (data) {
         // ------ Factory --------
-
         var that = this;
         /**
          * Filed Holding the generated JSON

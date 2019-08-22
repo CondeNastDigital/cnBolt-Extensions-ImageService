@@ -62,19 +62,39 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                         }
                     };
 
-                    var imageService = new CnImageService({
-                        cache: defs,
-                        serviceUrl: '{{ paths.bolt }}image-service/image',
-                        serviceName: '{{ field.service|default(config.defaultService) }}',
-                        {% if field.maxFiles|default %}
-                        maxFiles: {{ field.maxFiles }},
-                        {% endif %}
-                        maxFileSize: {{ field.maxFileSize|default(config.security['max-size']) }},
-                        dataElement: '[name="{{ name }}"]',
-                        hostElement: '[id="imageservice-{{ name }}-list"]',
-                        attributes: {{ field.attributes|default([])|json_encode|raw }},
-                        globals: {{ field.globals|default([])|json_encode|raw }}
-                    });
+
+                    var max = 10;
+                    var period = null;
+                    var imageService = null;
+
+                    period = setInterval(function(){
+
+                        console.log(max);
+                        console.log(CnImageService);
+
+                        if(max-- < 1)
+                            clearInterval(period);
+
+                        if(!window.hasOwnProperty('CnImageService'))
+                            return;
+
+                        imageService = new CnImageService({
+                            cache: defs,
+                            serviceUrl: '{{ paths.bolt }}image-service/image',
+                            serviceName: '{{ field.service|default(config.defaultService) }}',
+                            {% if field.maxFiles|default %}
+                            maxFiles: {{ field.maxFiles }},
+                            {% endif %}
+                            maxFileSize: {{ field.maxFileSize|default(config.security['max-size']) }},
+                            dataElement: '[name="{{ name }}"]',
+                            hostElement: '[id="imageservice-{{ name }}-list"]',
+                            attributes: {{ field.attributes|default([])|json_encode|raw }},
+                            globals: {{ field.globals|default([])|json_encode|raw }}
+                        });
+
+                        clearInterval(period);
+
+                    }, 300)
 
                 });
 
