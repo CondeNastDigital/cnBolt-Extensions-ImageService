@@ -120,7 +120,21 @@ connectors:
             type: upload
             image_metadata: false
             colors: false
-            invalidate: true        
+            invalidate: true
+            
+    # A sample configuration for the Condé-Nast Shrimp service	    
+    shrimp:
+        class: Bolt\Extension\CND\ImageService\Connector\ShrimpConnector
+        endpoint: https://shrimp.condenast.de/glamour
+        key: 1234567890
+        bucket: my-bucket-shrimp
+        security:
+			allowed-extensions: [jpeg, jpg, JPG, png, gif]
+			max-size: 5000000
+        AWS:
+            region: "eu-west-1"
+            key: 1234567890
+            secret: 1234567890                    
 
 defaults:
     connector: content
