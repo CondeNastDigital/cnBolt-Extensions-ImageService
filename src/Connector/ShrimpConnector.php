@@ -399,9 +399,9 @@ class ShrimpConnector implements IConnector
             Image::INFO_WIDTH => 0,  // FIXME: restore from meta
             Image::INFO_SIZE => $object['ContentLength'],
             Image::INFO_FORMAT => $object['ContentType'], // FIXME: map
-            Image::INFO_SOURCE => $object['@metadata']['effectiveUri'],
             Image::INFO_CREATED => $object['LastModified']->format("c"),
         ];
+        $info[Image::INFO_SOURCE] = $object['@metadata']['effectiveUri'];
 
         $image->tags = [];
         $image->info = $info;
