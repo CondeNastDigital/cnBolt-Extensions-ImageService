@@ -5,6 +5,8 @@ The service uses different connectors to local or cloud services.
 The service contains connectors for
  - **Cloudinary** stores images and their attributes on http://cloudinary.com
  - **Content** stores images and their attributes inside a configurable contentype in Bolt
+ - **Shrimp** strores images inside a S3 bucket and uses CondÃ©-Nast Germany's Shrimp service for cropping.
+ *This service does currently not support tags and will omit them!*
 
 ## Installation
 
@@ -122,7 +124,7 @@ connectors:
             colors: false
             invalidate: true
             
-    # A sample configuration for the Condé-Nast Shrimp service	    
+    # A sample configuration for the Condï¿½-Nast Shrimp service	    
     shrimp:
         class: Bolt\Extension\CND\ImageService\Connector\ShrimpConnector
         endpoint: https://shrimp.condenast.de/glamour
