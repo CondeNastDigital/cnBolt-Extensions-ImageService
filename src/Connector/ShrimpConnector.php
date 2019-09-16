@@ -302,7 +302,7 @@ class ShrimpConnector implements IConnector
                 'Metadata' => $meta,
                 'ContentType' => $meta['shrimp-info-'.Image::INFO_FORMAT],
                 'ACL' => 'public-read'
-            ]);
+            ])->toArray();
 
             if(isset($result['ObjectURL'])) {
                 $info = $image->info;
@@ -386,7 +386,7 @@ class ShrimpConnector implements IConnector
             preg_match('/^shrimp-([a-z0-9]+)-(.*)$/', $key, $matches);
             switch($matches[1] ?? false){
                 case 'attr':
-                    $attributes[$matches[2]] = $value;
+                    $attributes[$matches[2]] = self::decodeValue($value);
                     break;
                 case 'info':
                     $info[$matches[2]] = $value;
@@ -438,7 +438,7 @@ class ShrimpConnector implements IConnector
 
         // Attributes
         foreach($image->attributes as $key => $value){
-            $meta['shrimp-attr-'.$key] = $value;
+            $meta['shrimp-attr-'.$key] = self::encodeValue($value);
         }
 
         // Infos
@@ -508,7 +508,7 @@ class ShrimpConnector implements IConnector
         if(!$key)
             throw new Exception("Key for shrimp service missing");
 
-        $signature = hash_hmac("ripemd128", $string, $key, true);
+        $signature = substr(hash_hmac("sha256", $string, $key, true),0,10);
         $signature = trim(base64_encode($signature),"=");
         $signature = str_replace(['/','+'],['-','_'],$signature);
 
@@ -539,4 +539,14 @@ class ShrimpConnector implements IConnector
 
         $this->client = new S3Client($config);
     }
+
+    protected static function encodeValue($input){
+        return urlencode($input);
+    }
+
+    protected static function decodeValue($input){
+        return urldecode($input);
+    }
+
+
 }
