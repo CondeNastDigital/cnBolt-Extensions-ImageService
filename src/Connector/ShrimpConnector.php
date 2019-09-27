@@ -19,6 +19,8 @@ class ShrimpConnector implements IConnector
     const ICON = "https://s16896.pcdn.co/wp-content/uploads/cropped-CN_favicon_512px.jpg";
     const LINK = "http://www.condenast.de";
 
+    protected static $FORBIDDEN_TARGETFOLDERS = ['thumbs'];
+
     /* @var Application $container */
     protected $container = null;
     /* @var array $config */
@@ -78,7 +80,7 @@ class ShrimpConnector implements IConnector
         $folder = trim($pathinfo['dirname'],'/');
         $slug = $pathinfo['filename'];
 
-        $imagepath = $parameters.'/'.$folder.'/'.$slug.'.'.$format;
+        $imagepath = $parameters.'/'.(!in_array($folder, ['','.']) ? $folder.'/' : '').$slug.'.'.$format;
         $signature  = $this->sign($imagepath);
 
         return $endpoint.'/'.$signature.'/'.$imagepath;
@@ -227,6 +229,12 @@ class ShrimpConnector implements IConnector
 
         $bucket = $this->config['bucket'];
 
+        $targetfolder = isset($this->config["path"]) ? $this->config["path"] : "%year%/%month%";
+        $targetfolder = str_replace(['%year%', '%month%'], [date('Y'),  date('m')], $targetfolder);
+        if(in_array($targetfolder, $this::$FORBIDDEN_TARGETFOLDERS, true)){
+            throw new Exception('Invalid target folder "'.$targetfolder.'" specified');
+        }
+
         $FileService = $this->container[Extension::APP_EXTENSION_KEY.".file"];
 
         foreach($images as $idx => &$image){
@@ -291,6 +299,10 @@ class ShrimpConnector implements IConnector
 
             // Create a good filename  /Key for S3
             $image->id = $this->container['slugify']->slugify($filename).'-'.$ext.'-'.uniqid('',false);
+
+            if($targetfolder){
+                $image->id = $targetfolder.'/'.$image->id;
+            }
 
             $meta = $this->image2s3object($image, $filesource);
 
