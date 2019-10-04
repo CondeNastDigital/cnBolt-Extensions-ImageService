@@ -42,6 +42,10 @@ class ShrimpConnector implements IConnector
      */
     public function imageUrl(Image $image, $width, $height, $mode, $format, $quality, $options) {
 
+        // Redirect to imageUrlAlias if we did not get dimensions but an alias in $width
+        if($width && !$height)
+            return $this->imageUrlAlias($image, $width);
+
         $mode_map = [
             self::MODE_SCALE => "scale",
             self::MODE_FILL => "fill",
@@ -84,6 +88,35 @@ class ShrimpConnector implements IConnector
         $signature  = $this->sign($imagepath);
 
         return $endpoint.'/'.$signature.'/'.$imagepath;
+    }
+
+    /**
+     * @param Image $image
+     * @param $alias
+     * @return bool|string
+     * @throws Exception
+     */
+    public function imageUrlAlias(Image $image, $alias){
+        $aliasConfig = $this->container['config']->get('theme/thumbnails/aliases', []);
+        $imageConfig = $this->container[Extension::APP_EXTENSION_KEY.'.image']->getConfig();
+
+        if(!isset($aliasConfig[$alias]))
+            throw new Exception('Invalid alias "'.$alias.'" specified');
+
+        $config = $aliasConfig[$alias] + ($imageConfig['defaults']['image'] ?? []);
+
+        $width = $config['size'][0] ?? false;
+        $height = $config['size'][1] ?? false;
+        $mode = $config['mode'] ?? false;
+        $format = $config['format'] ?? false;
+        $quality = $config['quality'] ?? false;
+        $options = $config['options'] ?? false;
+
+        // Make sure a badly requested image won't trigger an infinite loop!
+        if($width &&!$height)
+            return false;
+
+        return $this->imageUrl($image, $width, $height, $mode, $format, $quality, $options);
     }
 
     /**

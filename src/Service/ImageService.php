@@ -146,4 +146,8 @@ class ImageService {
         return $images;
     }
 
+    public function getConfig(){
+        return $this->config;
+    }
+
 }
