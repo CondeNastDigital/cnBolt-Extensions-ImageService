@@ -107,10 +107,19 @@ class ShrimpConnector implements IConnector
 
         $width = $config['size'][0] ?? false;
         $height = $config['size'][1] ?? false;
-        $mode = $config['mode'] ?? false;
+        $cropping = $config['cropping'] ?? false;
         $format = $config['format'] ?? false;
         $quality = $config['quality'] ?? false;
         $options = $config['options'] ?? false;
+
+        // Translate Bolt cropping names to ImageService cropping names
+        $crop_map = [
+            'resize' => self::MODE_LIMIT,  # Resize (Scaling up is controlled for the "r" option in general in config.yml thumbnails/upscale)
+            'fit' => self::MODE_SCALE, # Fit (Bolt will not use "c" automatically if only one dimension is given)
+            'crop' => self::MODE_FILL, # Crop
+            'borders' => self::MODE_PAD  # Borders
+        ];
+        $mode = $crop_map[$cropping] ?? false;
 
         // Make sure a badly requested image won't trigger an infinite loop!
         if($width &&!$height)

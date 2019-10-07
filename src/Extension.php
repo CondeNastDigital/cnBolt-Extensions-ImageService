@@ -152,7 +152,7 @@ class Extension extends SimpleExtension
             'r' => 'limit',  # Resize (Scaling up is controlled for the "r" option in general in config.yml thumbnails/upscale)
             'f' => 'scale', # Fit (Bolt will not use "c" automatically if only one dimension is given)
             'c' => 'fill', # Crop
-            'b' => 'pad' # Borders
+            'b' => 'pad'  # Borders
         ];
 
         // Bolt 3.3+
