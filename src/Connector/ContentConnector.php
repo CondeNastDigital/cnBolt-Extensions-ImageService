@@ -383,16 +383,33 @@ class ContentConnector implements IConnector
         $contents = $this->container['query']->getContent($slug.'/search', ['filter' => $search]);
         */
 
+        $search = preg_split('/[^a-z0-9]+/',$search);
+
+        if(is_array($search))
+            $search = array_slice($search,0,5);
+
         /* @var Repository $repo */
         $repo = $this->container['storage']->getRepository($slug);
 
         /* @var \Doctrine\DBAL\Query\QueryBuilder $qb */
         $qb = $this->container['db']->createQueryBuilder()
-           ->select($repo->getAlias().".*")
-           ->from($repo->getTableName(), $repo->getAlias())
-           ->where("title LIKE :search")
-           ->andWhere("status = 'published'")
-           ->setParameter(":search", $search."%");
+            ->select($repo->getAlias().".*")
+            ->from($repo->getTableName(), $repo->getAlias());
+
+        // Prepare the LIKE search for the query
+        $or = $qb->expr()->orX();
+        foreach ($search as $key => $term){
+            $or->add($qb->expr()->like("title", ":search_". $key));
+            $qb->setParameter(":search_".$key, "%".$term."%");
+        }
+
+        // Add compose the WHERE part fo the query
+        $expr = $qb->expr()->andX(
+            $or,
+            $qb->expr()->eq("status", "'published'")
+        );
+
+        $qb->where($expr);
 
         $contents = $repo->findWith($qb);
 
