@@ -336,7 +336,7 @@ class ContentConnector implements IConnector
                 $content = $repo->findOneBy(["slug" => $slug]);
                 if(!$content){
                     /* @var Content $content */
-                    $content = $repo->create(['contenttype' => $contenttypeslug, 'status' => 'published']);
+                    $content = $repo->create(['contenttype' => $contenttypeslug, 'status' => 'published', 'datepublish'=> new \DateTime()]);
                     $content->setSlug($this->container["slugify"]->slugify($targetfolder."-".$filename));
                 }
 
