@@ -383,10 +383,14 @@ class ContentConnector implements IConnector
         $contents = $this->container['query']->getContent($slug.'/search', ['filter' => $search]);
         */
 
-        $search = preg_split('/[^a-z0-9]+/',$search);
+        $search = preg_split('/[^a-z0-9äöüßáéíóúàèìòùâêîôûė]+/i',$search);
 
-        if(is_array($search))
-            $search = array_slice($search,0,5);
+        dump($search);
+
+        $search = array_unique($search);
+
+        if(!$search)
+            return [];
 
         /* @var Repository $repo */
         $repo = $this->container['storage']->getRepository($slug);
@@ -398,9 +402,18 @@ class ContentConnector implements IConnector
 
         // Prepare the LIKE search for the query
         $or = $qb->expr()->orX();
+        $i = 0;
         foreach ($search as $key => $term){
+
+            if(!$term)
+                continue;
+
             $or->add($qb->expr()->like("title", ":search_". $key));
             $qb->setParameter(":search_".$key, "%".$term."%");
+
+            if($i++ > 5)
+                break;
+
         }
 
         // Add compose the WHERE part fo the query
