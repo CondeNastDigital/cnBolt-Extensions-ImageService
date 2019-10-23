@@ -385,8 +385,6 @@ class ContentConnector implements IConnector
 
         $search = preg_split('/[^a-z0-9äöüßáéíóúàèìòùâêîôûė]+/i',$search);
 
-        dump($search);
-
         $search = array_unique($search);
 
         if(!$search)
