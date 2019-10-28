@@ -2806,7 +2806,7 @@ define('ImageServiceFinder',['require'],function (data) {
                 ajax: {
                     //url: that.dataService.baseUrl + "/imagesearch",
                     //dataType: 'json',
-                    delay: 120,
+                    delay: 500,
 
                     data: function (params) {
                         return {
