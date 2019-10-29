@@ -399,26 +399,24 @@ class ContentConnector implements IConnector
             ->from($repo->getTableName(), $repo->getAlias());
 
         // Prepare the LIKE search for the query
-        $or = $qb->expr()->orX();
+        // Add compose the WHERE part fo the query
+        $expr = $qb->expr()->andX(
+            $qb->expr()->eq("status", "'published'")
+        );
+
         $i = 0;
         foreach ($search as $key => $term){
 
             if(!$term)
                 continue;
 
-            $or->add($qb->expr()->like("title", ":search_". $key));
+            $expr->add($qb->expr()->like("title", ":search_". $key));
             $qb->setParameter(":search_".$key, "%".$term."%");
 
             if($i++ > 5)
                 break;
 
         }
-
-        // Add compose the WHERE part fo the query
-        $expr = $qb->expr()->andX(
-            $or,
-            $qb->expr()->eq("status", "'published'")
-        );
 
         $qb->where($expr);
 
