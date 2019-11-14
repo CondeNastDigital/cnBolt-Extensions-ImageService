@@ -36,6 +36,17 @@ class Extension extends SimpleExtension
         ];
     }
 
+
+    public function registerNutCommands(\Pimple $container){
+
+        $migrate = new Bolt\Extension\CND\ImageService\Command\MigrateCommand('migrate');
+        $migrate->setApp($this->getContainer());
+
+        return [
+            $migrate
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
