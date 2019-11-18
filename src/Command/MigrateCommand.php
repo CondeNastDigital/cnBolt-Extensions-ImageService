@@ -40,7 +40,7 @@ class MigrateCommand extends Command
         /** @var QueryBuilder $qb */
         $qb = $repo->createQueryBuilder();
 
-        $qb->where('`'.$field.'` != \'{"items":[]}\' AND ((`'.$field.'` LIKE \'%"width":0%\' ) OR  NOT (`teaserimage` LIKE \'%"width"%\' ))')
+        $qb->where('`'.$field.'` NOT LIKE \'%"items":[]%\' AND `'.$field.'` != \'\' AND ((`'.$field.'` LIKE \'%"width":0%\' ) OR  NOT (`teaserimage` LIKE \'%"width"%\' ))')
             ->setMaxResults((int)$limit);
 
         $result = $qb->execute();
@@ -72,6 +72,9 @@ class MigrateCommand extends Command
             dump($result);
 
         }
+
+        dump($qb->getSQL());
+
     }
 
 }
