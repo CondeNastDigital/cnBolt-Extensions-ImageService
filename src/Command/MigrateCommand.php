@@ -46,6 +46,8 @@ class MigrateCommand extends Command
         $result = $qb->execute();
         $items  = $result->fetchAll() ;
 
+        var_dump('Found:',count($items));
+
         foreach ($items as $key => $item) {
 
             $images = json_decode($item[$field], true);
@@ -67,13 +69,13 @@ class MigrateCommand extends Command
                 ->set($field, json_encode($item[$field]))
                 ->where('id = '.$update->createPositionalParameter($item['id']));
 
-            dump($update->getSQL());
+            var_dump($update->getSQL());
             $result = $update->execute();
-            dump($result);
+            var_dump($result);
 
         }
 
-        dump($qb->getSQL());
+        var_dump($qb->getSQL());
 
     }
 
