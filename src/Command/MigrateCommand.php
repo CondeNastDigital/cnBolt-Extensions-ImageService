@@ -71,7 +71,7 @@ class MigrateCommand extends Command
 
             var_dump($update->getSQL());
             $result = $update->execute();
-            var_dump($result);
+            var_dump("Updated: ", $result);
 
         }
 
