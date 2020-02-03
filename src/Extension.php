@@ -10,6 +10,10 @@ use Bolt\Extension\SimpleExtension;
 use Bolt\Asset\File\JavaScript;
 use Bolt\Asset\File\Stylesheet;
 use Bolt\Controller\Zone;
+use Bolt\Response\TemplateView;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpKernel\Event\KernelEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 class Extension extends SimpleExtension
 {
@@ -236,6 +240,43 @@ class Extension extends SimpleExtension
 
         $app['config']->set('permissions/global', $permissions);
 
+    }
+
+    public function subscribe(EventDispatcherInterface $dispatcher) {
+        $app = $this->getContainer();
+
+        /**
+         * EventListener for "onView"
+         * FIX for Bolt's Bug of not calling a field's hydrate method on a preview of a page.
+         * Listens for all template render calls on PREVIEW pages and hydrates imageservicelist fields manually
+         */
+        $dispatcher->addListener(KernelEvents::VIEW, function(KernelEvent $event) use ($app) {
+
+            $result = $event->getControllerResult();
+            if (!$result instanceof TemplateView)
+                return;
+
+            $route = $event->getRequest()->get('_internal_route', false);
+            if($route !== 'preview')
+                return;
+
+            $record = $result->getContext()['record'] ?? false;
+            if(!$record)
+                return;
+
+            foreach($record->contenttype['fields'] as $fieldname => $fieldconfig){
+                $type = $fieldconfig['type'] ?? false;
+                if($type !== 'imageservicelist')
+                    continue;
+
+                $value = $record->get($fieldname);
+                if(!$value || is_array($value))
+                    continue;
+
+                $record->set($fieldname, json_decode($value,true));
+            }
+
+        }, 100);
     }
 
 }
