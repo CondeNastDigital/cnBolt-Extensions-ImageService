@@ -53,8 +53,8 @@ class ContentConnector implements IConnector
 
         // Redirect to imageUrlAlias if we did not get dimensions but an alias in $width
         if($width && !$height)
-            return $this->imageUrlAlias($image, $width);        
-        
+            return $this->imageUrlAlias($image, $width);
+
         $mode_map = [
             self::MODE_SCALE => "f",      # Bolt Fit (Bolt will not use "c" automatically if only one dimension is given)
             self::MODE_FILL => "c",       # Bolt Crop
@@ -75,7 +75,7 @@ class ContentConnector implements IConnector
         if(is_array($options))
             $modifiers = $modifiers + $options;
 
-        $result =  $this->updateImageData($image);
+        $result = $this->updateImageData($image);
         if (!$result)
             return false;
 
@@ -97,7 +97,9 @@ class ContentConnector implements IConnector
      * @return string
      */
     public function imageUrlAlias(Image $image, $alias){
-        $this->updateImageData($image);
+        $result = $this->updateImageData($image);
+        if (!$result)
+            return false;
 
         return $this->container['url_generator']->generate(
             'thumb_alias',
@@ -530,7 +532,7 @@ class ContentConnector implements IConnector
 
         // Check if we have a file already and it's cache has not run out
         if(!$purge && $info[Image::INFO_CUSTOM] && $info[Image::INFO_CACHED] + $this->config["cache"] > time())
-           return false;
+           return true;
 
         // Select Content for our image object
         if(!$content)
