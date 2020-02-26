@@ -22,10 +22,10 @@ class ContentConnector implements IConnector
     const TITLE = "Content";
     const ICON = false;
     const LINK = false;
-    
+
     /* @var Application $container */
     protected $container = null;
-    
+
     /* @var array $config */
     protected $config = [];
 
@@ -37,7 +37,7 @@ class ContentConnector implements IConnector
         "path" => "%year%/%month%",
         "tagtype" => "tags"
     ];
-    
+
     /**
      * @inheritdoc
      */
@@ -45,7 +45,7 @@ class ContentConnector implements IConnector
         $this->config = $config + self::$defaults;
         $this->container = $app;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -53,8 +53,8 @@ class ContentConnector implements IConnector
 
         // Redirect to imageUrlAlias if we did not get dimensions but an alias in $width
         if($width && !$height)
-            return $this->imageUrlAlias($image, $width);        
-        
+            return $this->imageUrlAlias($image, $width);
+
         $mode_map = [
             self::MODE_SCALE => "f",      # Bolt Fit (Bolt will not use "c" automatically if only one dimension is given)
             self::MODE_FILL => "c",       # Bolt Crop
@@ -107,7 +107,7 @@ class ContentConnector implements IConnector
             ]
         );
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -117,7 +117,7 @@ class ContentConnector implements IConnector
         $update = [];
         $delete = [];
         $clean = [];
-        
+
         foreach($images as $key => $image){
             switch($image->status){
                 case Image::STATUS_DELETED:
@@ -141,7 +141,7 @@ class ContentConnector implements IConnector
                     ];
             }
         }
-        
+
         // Send grouped commands
         if($delete)
             $delete = $this->processDelete($delete, $messages);
@@ -149,15 +149,15 @@ class ContentConnector implements IConnector
             $update = $this->processUpdate($update, $messages);
         if($create)
             $create = $this->processCreate($create, $messages);
-        
+
         // Merges the results in the clean instance
         $clean = $update + $create + $clean;
         // Reorders the key to match the initial key order
         ksort($clean);
-        
+
         return $clean;
     }
-    
+
     /**
      * Delete all ids in array
      * @param Image[] $images
@@ -189,20 +189,13 @@ class ContentConnector implements IConnector
                     $repo->save($content);
                 }
 
-                unset($images[$idx]);
             }
-            else {
-                $messages[] = [
-                    "type" => IConnector::RESULT_TYPE_ERROR,
-                    "code" => IConnector::RESULT_CODE_ERRUNKNOWN,
-                    "id" => $image->id
-                ];
-            }
+            unset($images[$idx]);
         }
-        
+
         return $images;
     }
-    
+
     /**
      * Delete all ids in array
      * NOTE: Cloudinary
@@ -211,7 +204,7 @@ class ContentConnector implements IConnector
      * @return \Bolt\Extension\CND\ImageService\Image[]
      */
     protected function processUpdate(array $images, &$messages = []){
-        
+
         foreach($images as $idx => $image){
 
             $content = $this->getContent($image);
@@ -246,10 +239,10 @@ class ContentConnector implements IConnector
                 ];
             }
         }
-        
+
         return $images;
     }
-    
+
     /**
      * Delete all ids in array
      * NOTE: Cloudinary
@@ -258,7 +251,7 @@ class ContentConnector implements IConnector
      * @return \Bolt\Extension\CND\ImageService\Image[]
      */
     protected function processCreate(array $images, &$messages = []){
-        
+
         $existing = [];
 
         $targetfolder = isset($this->config["path"]) ? $this->config["path"] : "%year%/%month%";
@@ -310,7 +303,7 @@ class ContentConnector implements IConnector
                 unset($images[$idx]);
                 continue;
             }
-            
+
             if(!in_array($ext, $allowedExtensions) ||        // extension is not allowed
                 !in_array($ext, self::supportedFormats())) {  // extension is not supported
                 $messages[] = [
@@ -368,10 +361,10 @@ class ContentConnector implements IConnector
                 unset($images[$idx]);
             }
         }
-        
+
         return $images;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -440,7 +433,7 @@ class ContentConnector implements IConnector
 
         return $images;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -471,7 +464,7 @@ class ContentConnector implements IConnector
 
         return $tags;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -485,7 +478,7 @@ class ContentConnector implements IConnector
             self::MODE_SCALE
         ];
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -499,7 +492,7 @@ class ContentConnector implements IConnector
             self::FORMAT_PNG
         ];
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -507,7 +500,7 @@ class ContentConnector implements IConnector
     {
         // TODO: Implement adminImage() method.
     }
-    
+
     /**
      * @inheritdoc
      */
