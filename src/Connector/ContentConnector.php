@@ -12,6 +12,7 @@ use Bolt\Extension\CND\ImageService\IConnector;
 use Bolt\Filesystem\Exception\IOException;
 use Bolt\Storage\Entity\Taxonomy;
 use Bolt\Storage\Repository;
+use Exception;
 use Sirius\Upload\Handler as UploadHandler;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,6 +49,7 @@ class ContentConnector implements IConnector
 
     /**
      * @inheritdoc
+     * @throws Exception
      */
     public function imageUrl(Image $image, $width, $height, $mode, $format, $quality, $options) {
 
@@ -77,7 +79,7 @@ class ContentConnector implements IConnector
 
         $result = $this->updateImageData($image);
         if (!$result)
-            return false;
+            throw new Exception("No image content could be found");
 
         return $this->container['url_generator']->generate(
             'thumb',
@@ -95,11 +97,12 @@ class ContentConnector implements IConnector
      * @param Image $image
      * @param string $alias
      * @return string
+     * @throws Exception
      */
     public function imageUrlAlias(Image $image, $alias){
         $result = $this->updateImageData($image);
         if (!$result)
-            return false;
+            throw new Exception("No image content could be found");
 
         return $this->container['url_generator']->generate(
             'thumb_alias',
