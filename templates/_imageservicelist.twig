@@ -57,7 +57,7 @@ style:           option.height ? 'height: ' ~ option.height ~ ';' : '',
                     var defs = {
                         urls: {
                             {% for item in value.items|default([]) %}
-                            "{{ item.id }}": "{{ imageservice(item,150,100) }}"{{ loop.last ?"":"," }}
+                            "{{ item.id }}": "{{ thumbnail(item,150,100) }}"{{ loop.last ?"":"," }}
                             {% endfor %}
                         }
                     };
