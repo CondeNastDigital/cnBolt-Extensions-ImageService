@@ -62,13 +62,33 @@ class ImageService {
      * @return null|string
      */
     public function imageUrl(Image $image, $width, $height = false, $mode = false, $format = false, $quality = false, $options = array()){
+        try {
+            return $this->imageUrlGenerate($image, $width, $height, $mode, $format, $quality, $options);
+        }
+        catch( \Exception $e){
+            return $this->container['twig.runtime.bolt_image']->thumbnail('unknown', $width, $height, 'c');
+        }
+    }
+
+    /**
+     * return an url to the image with specified sizes and formats
+     * @param Image $image
+     * @param int|string $width    Depending on variable type, the call is either with specific sizes or with an alias string
+     * @param bool|int $height
+     * @param bool|string $mode
+     * @param bool|string $format
+     * @param bool|int $quality
+     * @param array $options
+     * @return null|string
+     */
+    public function imageUrlGenerate(Image $image, $width, $height = false, $mode = false, $format = false, $quality = false, $options = array()){
         $defaults = $this->config["defaults"]['image'];
 
         $mode    = $mode    ? $mode    : $defaults["mode"];
         $format  = $format  ? $format  : $defaults["format"];
         $quality = $quality ? $quality : $defaults["quality"];
         $options = $options ? $options : [];
-    
+
         $options = $options + $defaults["options"];
 
         if(!$image->service || !$image->id || !isset($this->connectors[$image->service]))

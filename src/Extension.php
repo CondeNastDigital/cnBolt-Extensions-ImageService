@@ -116,7 +116,7 @@ class Extension extends SimpleExtension
 
     /**
      * return an url to the image with specified sizes and formats
-     * @param Image $image
+     * @param Image $input
      * @param int|string $width    Depending on variable type, the call is either with specific sizes or with an alias string
      * @param bool|int $height
      * @param bool|string $mode
@@ -125,22 +125,24 @@ class Extension extends SimpleExtension
      * @param array $options
      * @return null|string
      */
-    public function imageUrlFilter($image, $width, $height = false, $mode = false, $format = false, $quality = false, $options = array()) {
+    public function imageUrlFilter($input, $width, $height = false, $mode = false, $format = false, $quality = false, $options = array()) {
 
         /* @var \Bolt\Application $app */
         $app = $this->getContainer();
         /* @var ImageService $service */
         $service = $app[self::APP_EXTENSION_KEY.".image"];
 
-        if(is_object($image)) {
+        if ($input instanceof Image) {
+            $image = $input;
+        } elseif(is_object($input)) {
             $image = Image::create([
-                "id" => $image->id,
-                "service" => $image->service
+                "id" => $input->id,
+                "service" => $input->service
             ]);
-        } elseif(isset($image['id']) && isset($image['service'])) {
+        } elseif(isset($input['id']) && isset($input['service'])) {
             $image = Image::create([
-                "id" => $image['id'],
-                "service" => $image['service']
+                "id" => $input['id'],
+                "service" => $input['service']
             ]);
         } else {
             return "";
@@ -163,6 +165,7 @@ class Extension extends SimpleExtension
      */
     public function thumbnailOverride($input = null, $width = null, $height = null, $crop = null, $format = null, $quality = null, $options = array()) {
 
+        $image = false;
         $crop_map = [
             'r' => 'limit',  # Resize (Scaling up is controlled for the "r" option in general in config.yml thumbnails/upscale)
             'f' => 'scale', # Fit (Bolt will not use "c" automatically if only one dimension is given)
@@ -181,7 +184,29 @@ class Extension extends SimpleExtension
             return false;
 
         try {
-            $image = $this->imageUrlFilter($input, $width, $height, $crop ? $crop_map[$crop] : null, $format, $quality, $options);
+
+            /* @var \Bolt\Application $app */
+            $app = $this->getContainer();
+            /* @var ImageService $service */
+            $service = $app[self::APP_EXTENSION_KEY . ".image"];
+
+            if ($input instanceof Image) {
+                $image = $input;
+            } elseif(is_object($input)) {
+
+                $image = Image::create([
+                    "id" => $input->id,
+                    "service" => $input->service
+                ]);
+            } elseif(isset($input['id']) && isset($input['service'])) {
+                $image = Image::create([
+                    "id" => $input['id'],
+                    "service" => $input['service']
+                ]);
+            }
+
+            if($image)
+                $image = $service->imageUrlGenerate($image, $width, $height, $crop ? $crop_map[$crop] : null, $format, $quality, $options);
         } catch (\Exception $e) {
             return $thumbservice->thumbnail('unknown', $width, $height, $crop);
         }
