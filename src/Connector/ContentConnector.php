@@ -254,6 +254,7 @@ class ContentConnector implements IConnector
      * @param Image[] $images
      * @param array $messages
      * @return \Bolt\Extension\CND\ImageService\Image[]
+     * @throws Exception
      */
     protected function processCreate(array $images, &$messages = []){
 
@@ -607,13 +608,15 @@ class ContentConnector implements IConnector
      */
     protected function processUpload($path, $fileToProcess) {
         $origin = $fileToProcess->getFullPath();
-        $target = "files://".$path."/".$fileToProcess->getFilename();
+        $extension = $fileToProcess->getExtension();
+        $cleanName = $this->container["slugify"]->slugify($path."-".$fileToProcess->getFilename());
+        $target = "files://".$path."/".$cleanName.'.'.$extension;
 
         /* @var Filesystem $filesystem */
         $filesystem = $this->container["filesystem"];
         $filesystem->copy($origin, $target);
 
-        return $path."/".$fileToProcess->getFilename();
+        return $path."/".$cleanName.'.'.$extension;
     }
 
     /**
