@@ -96,6 +96,11 @@ class CloudinaryConnector implements IConnector
         return Cloudinary::cloudinary_url($image->id, $modifiers);
     }
 
+    public function imageInfo(Image $image){
+        //FIXME: Implement when needed
+        throw new \Exception('Function not yet implemented');
+    }
+
     /**
      * @inheritdoc
      */

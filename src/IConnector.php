@@ -48,7 +48,7 @@ interface IConnector
 
     /**
      * Generate the image url for an image
-     * @param string $mediaKey  image key
+     * @param Image $image      image object
      * @param int $width        width in pixel
      * @param int $height       height in pixel
      * @param string $mode      mode for resizing/cropping
@@ -58,6 +58,14 @@ interface IConnector
      * @return string mixed
      */
     public function imageUrl(Image $image, $width, $height, $mode, $format, $quality, $options);
+
+    /**
+     * Generate the image url for an image
+     * @param Image $image      image object
+     * @return array
+     */
+    public function imageInfo(Image $image);
+
 
     /**
      * Update, delete or create all sent images according to their status

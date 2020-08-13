@@ -19,6 +19,13 @@ class Extension extends SimpleExtension
 {
     CONST APP_EXTENSION_KEY = "cnd.image-service";
 
+    protected static $CROP_MAP = [
+        'r' => 'limit',  # Resize (Scaling up is controlled for the "r" option in general in config.yml thumbnails/upscale)
+        'f' => 'scale', # Fit (Bolt will not use "c" automatically if only one dimension is given)
+        'c' => 'fill', # Crop
+        'b' => 'pad'  # Borders
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -86,7 +93,8 @@ class Extension extends SimpleExtension
         return [
             'imageservice'       => "imageUrlFilter",
             'imageserviceConfig' => "imageConfig",
-            'thumbnail'          => "thumbnailOverride"
+            'thumbnail'          => "thumbnailOverride",
+            'imageinfo'          => "imageinfoOverride",
         ];
     }
 
@@ -95,7 +103,8 @@ class Extension extends SimpleExtension
      */
     protected function registerTwigFilters(){
         return [
-            'thumbnail'          => "thumbnailOverride"
+            'thumbnail'          => "thumbnailOverride",
+            'imageinfo'          => "imageinfoOverride",
         ];
     }
 
@@ -126,27 +135,12 @@ class Extension extends SimpleExtension
      * @return null|string
      */
     public function imageUrlFilter($input, $width, $height = false, $mode = false, $format = false, $quality = false, $options = array()) {
-
-        /* @var \Bolt\Application $app */
-        $app = $this->getContainer();
         /* @var ImageService $service */
-        $service = $app[self::APP_EXTENSION_KEY.".image"];
+        $service = $this->getContainer()[self::APP_EXTENSION_KEY.".image"];
 
-        if ($input instanceof Image) {
-            $image = $input;
-        } elseif(is_object($input)) {
-            $image = Image::create([
-                "id" => $input->id,
-                "service" => $input->service
-            ]);
-        } elseif(isset($input['id']) && isset($input['service'])) {
-            $image = Image::create([
-                "id" => $input['id'],
-                "service" => $input['service']
-            ]);
-        } else {
-            return "";
-        }
+        $image = $this->fixImage($input);
+        iF(!$image)
+            return '';
 
         return $service->imageUrl( $image, $width, $height, $mode, $format, $quality, $options );
     }
@@ -166,47 +160,16 @@ class Extension extends SimpleExtension
     public function thumbnailOverride($input = null, $width = null, $height = null, $crop = null, $format = null, $quality = null, $options = array()) {
 
         $image = false;
-        $crop_map = [
-            'r' => 'limit',  # Resize (Scaling up is controlled for the "r" option in general in config.yml thumbnails/upscale)
-            'f' => 'scale', # Fit (Bolt will not use "c" automatically if only one dimension is given)
-            'c' => 'fill', # Crop
-            'b' => 'pad'  # Borders
-        ];
-
-        // Bolt 3.3+
-        if(isset($this->container['twig.runtime.bolt_image']))
-            $thumbservice = $this->container['twig.runtime.bolt_image'];
-        // Bolt 3.0 - 3.2
-        elseif(isset($this->container['twig.handlers']['image']))
-            $thumbservice = $this->container['twig.handlers']['image'];
-        // Not compatible
-        else
-            return false;
+        $thumbservice = $this->getThumbnailService();
 
         try {
-
-            /* @var \Bolt\Application $app */
-            $app = $this->getContainer();
             /* @var ImageService $service */
-            $service = $app[self::APP_EXTENSION_KEY . ".image"];
+            $service = $this->getContainer()[self::APP_EXTENSION_KEY . ".image"];
 
-            if ($input instanceof Image) {
-                $image = $input;
-            } elseif(is_object($input)) {
-
-                $image = Image::create([
-                    "id" => $input->id,
-                    "service" => $input->service
-                ]);
-            } elseif(isset($input['id']) && isset($input['service'])) {
-                $image = Image::create([
-                    "id" => $input['id'],
-                    "service" => $input['service']
-                ]);
-            }
-
+            $image = $this->fixImage($input);
             if($image)
-                $image = $service->imageUrlGenerate($image, $width, $height, $crop ? $crop_map[$crop] : null, $format, $quality, $options);
+                $image = $service->imageUrlGenerate($image, $width, $height, $crop ? self::$CROP_MAP[$crop] : null, $format, $quality, $options);
+
         } catch (\Exception $e) {
             return $thumbservice->thumbnail('unknown', $width, $height, $crop);
         }
@@ -217,6 +180,87 @@ class Extension extends SimpleExtension
         }
 
         return $image;
+    }
+
+    /**
+     * This twig filter overrides Bolt's built-in filter. It calls this services
+     * imageUrl method or relays back to Bolt's own thumbnail filter if not applicable.
+     * @param null $input
+     * @param null $width
+     * @param null $height
+     * @param null $crop
+     * @param bool $format
+     * @param bool $quality
+     * @param array $options
+     * @return bool|null|string
+     */
+    public function imageinfoOverride($input = null, $width = null, $height = null, $crop = null) {
+
+        $image = false;
+        $thumbservice = $this->getThumbnailService();
+
+        try {
+            /* @var ImageService $service */
+            $service = $this->getContainer()[self::APP_EXTENSION_KEY . ".image"];
+
+            $image = $this->fixImage($input);
+            if($image)
+                $image = $service->imageInfo($image, $width, $height, $crop ? self::$CROP_MAP[$crop] : null);
+
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        // Fallback to Bolt's standard thumbnail generator
+        if(!$image){
+            $image = $thumbservice->imageInfo($input);
+        }
+
+        return $image;
+    }
+
+    /**
+     * @param array|Image|object $image
+     * @return Image|bool
+     */
+    protected function fixImage($image){
+        // Already a valid image object
+        if ($image instanceof Image)
+            return $image;
+
+
+        // A std object or unhydrated converted json
+        if(is_object($image))
+            return Image::create([
+                "id" => $image->id,
+                "service" => $image->service
+            ]);
+
+        // An unhydrated array
+        if(isset($image['id']) && isset($image['service']))
+            return Image::create([
+                "id" => $image['id'],
+                "service" => $image['service']
+            ]);
+
+        return false;
+    }
+
+    /**
+     * Get the right Thumbnail service for Bolt's various versions
+     * @return bool|Bolt\Twig\Runtime\ImageRuntime
+     */
+    protected function getThumbnailService(){
+        // Bolt 3.3+
+        if(isset($this->container['twig.runtime.bolt_image']))
+            return $this->container['twig.runtime.bolt_image'];
+
+        // Bolt 3.0 - 3.2
+        if(isset($this->container['twig.handlers']['image']))
+            return $this->container['twig.handlers']['image'];
+
+        // Not compatible
+        return false;
     }
 
     /**

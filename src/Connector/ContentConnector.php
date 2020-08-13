@@ -6,6 +6,7 @@ use Bolt\Extension\CND\ImageService\Extension;
 use Bolt\Filesystem\Filesystem;
 use Bolt\Filesystem\Handler\File;
 use Bolt\Filesystem\Handler\Image\Info;
+use Bolt\Filesystem\Handler\NullableImage;
 use Bolt\Storage\Entity\Content;
 use Bolt\Extension\CND\ImageService\Image;
 use Bolt\Extension\CND\ImageService\IConnector;
@@ -111,6 +112,49 @@ class ContentConnector implements IConnector
                 'file'  => $image->info[Image::INFO_CUSTOM],
             ]
         );
+    }
+
+    /**
+     * @param Image $image
+     * @return array|void
+     * @throws Exception
+     */
+    public function imageInfo(Image $image){
+        /* NOTE: The imageinfo function of Bolt seems to be broken atm, so we have to collect the info ourselfes.
+           Bolt's imageinfo filter returns an image object and not the info array as documented. */
+        // $info = $this->container['twig.runtime.bolt_image']->imageInfo($image->info[Image::INFO_CUSTOM]);
+
+        if(!($image->info[Image::INFO_CUSTOM]))
+            return null;
+
+        /* @var \Bolt\Filesystem\Handler\Image $boltimage */
+        $boltimage = $this->container['filesystem']->get('files://'.$image->info[Image::INFO_CUSTOM]);
+        $info = $boltimage->getInfo();
+
+        if(!$boltimage || !$info)
+            return null;
+
+        $width =  $info->getWidth();
+        $height = $info->getHeight();
+        $aspect = $width && $height ? round($width / $height,2) : false;
+        $mime = $info->getMime();
+        $type = strtolower($info->getType());
+
+        $info = [
+            'width' => $width,
+            'height' => $height,
+            'type' => $type,
+            'mime' => $mime,
+            'aspectratio' => $aspect,
+            'filename' => $boltimage->getFilename(),
+            'fullpath' => $boltimage->getFullPath(),
+            'url' => false,
+            'landscape' => $width > $height,
+            'portrait' => $width < $height,
+            'square' => $width == $height,
+        ];
+
+        return $info;
     }
 
     /**

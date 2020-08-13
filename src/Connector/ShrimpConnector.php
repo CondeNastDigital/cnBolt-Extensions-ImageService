@@ -128,6 +128,34 @@ class ShrimpConnector implements IConnector
         return $this->imageUrl($image, $width, $height, $mode, $format, $quality, $options);
     }
 
+    public function imageInfo(Image $image){
+        $info = $image->info;
+
+        $width = $info['width'] ?? false;
+        $height = $info['height'] ?? false;
+        $aspect = $width && $height ? round($width / $height,2) : false;
+        $mime = $info['format'] ?? false;
+
+        $parts = explode('/',$mime);
+        $type = array_pop($parts);
+
+        $info = [
+            'width' => $width,
+            'height' => $height,
+            'type' => $type,
+            'mime' => $mime,
+            'aspectratio' => $aspect,
+            'filename' => basename($image->id),
+            'fullpath' => false,
+            'url' => $info['source'] ?? false,
+            'landscape' => $width > $height,
+            'portrait' => $width < $height,
+            'square' => $width == $height,
+        ];
+
+        return $info;
+    }
+
     /**
      * @inheritdoc
      */
