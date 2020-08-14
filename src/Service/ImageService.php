@@ -186,7 +186,6 @@ class ImageService {
 
         /* @var IConnector $connector */
         $connector = $this->connectors[$image->service];
-
         $info = $connector->imageInfo($image);
 
         if($info && $width) {
@@ -202,12 +201,29 @@ class ImageService {
     /**
      * Calculate theoretical cropped dimensions
      * @param $info
+     * @param $image
      * @param $width
      * @param $height
      * @param $mode
+     * @param $format
+     * @param $quality
+     * @param $options
      * @return array|bool
+     * @throws \Exception
      */
     protected function calculateCrop($info, $image, $width, $height, $mode, $format, $quality, $options){
+
+        // Alias
+        if($width && !$height) {
+            $config = $this->resolveAlias($width);
+
+            $width = $config['width'];
+            $height = $config['height'];
+            $mode = $config['cropping'];
+            $format = $config['format'];
+            $quality = $config['quality'];
+            $options = $config['options'];
+        }
 
         switch ($mode){
             // Same as fit but only if image is larger than width/height
@@ -248,6 +264,34 @@ class ImageService {
             'portrait' => $calcwidth < $calcheight,
             'square' => $calcwidth == $calcheight,
             'url' => $this->imageUrlGenerate($image, $width, $height, $mode, $format, $quality, $options)
+        ];
+    }
+
+    /**
+     * @param string $alias
+     * @return array
+     * @throws \Exception
+     */
+    public function resolveAlias($alias){
+        $aliasConfig = $this->container['config']->get('theme/thumbnails/aliases', []);
+        $imageConfig = $this->getConfig();
+
+        if(!isset($aliasConfig[$alias]))
+            throw new \Exception('Invalid alias "'.$alias.'" specified');
+
+        $config = $aliasConfig[$alias] + ($imageConfig['defaults']['image'] ?? []);
+
+        // Bolt crop modes (short or long notation) need to be translated to ImageService modes
+        $mode = substr($config['cropping'],0,1);
+        $config['cropping'] = Bolt\Extension\CND\ImageService\Extension::$CROP_MAP[$mode] ?? IConnector::MODE_LIMIT;
+
+        return [
+            'width' => $config['size'][0] ?? false,
+            'height' => $config['size'][1] ?? false,
+            'cropping' => $config['cropping'] ?? false,
+            'format' => $config['format'] ?? false,
+            'quality' => $config['quality'] ?? false,
+            'options' => $config['options'] ?? false,
         ];
     }
 

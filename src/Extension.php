@@ -19,7 +19,7 @@ class Extension extends SimpleExtension
 {
     CONST APP_EXTENSION_KEY = "cnd.image-service";
 
-    protected static $CROP_MAP = [
+    public static $CROP_MAP = [
         'r' => 'limit',  # Resize (Scaling up is controlled for the "r" option in general in config.yml thumbnails/upscale)
         'f' => 'scale', # Fit (Bolt will not use "c" automatically if only one dimension is given)
         'c' => 'fill', # Crop
@@ -233,15 +233,14 @@ class Extension extends SimpleExtension
         if(is_object($image))
             return Image::create([
                 "id" => $image->id,
-                "service" => $image->service
+                "service" => $image->service,
+                "attributes" => $image->attributes ?? [],
+                "info" => $image->info ?? [],
             ]);
 
         // An unhydrated array
         if(isset($image['id']) && isset($image['service']))
-            return Image::create([
-                "id" => $image['id'],
-                "service" => $image['service']
-            ]);
+            return Image::create($image);
 
         return false;
     }
