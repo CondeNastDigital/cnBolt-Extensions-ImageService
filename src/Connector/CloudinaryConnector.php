@@ -96,9 +96,40 @@ class CloudinaryConnector implements IConnector
         return Cloudinary::cloudinary_url($image->id, $modifiers);
     }
 
+    /**
+     * @param Image $image
+     * @return array
+     */
     public function imageInfo(Image $image){
-        //FIXME: Implement when needed
-        throw new \Exception('Function not yet implemented');
+
+        $info = $image->info ?? [];
+
+        $width  =  $info['width'] ?? false;
+        $height = $info['height'] ?? false;
+        $aspect = $width && $height ? round($width / $height,2) : false;
+        $type   = strtolower($info['format']);
+
+        switch($type) {
+            case 'jpg':
+                $mime = 'image/jpeg';
+                break;
+            default:
+                $mime = 'image/'.$type;
+        }
+
+        return [
+            'width' => $width,
+            'height' => $height,
+            'type' => $type,
+            'mime' => $mime,
+            'aspectratio' => $aspect,
+            'filename' => $image->id,
+            'fullpath' => $image->id,
+            'url' => $info->source ?? false,
+            'landscape' => $width > $height,
+            'portrait' => $width < $height,
+            'square' => $width == $height,
+        ];
     }
 
     /**
