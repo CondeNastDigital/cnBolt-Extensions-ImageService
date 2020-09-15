@@ -102,12 +102,12 @@ class CloudinaryConnector implements IConnector
      */
     public function imageInfo(Image $image){
 
-        $info = $image->info ?? [];
+        $info = $image->info;
 
-        $width  =  $info['width'] ?? false;
-        $height = $info['height'] ?? false;
+        $width  =  $image->info['width'] ?? false;
+        $height = $image->info['height'] ?? false;
         $aspect = $width && $height ? round($width / $height,2) : false;
-        $type   = strtolower($info['format']);
+        $type   = strtolower($image->info['format']);
 
         switch($type) {
             case 'jpg':
@@ -125,7 +125,7 @@ class CloudinaryConnector implements IConnector
             'aspectratio' => $aspect,
             'filename' => $image->id,
             'fullpath' => $image->id,
-            'url' => $info->source ?? false,
+            'url' => $image->info['source'] ?? false,
             'landscape' => $width > $height,
             'portrait' => $width < $height,
             'square' => $width == $height,
