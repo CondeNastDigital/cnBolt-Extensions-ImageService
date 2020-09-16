@@ -102,8 +102,6 @@ class CloudinaryConnector implements IConnector
      */
     public function imageInfo(Image $image){
 
-        $info = $image->info;
-
         $width  =  $image->info['width'] ?? false;
         $height = $image->info['height'] ?? false;
         $aspect = $width && $height ? round($width / $height,2) : false;
