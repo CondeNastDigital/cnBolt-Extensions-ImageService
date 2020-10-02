@@ -90,7 +90,8 @@ class CloudinaryConnector implements IConnector
 
         $modifiers = [
             "transformation" => $alias,
-            "format" => "jpg" // Cloudinary aliases (named transactions) must have a specified format. Since we dont have one in our case, we hard code to "jpg".
+            "format" => "jpg", // Cloudinary aliases (named transactions) must have a specified format. Since we dont have one in our case, we hard code to "jpg".
+            "secure" => true, // Quickfix for missing options on alias mode
         ];
 
         return Cloudinary::cloudinary_url($image->id, $modifiers);
