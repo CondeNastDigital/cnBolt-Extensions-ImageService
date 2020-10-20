@@ -108,7 +108,7 @@ define(function () {
             that.presetImage();
 
             // Loads the standart components
-            container = $('<div id="' + id + '" class="col-xs-12 col-sm-12 col-md-12 imageservice-entity"></div>');
+            container = $('<div draggable="true" id="' + id + '" class="col-xs-12 col-sm-12 col-md-12 imageservice-entity"></div>');
             actions = new Actions({
                 config: {
                     events: Events
@@ -216,6 +216,21 @@ define(function () {
                 that.onItemDelete(false);
             });
 
+            container.on('dragstart', function (event) {
+
+                window.cnImageServiceDragState = [];
+
+                let data = that.getData();
+                let file = that.getFile();
+
+                window.cnImageServiceDragState.push({
+                    data: data,
+                    file: file,
+                    originalItem: that
+                });
+
+            });
+
             // exclude
             $(window).on(Events.ITEMEXCLUDED, function (event, item) {
                 that.onItemExcluded(item);
@@ -272,9 +287,9 @@ define(function () {
                 // Delete existing already uploaded images
                 item.status = DataModel.statuses.DELETED;
                 var responseEvent = Events.ITEMDELETED;
-            }
-            else {
+            } else {
                 // Delete of images that not been uploaded
+                item.status = DataModel.statuses.ITEMEXCLUDED;
                 var responseEvent = Events.ITEMEXCLUDED;
             }
 
@@ -308,6 +323,7 @@ define(function () {
          * still no other action required
          */
         that.onItemExcluded = function (excludedItem) {
+            excludedItem.status = DataModel.statuses.EXCLUDE;
             return;
         };
 

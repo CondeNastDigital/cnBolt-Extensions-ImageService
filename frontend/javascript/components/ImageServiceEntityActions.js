@@ -31,7 +31,8 @@ define(function () {
                 event.preventDefault();
 
                 if (confirm('Are you sure you want to delete this item from the service?'))
-                    actionDelete.trigger(Events.ITEMDELETE, that.item);
+                    if (confirm("STOP! DANGER!!! \n\n This will lead to broken Image, if the image has been used somewhere else!!!\n\n To Remove the image from the list use the ”-” button. \n\n FOR GLOBAL DELETE press OK. "))
+                        actionDelete.trigger(Events.ITEMDELETE, that.item);
 
             });
 

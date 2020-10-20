@@ -108,6 +108,19 @@ ImageService
     box-sizing: border-box;
 }
 
+.imageservice-entity .drop-target {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background-color: #ffffff99;
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+}
+
 .imageservice-entity.error {
     background-color: #ffaaaa;
 }

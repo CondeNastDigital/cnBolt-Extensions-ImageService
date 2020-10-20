@@ -38,6 +38,12 @@ define(function () {
         that.dirty = false;
 
         /**
+         *
+         * @type {null}
+         */
+        that.dropBefore = null;
+
+        /**
          * jQuery element that hosts the current instance of the service
          * @type {jQuery|HTMLElement}
          */
@@ -91,20 +97,83 @@ define(function () {
             }
 
             // Makes the list sortable
-            if ($.fn.sortable) {
+            /*if ($.fn.sortable) {
                 that.container.sortable({
                     update: that.onListSorted,
                     cancel: '.no-drag'
                 });
-            }
+            }*/
 
             that.dirty = false;
         };
 
         /**
+         *
+          * @param item
+         */
+        that.addDragDropToItem = function(item, index) {
+
+            $(item).children().each((el) => {
+                $(this).find('*').on('dragenter dragleave', (e)=>{e.stopPropagation(); e.preventDefault()})
+            });
+
+            $(item).on('dragenter', function(event){
+
+                let handle = () => {
+                    that.dropBefore = $(item);
+                }
+
+                if(!($(item)[0].dropHint || false)) {
+                    let target = $('<div class="drop-target"> ^^^ Place on Top ^^^ </div>');
+                    $(this).prepend(target);
+                    $(item)[0].dropHint = target;
+                    target.on('dragenter', handle );
+                    target.on('dragleave dragend', () => {
+                        target.remove();
+                        $(item)[0].dropHint = null;
+                    });
+                }
+                handle();
+            });
+
+            $(item).on('dragend drop', function(event){
+                $(item).find('.drop-target').remove();
+                $(item)[0].dropHint = null;
+            });
+
+        }
+
+        /**
          * Registers the listeners
          */
         that.addListeners = function () {
+
+            $(that.host).on('drop', function (event) {
+                event.stopPropagation();
+
+                window.cnImageServiceDragState = window.cnImageServiceDragState || [];
+
+                let item = null;
+                while(item = window.cnImageServiceDragState.pop()) {
+
+                    let position = that.container.children().index(that.dropBefore);
+                    let eventData = {
+                        item: item.originalItem.getData(),
+                        file: item.originalItem.getFile(),
+                        position: position > -1 ? position : null
+                    };
+
+                    $(that.host).trigger(Events.ITEMADDED, eventData);
+                    item.originalItem.onItemDelete(false);
+                    that.dirty = true;
+
+                }
+
+            });
+
+            $(that.host).on('dragend', function(event){
+                $(that.host).find('.drag-target').remove();
+            });
 
             // On list saved
             $(that.host).on(Events.LISTSAVED, function (event, newItems) {
@@ -119,9 +188,11 @@ define(function () {
             // On new item added
             $(that.host).on(Events.ITEMADDED, function (event, data) {
                 if (data.hasOwnProperty('item')) {
+
                     var newItem = that.addItem(
                         data.item,
-                        data.file || null
+                        data.file || null,
+                        data.hasOwnProperty('position') ? data.position : null
                     );
 
                     if (!newItem)
@@ -144,25 +215,6 @@ define(function () {
                 that.dirty = true;
                 that.removeItem(item);
             });
-
-        };
-
-        /**
-         * TODO: Move to a Sorter class
-         * @param event
-         * @param ui
-         */
-        that.onListSorted = function (event, ui) {
-            var ids = that.container.sortable('toArray');
-            var newEntityArray = [];
-
-            that.imageEntities.forEach(function (el) {
-                var newIndex = ids.indexOf(el.getId());
-                newEntityArray[newIndex] = el;
-            });
-
-            that.imageEntities = newEntityArray;
-            that.dirty = true;
 
         };
 
@@ -197,13 +249,14 @@ define(function () {
             }
         };
 
+
         /**
          * Adds a single item to the list
          * @param imageData
          * @param fileData
          * @returns {ImageServiceListItem}
          */
-        that.addItem = function (imageData, fileData) {
+        that.addItem = function (imageData, fileData, position) {
 
             if (imageData.status == Model.statuses.DELETED) {
                 that.container.trigger(Events.MESSAGEWARNING, 'Added image has a delete status');
@@ -224,8 +277,19 @@ define(function () {
                 prefix: that.host.attr('id') + '_' + that.imageEntities.length
             });
 
-            that.imageEntities.push(newEntity);
-            that.container.append(newEntity.render());
+            position = typeof position !== 'undefined' ? position : that.imageEntities.length;
+
+            that.imageEntities.splice(position, 0, newEntity );
+            let target = that.container.children()[position] || null;
+            let entityRender = newEntity.render();
+
+            if(target) {
+                $(entityRender).insertBefore($(target));
+            } else {
+                that.container.append(entityRender);
+            }
+
+            that.addDragDropToItem(entityRender, position);
 
             return newEntity;
 

@@ -3203,6 +3203,12 @@ define('ImageServiceList',[],function () {
         that.dirty = false;
 
         /**
+         *
+         * @type {null}
+         */
+        that.dropBefore = null;
+
+        /**
          * jQuery element that hosts the current instance of the service
          * @type {jQuery|HTMLElement}
          */
@@ -3256,20 +3262,83 @@ define('ImageServiceList',[],function () {
             }
 
             // Makes the list sortable
-            if ($.fn.sortable) {
+            /*if ($.fn.sortable) {
                 that.container.sortable({
                     update: that.onListSorted,
                     cancel: '.no-drag'
                 });
-            }
+            }*/
 
             that.dirty = false;
         };
 
         /**
+         *
+          * @param item
+         */
+        that.addDragDropToItem = function(item, index) {
+
+            $(item).children().each((el) => {
+                $(this).find('*').on('dragenter dragleave', (e)=>{e.stopPropagation(); e.preventDefault()})
+            });
+
+            $(item).on('dragenter', function(event){
+
+                let handle = () => {
+                    that.dropBefore = $(item);
+                }
+
+                if(!($(item)[0].dropHint || false)) {
+                    let target = $('<div class="drop-target"> ^^^ Place on Top ^^^ </div>');
+                    $(this).prepend(target);
+                    $(item)[0].dropHint = target;
+                    target.on('dragenter', handle );
+                    target.on('dragleave dragend', () => {
+                        target.remove();
+                        $(item)[0].dropHint = null;
+                    });
+                }
+                handle();
+            });
+
+            $(item).on('dragend drop', function(event){
+                $(item).find('.drop-target').remove();
+                $(item)[0].dropHint = null;
+            });
+
+        }
+
+        /**
          * Registers the listeners
          */
         that.addListeners = function () {
+            $(that.host).prepend('1');
+            $(that.host).on('drop', function (event) {
+                event.stopPropagation();
+
+                window.cnImageServiceDragState = window.cnImageServiceDragState || [];
+
+                let item = null;
+                while(item = window.cnImageServiceDragState.pop()) {
+
+                    let position = that.container.children().index(that.dropBefore);
+                    let eventData = {
+                        item: item.originalItem.getData(),
+                        file: item.originalItem.getFile(),
+                        position: position > -1 ? position : null
+                    };
+
+                    $(that.host).trigger(Events.ITEMADDED, eventData);
+                    item.originalItem.onItemDelete(false);
+                    that.dirty = true;
+
+                }
+
+            });
+
+            $(that.host).on('dragend', function(event){
+                $(that.host).find('.drag-target').remove();
+            });
 
             // On list saved
             $(that.host).on(Events.LISTSAVED, function (event, newItems) {
@@ -3284,9 +3353,11 @@ define('ImageServiceList',[],function () {
             // On new item added
             $(that.host).on(Events.ITEMADDED, function (event, data) {
                 if (data.hasOwnProperty('item')) {
+
                     var newItem = that.addItem(
                         data.item,
-                        data.file || null
+                        data.file || null,
+                        data.hasOwnProperty('position') ? data.position : null
                     );
 
                     if (!newItem)
@@ -3309,25 +3380,6 @@ define('ImageServiceList',[],function () {
                 that.dirty = true;
                 that.removeItem(item);
             });
-
-        };
-
-        /**
-         * TODO: Move to a Sorter class
-         * @param event
-         * @param ui
-         */
-        that.onListSorted = function (event, ui) {
-            var ids = that.container.sortable('toArray');
-            var newEntityArray = [];
-
-            that.imageEntities.forEach(function (el) {
-                var newIndex = ids.indexOf(el.getId());
-                newEntityArray[newIndex] = el;
-            });
-
-            that.imageEntities = newEntityArray;
-            that.dirty = true;
 
         };
 
@@ -3362,13 +3414,14 @@ define('ImageServiceList',[],function () {
             }
         };
 
+
         /**
          * Adds a single item to the list
          * @param imageData
          * @param fileData
          * @returns {ImageServiceListItem}
          */
-        that.addItem = function (imageData, fileData) {
+        that.addItem = function (imageData, fileData, position) {
 
             if (imageData.status == Model.statuses.DELETED) {
                 that.container.trigger(Events.MESSAGEWARNING, 'Added image has a delete status');
@@ -3389,8 +3442,19 @@ define('ImageServiceList',[],function () {
                 prefix: that.host.attr('id') + '_' + that.imageEntities.length
             });
 
-            that.imageEntities.push(newEntity);
-            that.container.append(newEntity.render());
+            position = typeof position !== 'undefined' ? position : that.imageEntities.length;
+
+            that.imageEntities.splice(position, 0, newEntity );
+            let target = that.container.children()[position] || null;
+            let entityRender = newEntity.render();
+
+            if(target) {
+                $(entityRender).insertBefore($(target));
+            } else {
+                that.container.append(entityRender);
+            }
+
+            that.addDragDropToItem(entityRender, position);
 
             return newEntity;
 
@@ -3697,7 +3761,7 @@ define('ImageServiceListItem',[],function () {
             that.presetImage();
 
             // Loads the standart components
-            container = $('<div id="' + id + '" class="col-xs-12 col-sm-12 col-md-12 imageservice-entity"></div>');
+            container = $('<div draggable="true" id="' + id + '" class="col-xs-12 col-sm-12 col-md-12 imageservice-entity"></div>');
             actions = new Actions({
                 config: {
                     events: Events
@@ -3805,6 +3869,21 @@ define('ImageServiceListItem',[],function () {
                 that.onItemDelete(false);
             });
 
+            container.on('dragstart', function (event) {
+
+                window.cnImageServiceDragState = [];
+
+                let data = that.getData();
+                let file = that.getFile();
+
+                window.cnImageServiceDragState.push({
+                    data: data,
+                    file: file,
+                    originalItem: that
+                });
+
+            });
+
             // exclude
             $(window).on(Events.ITEMEXCLUDED, function (event, item) {
                 that.onItemExcluded(item);
@@ -3861,9 +3940,9 @@ define('ImageServiceListItem',[],function () {
                 // Delete existing already uploaded images
                 item.status = DataModel.statuses.DELETED;
                 var responseEvent = Events.ITEMDELETED;
-            }
-            else {
+            } else {
                 // Delete of images that not been uploaded
+                item.status = DataModel.statuses.ITEMEXCLUDED;
                 var responseEvent = Events.ITEMEXCLUDED;
             }
 
@@ -3897,6 +3976,7 @@ define('ImageServiceListItem',[],function () {
          * still no other action required
          */
         that.onItemExcluded = function (excludedItem) {
+            excludedItem.status = DataModel.statuses.EXCLUDE;
             return;
         };
 
@@ -3977,7 +4057,8 @@ define('ImageServiceEntityAction',[],function () {
                 event.preventDefault();
 
                 if (confirm('Are you sure you want to delete this item from the service?'))
-                    actionDelete.trigger(Events.ITEMDELETE, that.item);
+                    if (confirm("STOP! DANGER!!! \n\n This will lead to broken Image, if the image has been used somewhere else!!!\n\n To Remove the image from the list use the ”-” button. \n\n FOR GLOBAL DELETE press OK. "))
+                        actionDelete.trigger(Events.ITEMDELETE, that.item);
 
             });
 
