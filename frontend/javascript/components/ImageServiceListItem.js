@@ -235,6 +235,8 @@ define(function () {
                     originalItem: that
                 });
 
+                event.originalEvent.dataTransfer.items.add(JSON.stringify(data), 'cnimageservice/json');
+
             });
 
             // exclude
@@ -366,6 +368,8 @@ define(function () {
 
             var previewContainer = $('<div class="col-xs-12 col-sm-3 col-md-3"></div>').append(preview.render());
             var attributesContainer = $('<div class="col-xs-12 col-sm-8 col-md-8"></div>').append(attributes.render());
+
+            attributesContainer.prepend($('<div style="text-align:right; font-size:11px;"> #' + item.id + '</div>'));
 
             container.append(previewContainer);
             container.append(attributesContainer);

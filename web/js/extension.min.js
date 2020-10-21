@@ -3244,7 +3244,7 @@ define('ImageServiceList',[],function () {
          * Resets the content of the list with new content
          * @param newItems
          */
-         that.reset = function (newItems) {
+        that.reset = function (newItems) {
 
             newItems = newItems || [];
 
@@ -3274,7 +3274,7 @@ define('ImageServiceList',[],function () {
 
         /**
          *
-          * @param item
+         * @param item
          */
         that.addDragDropToItem = function(item, index) {
 
@@ -3318,13 +3318,14 @@ define('ImageServiceList',[],function () {
             $(that.host).on('drop', function (event) {
 
                 event.stopPropagation();
+                let eventItem = event.originalEvent.dataTransfer.getData('cnimageservice/json');
 
                 window.cnImageServiceDragState = window.cnImageServiceDragState || [];
+                console.log(eventItem);
+                if(!window.cnImageServiceDragState.length && eventItem) {
 
-                if(!window.cnImageServiceDragState.length) {
-                    let item = event.originalEvent.dataTransfer.getData('cnimageservice/json');
                     window.cnImageServiceDragState.push({
-                        data: JSON.parse(item),
+                        data: JSON.parse(eventItem),
                         file: null,
                         originalItem: null
                     })
@@ -3919,6 +3920,8 @@ define('ImageServiceListItem',[],function () {
                     originalItem: that
                 });
 
+                event.originalEvent.dataTransfer.items.add(JSON.stringify(data), 'cnimageservice/json');
+
             });
 
             // exclude
@@ -4050,6 +4053,8 @@ define('ImageServiceListItem',[],function () {
 
             var previewContainer = $('<div class="col-xs-12 col-sm-3 col-md-3"></div>').append(preview.render());
             var attributesContainer = $('<div class="col-xs-12 col-sm-8 col-md-8"></div>').append(attributes.render());
+
+            attributesContainer.prepend($('<div style="text-align:right; font-size:11px;"> #' + item.id + '</div>'));
 
             container.append(previewContainer);
             container.append(attributesContainer);

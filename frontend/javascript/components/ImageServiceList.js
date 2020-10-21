@@ -79,7 +79,7 @@ define(function () {
          * Resets the content of the list with new content
          * @param newItems
          */
-         that.reset = function (newItems) {
+        that.reset = function (newItems) {
 
             newItems = newItems || [];
 
@@ -109,7 +109,7 @@ define(function () {
 
         /**
          *
-          * @param item
+         * @param item
          */
         that.addDragDropToItem = function(item, index) {
 
@@ -153,13 +153,14 @@ define(function () {
             $(that.host).on('drop', function (event) {
 
                 event.stopPropagation();
+                let eventItem = event.originalEvent.dataTransfer.getData('cnimageservice/json');
 
                 window.cnImageServiceDragState = window.cnImageServiceDragState || [];
+                console.log(eventItem);
+                if(!window.cnImageServiceDragState.length && eventItem) {
 
-                if(!window.cnImageServiceDragState.length) {
-                    let item = event.originalEvent.dataTransfer.getData('cnimageservice/json');
                     window.cnImageServiceDragState.push({
-                        data: JSON.parse(item),
+                        data: JSON.parse(eventItem),
                         file: null,
                         originalItem: null
                     })
