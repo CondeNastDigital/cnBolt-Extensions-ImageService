@@ -148,6 +148,8 @@ define(function () {
          */
         that.addListeners = function () {
 
+            // Drag settings - the standart way didn't work - the files got lost
+            // when transferred between the divs - event problem
             $(that.host).on('drop', function (event) {
 
                 event.stopPropagation();
