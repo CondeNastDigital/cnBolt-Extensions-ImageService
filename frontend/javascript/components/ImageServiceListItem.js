@@ -216,7 +216,13 @@ define(function () {
                 that.onItemDelete(false);
             });
 
+            container.on('dragend', function (event) {
+                container.removeClass('dragged');
+            })
+
             container.on('dragstart', function (event) {
+
+                container.addClass('dragged');
 
                 window.cnImageServiceDragState = [];
 
@@ -332,7 +338,7 @@ define(function () {
          */
         that.hide = function (success) {
             $(container).animate({height: 0, opacity: 0}, 300, function () {
-                $(container).hide();
+                $(container).remove();
                 if (typeof(success) == 'function')
                     success();
             });

@@ -16,6 +16,11 @@ ImageService
     background-color: white;
 }
 
+.imageservice-container.focused {
+    border-width: 5px;
+    border-color: #999999AA;
+}
+
 /* Finder Styling */
 .imageservice-finder {
     box-sizing: border-box;
@@ -129,7 +134,7 @@ ImageService
     background-color: #ffffaa;
 }
 
-.imageservice-entity:nth-child(odd) {
+:not(.hidden).imageservice-entity:nth-child(odd) {
     background-color: #eeeeee;
 }
 

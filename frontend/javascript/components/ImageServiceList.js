@@ -114,10 +114,10 @@ define(function () {
         that.addDragDropToItem = function(item, index) {
 
             $(item).children().each((el) => {
-                $(this).find('*').on('dragenter dragleave', (e)=>{e.stopPropagation(); e.preventDefault()})
+                $(this).find('*').on('dragenter dragover dragleave', (e)=>{e.stopPropagation(); e.preventDefault()})
             });
 
-            $(item).on('dragenter', function(event){
+            $(item).on('dragover', function(event){
 
                 let handle = () => {
                     that.dropBefore = $(item);
@@ -149,6 +149,7 @@ define(function () {
         that.addListeners = function () {
 
             $(that.host).on('drop', function (event) {
+
                 event.stopPropagation();
 
                 window.cnImageServiceDragState = window.cnImageServiceDragState || [];
@@ -163,15 +164,31 @@ define(function () {
                         position: position > -1 ? position : null
                     };
 
-                    $(that.host).trigger(Events.ITEMADDED, eventData);
                     item.originalItem.onItemDelete(false);
-                    that.dirty = true;
+                    $(that.host).trigger(Events.ITEMADDED, eventData);
 
+                    that.dirty = true;
+                    $(that.host).removeClass('focused');
                 }
 
             });
 
+            $(that.host).on('dragover',function(event){
+                $(that.host).addClass('focused');
+                event.preventDefault();
+            });
+
+            $(that.host).on('dragleave',function(event){
+                $(that.host).removeClass('focused');
+                event.preventDefault();
+            });
+
+            $(that.host).on('dragenter',function(event){
+                event.preventDefault();
+            });
+
             $(that.host).on('dragend', function(event){
+                $(that.host).removeClass('focused');
                 $(that.host).find('.drag-target').remove();
             });
 
