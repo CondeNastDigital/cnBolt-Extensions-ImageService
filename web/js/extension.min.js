@@ -3313,27 +3313,41 @@ define('ImageServiceList',[],function () {
          */
         that.addListeners = function () {
 
+            // Drag settings - the standart way didn't work - the files got lost
+            // when transferred between the divs - event problem
             $(that.host).on('drop', function (event) {
 
                 event.stopPropagation();
 
                 window.cnImageServiceDragState = window.cnImageServiceDragState || [];
 
+                if(!window.cnImageServiceDragState.length) {
+                    let item = event.originalEvent.dataTransfer.getData('cnimageservice/json');
+                    window.cnImageServiceDragState.push({
+                        data: JSON.parse(item),
+                        file: null,
+                        originalItem: null
+                    })
+                }
+
                 let item = null;
                 while(item = window.cnImageServiceDragState.pop()) {
 
                     let position = that.container.children().index(that.dropBefore);
                     let eventData = {
-                        item: item.originalItem.getData(),
-                        file: item.originalItem.getFile(),
+                        item: item.data,
+                        file: item.file,
                         position: position > -1 ? position : null
                     };
 
-                    item.originalItem.onItemDelete(false);
+                    if(item.originalItem) {
+                        item.originalItem.onItemDelete(false);
+                    }
+
                     $(that.host).trigger(Events.ITEMADDED, eventData);
+                    $(that.host).removeClass('focused');
 
                     that.dirty = true;
-                    $(that.host).removeClass('focused');
                 }
 
             });
@@ -4080,7 +4094,7 @@ define('ImageServiceEntityAction',[],function () {
                 event.preventDefault();
 
                 if (confirm('Are you sure you want to delete this item from the service?'))
-                    if (confirm("STOP! DANGER!!! \n\n This will lead to broken Image, if the image has been used somewhere else!!!\n\n To Remove the image from the list use the ”-” button. \n\n FOR GLOBAL DELETE press OK. "))
+                    if (confirm("STOP! DANGER!!! \n\n This can lead to broken Images, if the deleted image has already been used somewhere else!!!\n\n To exclude the image from the list, without deleteing the source image, use the ”-” button. \n\n FOR GLOBAL DELETE press OK. "))
                         actionDelete.trigger(Events.ITEMDELETE, that.item);
 
             });
