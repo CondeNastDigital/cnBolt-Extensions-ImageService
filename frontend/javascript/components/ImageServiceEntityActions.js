@@ -31,7 +31,7 @@ define(function () {
                 event.preventDefault();
 
                 if (confirm('Are you sure you want to delete this item from the service?'))
-                    if (confirm("STOP! DANGER!!! \n\n This will lead to broken Image, if the image has been used somewhere else!!!\n\n To Remove the image from the list use the ”-” button. \n\n FOR GLOBAL DELETE press OK. "))
+                    if (confirm("STOP! DANGER!!! \n\n This can lead to broken Images, if the deleted image has already been used somewhere else!!!\n\n To exclude the image from the list, without deleteing the source image, use the ”-” button. \n\n FOR GLOBAL DELETE press OK. "))
                         actionDelete.trigger(Events.ITEMDELETE, that.item);
 
             });
