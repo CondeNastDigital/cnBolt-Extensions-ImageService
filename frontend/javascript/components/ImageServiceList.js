@@ -156,21 +156,33 @@ define(function () {
 
                 window.cnImageServiceDragState = window.cnImageServiceDragState || [];
 
+                if(!window.cnImageServiceDragState.length) {
+                    let item = event.originalEvent.dataTransfer.getData('cnimageservice/json');
+                    window.cnImageServiceDragState.push({
+                        data: JSON.parse(item),
+                        file: null,
+                        originalItem: null
+                    })
+                }
+
                 let item = null;
                 while(item = window.cnImageServiceDragState.pop()) {
 
                     let position = that.container.children().index(that.dropBefore);
                     let eventData = {
-                        item: item.originalItem.getData(),
-                        file: item.originalItem.getFile(),
+                        item: item.data,
+                        file: item.file,
                         position: position > -1 ? position : null
                     };
 
-                    item.originalItem.onItemDelete(false);
+                    if(item.originalItem) {
+                        item.originalItem.onItemDelete(false);
+                    }
+
                     $(that.host).trigger(Events.ITEMADDED, eventData);
+                    $(that.host).removeClass('focused');
 
                     that.dirty = true;
-                    $(that.host).removeClass('focused');
                 }
 
             });
