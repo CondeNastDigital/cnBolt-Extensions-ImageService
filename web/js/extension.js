@@ -3986,9 +3986,8 @@ define('ImageServiceListItem',[],function () {
                 var responseEvent = Events.ITEMEXCLUDED;
             }
 
-            that.hide(function () {
-                container.trigger(responseEvent, that);
-            });
+            that.hide(function () {});
+            container.trigger(responseEvent, that);
 
         };
 
