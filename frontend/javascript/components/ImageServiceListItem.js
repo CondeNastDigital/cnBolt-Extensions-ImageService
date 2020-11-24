@@ -273,12 +273,7 @@ define(function () {
                 item.attributes = {};
             }
         };
-        
-        that.onDragend  = function(){
-            container.removeClass('dragged');
-            window.cnImageServiceDragState = [];
-        }
-        
+
         /**
          * Code to execute on data update
          * @param event
