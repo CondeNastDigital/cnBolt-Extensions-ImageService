@@ -350,7 +350,7 @@ define(['scribe', 'scribe-plugin-toolbar', 'scribe-plugin-cn-link-create', 'scri
                     that.value = scribe.getHTML();
 
                     // go around for a stupig skribe bug
-                    if(that.value == "<p><br></p>") {
+                    if(that.value.match(/^\s*\<p\>\s*\<br\/?\>\s*\<\/p\>\s*$/)) {
                         that.value = "";
                     }
 
