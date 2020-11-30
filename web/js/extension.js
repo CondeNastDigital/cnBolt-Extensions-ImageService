@@ -6697,7 +6697,7 @@ define('ImageServiceAttribute',['scribe', 'scribe-plugin-toolbar', 'scribe-plugi
                     that.value = scribe.getHTML();
 
                     // go around for a stupig skribe bug
-                    if(that.value == "<p><br></p>") {
+                    if(that.value.match(/^\s*\<p\>\s*\<br\/?\>\s*\<\/p\>\s*$/)) {
                         that.value = "";
                     }
 
