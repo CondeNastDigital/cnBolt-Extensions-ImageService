@@ -414,3 +414,8 @@ ImageService
     padding: 6px;
     font-weight: bold;
 }
+
+.imageservice-container [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+}
